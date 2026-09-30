@@ -4,11 +4,11 @@
 
 ## Status and boundaries
 
-The current release is a **reference contract and an offline validator**, not a running synchronization service or a verified POS integration. Implementation claims must be backed by local tests, and vendor compatibility must be demonstrated with authorized test credentials outside the public repository.
+The current state consists of **reference contracts, an offline validator, and an experimental read-only Loyverse transport**. It is not a running synchronization service, a canonical Loyverse normalizer, or a verified OpenRetailSchema POS integration. The Loyverse client has synthetic-response tests; independent live certification remains pending. Implementation claims must be backed by local tests, and vendor compatibility must be demonstrated with authorized test credentials outside the public repository.
 
 ## Data flow
 
-1. **Connector:** retrieves or receives data using only verified provider interfaces and declares its capabilities.
+1. **Connector:** retrieves or receives data using documented provider interfaces and declares individual supported capabilities. The initial Loyverse GET transport is experimental and yields raw dictionaries; it does not currently output canonical records.
 2. **Raw store (planned):** retains a source payload securely, with strict access controls and retention rules. Raw payloads must never be committed here.
 3. **Normalizer (planned):** maps supported source fields into canonical records; unknowns remain unknown.
 4. **Validator (available):** validates canonical JSON records using the versioned schema.
