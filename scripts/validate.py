@@ -34,6 +34,14 @@ def semantic_errors(document: object) -> list[str]:
     for field in ("occurred_at", "interval_start", "interval_end"):
         if field in document and not _has_explicit_offset(document[field]):
             errors.append(f"{field}: date-time must include Z or an explicit UTC offset")
+    if document.get("entity_type") == "activity_metric":
+        start = document.get("interval_start")
+        end = document.get("interval_end")
+        if _has_explicit_offset(start) and _has_explicit_offset(end):
+            start_instant = datetime.fromisoformat(start.replace("Z", "+00:00"))
+            end_instant = datetime.fromisoformat(end.replace("Z", "+00:00"))
+            if end_instant <= start_instant:
+                errors.append("interval_end: must represent an instant after interval_start")
     return errors
 
 
