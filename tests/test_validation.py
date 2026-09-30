@@ -25,6 +25,12 @@ class SchemaValidationTests(unittest.TestCase):
     def test_valid_activity_metric(self):
         self.assertEqual(self.run_validator("valid_activity_metric.json").returncode, 0)
 
+    def test_valid_refund_with_positive_source_quantity(self):
+        self.assertEqual(self.run_validator("valid_refund.json").returncode, 0)
+
+    def test_missing_product_price_remains_unset(self):
+        self.assertEqual(self.run_validator("valid_product_missing_price.json").returncode, 0)
+
     def test_invalid_floating_point_money(self):
         result = self.run_validator("invalid_sale_float.json")
         self.assertEqual(result.returncode, 1)
