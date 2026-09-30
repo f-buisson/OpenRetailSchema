@@ -1,0 +1,16 @@
+{
+  "schema_version": "0.1.0",
+  "entity_type": "product",
+  "id": "csv:product_001",
+  "source": {
+    "provider": "csv",
+    "external_id": "product_001"
+  },
+  "store_id": "store_demo",
+  "sku": "SKU-001",
+  "name": "Synthetic sample item",
+  "sale_price": {
+    "amount": "2.49",
+    "currency": "EUR"
+  }
+}
