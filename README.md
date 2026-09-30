@@ -31,7 +31,7 @@ OpenRetailSchema is an independent open-source project, designed to support any 
 | Stage | Focus | Status |
 | --- | --- | --- |
 | Foundation | Public specification, schemas, fixtures, local validation | In progress |
-| Generic import | Configurable CSV mapping, deterministic normalization | Planned |
+| Generic import | Local product CSV adapter with explicit mapping, canonical validation, atomic output and synthetic tests | Experimental; products only |
 | Loyverse | Experimental Python read-only client and synthetic tests; independently validate against an authorized live account and assess OAuth | Experimental |
 | StoreLine | Adapter only for an interface whose availability and authorization have been verified | Research |
 | Ecosystem | SDKs, optional service API, community connectors | Future |
@@ -43,6 +43,8 @@ See the [roadmap](docs/ROADMAP.md) for acceptance criteria. A POS is only listed
 - [French overview / Présentation en français](docs/fr/README.md)
 - [POS integration registry, tested evidence and contribution requests](docs/POS_INTEGRATIONS.md)
 - [Experimental Loyverse token transport](connectors/README.md)
+- [Local product CSV importer with reproducible example](docs/CSV_IMPORT.md)
+- [Guide CSV en français](docs/fr/CSV.md)
 - [French POS contribution overview / Intégrations POS en français](docs/fr/POS.md)
 - [Architecture and source-data principles](docs/ARCHITECTURE.md)
 - [Roadmap](docs/ROADMAP.md)
