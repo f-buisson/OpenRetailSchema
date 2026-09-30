@@ -25,7 +25,7 @@ Nous recherchons de la [documentation officielle, des correspondances de champs 
 
 1. Contrat JSON commun et validation locale.
 2. Import CSV générique.
-3. Connecteur Loyverse en lecture seule.
+3. Lecteur Loyverse expérimental en lecture seule déjà ajouté, avec tests synthétiques ; validation indépendante sur compte autorisé encore nécessaire.
 4. Étude d’un connecteur StoreLine sur la base d’interfaces effectivement accessibles et autorisées.
 5. SDK, API facultative et contributions de la communauté.
 
