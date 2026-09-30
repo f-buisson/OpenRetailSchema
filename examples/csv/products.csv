@@ -1,0 +1,4 @@
+reference;label;sku;barcode;gross_unit_price
+P100;Synthetic apples;00042;000123450001;2,49
+P101;Synthetic item without supplier price;00043;;
+P102;Synthetic complimentary item;00044;;0,00
