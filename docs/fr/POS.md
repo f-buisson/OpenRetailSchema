@@ -17,6 +17,9 @@ Nous recherchons des informations **publiques et légalement partageables** sur 
 - [Square](https://developer.squareup.com/reference/square) : catalogues, commandes, stocks et autorisations.
 - [Shopify](https://shopify.dev/docs/api/admin-graphql/latest) : données POS accessibles depuis l'API Admin, autorisations et pagination.
 - [Lightspeed Retail X-Series](https://x-series-api.lightspeedhq.com/docs/introduction) : méthodes d'autorisation et limites d'accès.
+- [Clover](https://docs.clover.com/dev/docs/making-rest-api-calls) : API REST, sandbox et autorisations OAuth.
+- [Odoo](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html) : API externe JSON-2 (selon la formule d'abonnement et les modèles accessibles).
+- [Epos Now](https://developer.eposnowhq.com/Docs/Authentication) : documentation d'authentification des appareils/API.
 - **StoreLine / NCR Voyix** : documentation vérifiable ou description d'export autorisé ; ne pas présumer une API StoreLine publique.
 - Tout autre POS disposant d'une API ou d'un export CSV documenté.
 
