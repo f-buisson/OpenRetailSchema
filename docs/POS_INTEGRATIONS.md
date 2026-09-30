@@ -19,7 +19,7 @@ These references describe vendor platforms, not partnerships or endorsements. No
 
 ## Evidence: existing Loyverse token integration
 
-A separate F-Buisson retail application was exercised against a **real Loyverse account**, using a temporary read-only test token, on **2026-09-29**. The exercised resources were `/variants`, `/items`, `/inventory`, `/taxes`, `/stores` and `/merchant`. The test read 43 products and 43 variants and confirmed that catalog sync and incremental re-reading work. This is **evidence that a token-based Loyverse API connection works**, not a claim that the connector in this repository has already been certified or that the vendor endorses this project.
+A separate F-Buisson retail application was exercised against a **real Loyverse account**, using a temporary personal access token **exclusively for read operations** (the token itself was high-privilege), on **2026-09-29**. The exercised resources were `/variants`, `/items`, `/inventory`, `/taxes`, `/stores` and `/merchant`. The test read 43 products and 43 variants and confirmed that catalog sync and incremental re-reading work. This is **evidence that a token-based Loyverse API connection works**, not a claim that the connector in this repository has already been certified or that the vendor endorses this project.
 
 Crucial observed behaviors that OpenRetailSchema must preserve in regression tests:
 
