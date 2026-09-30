@@ -1,0 +1,29 @@
+{
+  "schema_version": "0.1.0",
+  "entity_type": "sale",
+  "id": "loyverse:receipt_001",
+  "source": {
+    "provider": "loyverse",
+    "external_id": "receipt_001",
+    "observed_at": "2026-09-30T08:00:00+02:00",
+    "raw_ref": "local://synthetic/receipt_001.json"
+  },
+  "store_id": "store_demo",
+  "occurred_at": "2026-09-29T14:15:00+02:00",
+  "sale_kind": "sale",
+  "lines": [
+    {
+      "id": "line_001",
+      "source_product_id": "item_001",
+      "quantity": "2",
+      "gross_total": {
+        "amount": "4.98",
+        "currency": "EUR"
+      }
+    }
+  ],
+  "gross_total": {
+    "amount": "4.98",
+    "currency": "EUR"
+  }
+}
