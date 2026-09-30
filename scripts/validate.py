@@ -47,7 +47,11 @@ def main(argv=None) -> int:
         return 2
 
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
-    return 0 if all(validate_file(path, validator) for path in args.documents) else 1
+    success = True
+    for document in args.documents:
+        if not validate_file(document, validator):
+            success = False
+    return 0 if success else 1
 
 
 if __name__ == "__main__":
