@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/f-buisson/OpenRetailSchema/main/schemas/v0.1/record.schema.json",
+  "title": "OpenRetailSchema canonical record v0.1.0",
+  "description": "Experimental, vendor-neutral record contracts; fields are not silently inferred from missing POS data.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/sale"
+    },
+    {
+      "$ref": "#/$defs/product"
+    },
+    {
+      "$ref": "#/$defs/activity_metric"
+    }
+  ],
+  "$defs": {
+    "money": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "amount",
+        "currency"
+      ],
+      "properties": {
+        "amount": {
+          "type": "string",
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "external_id"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Vendor identifier (or csv)."
+        },
+        "external_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Opaque identifier in the source system."
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "raw_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Non-sensitive reference to stored raw data, never an embedded payload."
+        }
+      }
+    },
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "quantity"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "product_id"
+          ]
+        },
+        {
+          "required": [
+            "source_product_id"
+          ]
+        }
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "product_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_product_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+        },
+        "gross_total": {
+          "$ref": "#/$defs/money"
+        },
+        "extensions": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-z][a-z0-9_-]*:[a-zA-Z0-9_.-]+$": {}
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+    "sale": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "entity_type",
+        "id",
+        "source",
+        "store_id",
+        "occurred_at",
+        "sale_kind",
+        "lines"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "entity_type": {
+          "const": "sale"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "extensions": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-z][a-z0-9_-]*:[a-zA-Z0-9_.-]+$": {}
+          },
+          "additionalProperties": false
+        },
+        "store_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sale_kind": {
+          "enum": [
+            "sale",
+            "refund"
+          ]
+        },
+        "lines": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/line"
+          }
+        },
+        "gross_total": {
+          "$ref": "#/$defs/money"
+        },
+        "net_total": {
+          "$ref": "#/$defs/money"
+        },
+        "tax_total": {
+          "$ref": "#/$defs/money"
+        }
+      }
+    },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "entity_type",
+        "id",
+        "source",
+        "name"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "entity_type": {
+          "const": "product"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "extensions": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-z][a-z0-9_-]*:[a-zA-Z0-9_.-]+$": {}
+          },
+          "additionalProperties": false
+        },
+        "store_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sku": {
+          "type": "string",
+          "minLength": 1
+        },
+        "barcode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sale_price": {
+          "$ref": "#/$defs/money"
+        },
+        "active": {
+          "type": "boolean"
+        }
+      }
+    },
+    "activity_metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "entity_type",
+        "id",
+        "source",
+        "store_id",
+        "interval_start",
+        "interval_end",
+        "metrics"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "0.1.0"
+        },
+        "entity_type": {
+          "const": "activity_metric"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "extensions": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-z][a-z0-9_-]*:[a-zA-Z0-9_.-]+$": {}
+          },
+          "additionalProperties": false
+        },
+        "store_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interval_start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "interval_end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "store_timezone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "gross_revenue": {
+              "$ref": "#/$defs/money"
+            },
+            "transaction_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "item_quantity": {
+              "type": "string",
+              "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+            }
+          }
+        }
+      }
+    }
+  }
+}
