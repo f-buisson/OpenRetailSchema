@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1.0",
+  "entity_type": "activity_metric",
+  "id": "synthetic:dst-fallback",
+  "source": {"provider": "synthetic", "external_id": "dst-fallback"},
+  "store_id": "store_demo",
+  "interval_start": "2026-10-25T02:45:00+02:00",
+  "interval_end": "2026-10-25T02:15:00+01:00",
+  "store_timezone": "Europe/Paris",
+  "metrics": {"transaction_count": 1}
+}
