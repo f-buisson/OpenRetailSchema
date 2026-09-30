@@ -17,11 +17,14 @@ The roadmap defines **acceptance criteria**, not completion dates. Features are 
 
 ## Generic CSV import
 
-- [ ] Define a declarative CSV column-mapping contract with explicit required fields.
-- [ ] Handle encodings, field separators, decimal and date formats without guessing.
-- [ ] Emit provenance-rich canonical records and actionable row-level errors.
-- [ ] Validate duplicate imports, bad rows, missing fields, partial totals and timezones.
-- [ ] Document a fully reproducible local import.
+- [x] Define an explicit, versioned CSV mapping for **product** records, with source provenance and deterministic IDs.
+- [x] Handle explicit UTF-8 encodings, field separators and decimal separators for product imports, without guessing.
+- [ ] Define date/timezone mapping for subsequent sales and activity imports.
+- [x] Emit schema-validated canonical product records and sanitized, row-numbered rejection codes.
+- [x] Detect duplicate product IDs within a file, bad rows and missing fields; reject incomplete imports by default.
+- [ ] Test repeated imports against persistent storage; handle partial sales totals and timezone/DST edges in future sales imports.
+- [x] Document a [reproducible local product import](CSV_IMPORT.md), including fabricated CSV and mapping examples.
+- [ ] Execute the nine new CSV regression tests against a fresh checkout of the exact GitHub repository before calling the feature release-ready.
 
 ## Loyverse
 
