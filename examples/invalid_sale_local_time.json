@@ -1,0 +1,10 @@
+{
+  "schema_version": "0.1.0",
+  "entity_type": "sale",
+  "id": "synthetic:invalid-local-time",
+  "source": {"provider": "synthetic", "external_id": "invalid-local-time"},
+  "store_id": "synthetic_store",
+  "occurred_at": "2026-10-25T02:15:00",
+  "sale_kind": "sale",
+  "lines": [{"id": "line-001", "source_product_id": "synthetic-product", "quantity": "1"}]
+}
