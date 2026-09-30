@@ -39,6 +39,18 @@ class SchemaValidationTests(unittest.TestCase):
     def test_missing_file_returns_failure(self):
         self.assertEqual(self.run_validator("missing.json").returncode, 1)
 
+    def test_multiple_files_are_all_validated(self):
+        result = subprocess.run(
+            [sys.executable, str(VALIDATOR), str(SAMPLES / "missing.json"),
+             str(SAMPLES / "invalid_sale_float.json"), str(SAMPLES / "valid_product.json")],
+            capture_output=True, text=True, check=False,
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("missing.json", result.stderr)
+        self.assertIn("invalid_sale_float.json", result.stderr)
+        self.assertIn("PASS", result.stdout)
+        self.assertIn("valid_product.json", result.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
