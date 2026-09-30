@@ -1,0 +1,21 @@
+{
+  "schema_version": "0.1.0",
+  "entity_type": "activity_metric",
+  "id": "csv:metric_001",
+  "source": {
+    "provider": "csv",
+    "external_id": "metric_001"
+  },
+  "store_id": "store_demo",
+  "interval_start": "2026-09-29T10:00:00+02:00",
+  "interval_end": "2026-09-29T10:15:00+02:00",
+  "store_timezone": "Europe/Paris",
+  "metrics": {
+    "gross_revenue": {
+      "amount": "1842.56",
+      "currency": "EUR"
+    },
+    "transaction_count": 67,
+    "item_quantity": "231"
+  }
+}
