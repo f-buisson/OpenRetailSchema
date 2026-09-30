@@ -11,7 +11,8 @@ The roadmap defines **acceptance criteria**, not completion dates. Features are 
 - [x] Synthetic valid and invalid fixtures.
 - [x] Offline JSON Schema validator and local regression tests.
 - [ ] Document schema compatibility rules and add targeted edge-case fixtures (tax ambiguity, returns, incomplete prices, timezone offsets).
-- [ ] Select and publish an open-source license with owner approval.
+- [x] Publish the Apache 2.0 license with owner approval.
+- [x] Publish a POS evidence registry and safe issue form for external connector proposals.
 - [ ] Release/tag v0.1 once acceptance tests pass.
 
 ## Generic CSV import
@@ -24,7 +25,8 @@ The roadmap defines **acceptance criteria**, not completion dates. Features are 
 
 ## Loyverse
 
-- [ ] Check current official API documentation, scopes and rate limits before implementation.
+- [x] Review official Loyverse API documentation and existing real-account token test findings (separate product; see the [integration registry](POS_INTEGRATIONS.md)).
+- [ ] Independently implement and validate a read-only token client in this repository, using synthetic fixtures first.
 - [ ] Document actual read capabilities and unsupported features.
 - [ ] Implement read-only pagination, safe retries and incremental checkpoints.
 - [ ] Validate authorized synthetic or sanitized test data end to end.
@@ -41,7 +43,7 @@ The roadmap defines **acceptance criteria**, not completion dates. Features are 
 - [ ] Versioned connector interface and reference connector.
 - [ ] Public architecture and migration guarantees.
 - [ ] Optional service API and client SDKs based on demonstrated consumer demand.
-- [ ] More POS adapters proposed with evidence and maintainers.
+- [ ] More POS adapters proposed with evidence and maintainers. The public [integration registry](POS_INTEGRATIONS.md) includes official documentation leads.
 
 ## Non-goals for the first release
 
