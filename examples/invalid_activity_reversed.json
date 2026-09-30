@@ -1,0 +1,11 @@
+{
+  "schema_version": "0.1.0",
+  "entity_type": "activity_metric",
+  "id": "synthetic:reversed-interval",
+  "source": {"provider": "synthetic", "external_id": "reversed-interval"},
+  "store_id": "store_demo",
+  "interval_start": "2026-09-30T12:30:00+02:00",
+  "interval_end": "2026-09-30T12:15:00+02:00",
+  "store_timezone": "Europe/Paris",
+  "metrics": {"transaction_count": 1}
+}
