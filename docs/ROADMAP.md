@@ -26,7 +26,8 @@ The roadmap defines **acceptance criteria**, not completion dates. Features are 
 ## Loyverse
 
 - [x] Review official Loyverse API documentation and existing real-account token test findings (separate product; see the [integration registry](POS_INTEGRATIONS.md)).
-- [ ] Independently implement and validate a read-only token client in this repository, using synthetic fixtures first.
+- [x] Implement an experimental read-only Loyverse transport with injected synthetic-response regression tests.
+- [ ] Execute the full regression suite and independently validate the OpenRetailSchema transport on an authorized live test account (separate-product tests do not count).
 - [ ] Document actual read capabilities and unsupported features.
 - [ ] Implement read-only pagination, safe retries and incremental checkpoints.
 - [ ] Validate authorized synthetic or sanitized test data end to end.
@@ -43,7 +44,8 @@ The roadmap defines **acceptance criteria**, not completion dates. Features are 
 - [ ] Versioned connector interface and reference connector.
 - [ ] Public architecture and migration guarantees.
 - [ ] Optional service API and client SDKs based on demonstrated consumer demand.
-- [ ] More POS adapters proposed with evidence and maintainers. The public [integration registry](POS_INTEGRATIONS.md) includes official documentation leads.
+- [x] Open a community [POS documentation and synthetic-mapping request](https://github.com/f-buisson/OpenRetailSchema/issues/1).
+- [ ] Deliver other POS adapters backed by evidence and maintainers. The public [integration registry](POS_INTEGRATIONS.md) includes official documentation leads.
 
 ## Non-goals for the first release
 
