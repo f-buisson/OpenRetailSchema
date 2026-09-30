@@ -1,6 +1,6 @@
 # POS integration registry
 
-[Home](../README.md) · [Contribute a POS](../CONTRIBUTING.md) · [Version roadmap](ROADMAP.md) · [Français](fr/POS.md)
+[Home](../README.md) · [Contribute a POS](../CONTRIBUTING.md) · [Public SDKs and test-data research](EXTERNAL_REFERENCES.md) · [Version roadmap](ROADMAP.md) · [Français](fr/POS.md)
 
 **Capability and evidence status are separate.** An official API existing, an API being exercised in another application, and an OpenRetailSchema connector being released are three different claims.
 
