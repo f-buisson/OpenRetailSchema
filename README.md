@@ -1,12 +1,12 @@
 # OpenRetailSchema
 
-[Français](docs/fr/README.md) · [Project roadmap](docs/ROADMAP.md) · [Contributing](CONTRIBUTING.md)
+[Français](docs/fr/README.md) · [POS integrations](docs/POS_INTEGRATIONS.md) · [Project roadmap](docs/ROADMAP.md) · [Contributing](CONTRIBUTING.md) · [Apache 2.0](LICENSE)
 
 **Open, vendor-neutral retail data models and an extensible foundation for point-of-sale integrations.**
 
 OpenRetailSchema aims to make it easier for applications to work with different POS systems without implementing a separate data model for every vendor. The project defines canonical contracts, preserves source provenance, and provides room for independent, capability-based connectors.
 
-> **Status: early development.** The initial schemas are a starting contract, not a claim of production readiness. No live POS integration is certified yet.
+> **Status: early development.** The initial schemas are a starting contract, not a claim of production readiness. An authorized Loyverse personal-token catalog integration **has been tested in a separate F-Buisson product**, but no live OpenRetailSchema POS connector is certified yet. [See the exact evidence and integration registry.](docs/POS_INTEGRATIONS.md)
 
 ## What belongs here
 
@@ -32,7 +32,7 @@ OpenRetailSchema is an independent open-source project, designed to support any 
 | --- | --- | --- |
 | Foundation | Public specification, schemas, fixtures, local validation | In progress |
 | Generic import | Configurable CSV mapping, deterministic normalization | Planned |
-| Loyverse | Read-only connector with documented capabilities and safe incremental synchronization | Planned |
+| Loyverse | Start from previously verified token-based read behavior, then independently validate this project's connector and assess OAuth | Planned |
 | StoreLine | Adapter only for an interface whose availability and authorization have been verified | Research |
 | Ecosystem | SDKs, optional service API, community connectors | Future |
 
@@ -41,11 +41,15 @@ See the [roadmap](docs/ROADMAP.md) for acceptance criteria. A POS is only listed
 ## Documentation
 
 - [French overview / Présentation en français](docs/fr/README.md)
+- [POS integration registry, tested evidence and contribution requests](docs/POS_INTEGRATIONS.md)
+- [French POS contribution overview / Intégrations POS en français](docs/fr/POS.md)
 - [Architecture and source-data principles](docs/ARCHITECTURE.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)
 
 ## Community and security
+
+**Help us support other POS systems:** [propose an integration](https://github.com/f-buisson/OpenRetailSchema/issues/new/choose) and share public API documentation, verified capabilities and fabricated sample responses. Square, Shopify, Lightspeed, StoreLine export formats and other vendors are all welcome; see the [evidence registry](docs/POS_INTEGRATIONS.md). **Do not send credentials or real store exports.**
 
 Issues and pull requests are welcome, particularly schema design reviews and reproducible synthetic vendor samples. See [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a connector. Do not post access tokens or real customer transaction data in issues.
 
@@ -53,4 +57,4 @@ This repository does not require GitHub Actions. Validation may be run locally w
 
 ---
 
-Maintained by [F-Buisson](https://f-buisson.com). The project is independent of any POS vendor.
+Maintained by [F-Buisson](https://f-buisson.com). Licensed under [Apache License 2.0](LICENSE). The project is independent of any POS vendor.
