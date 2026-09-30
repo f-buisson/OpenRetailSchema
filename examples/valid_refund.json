@@ -1,0 +1,28 @@
+{
+  "schema_version": "0.1.0",
+  "entity_type": "sale",
+  "id": "loyverse:synthetic_refund_001",
+  "source": {
+    "provider": "loyverse",
+    "external_id": "synthetic_refund_001",
+    "observed_at": "2026-09-30T08:00:00+02:00"
+  },
+  "store_id": "synthetic_store",
+  "occurred_at": "2026-09-28T22:40:00+07:00",
+  "sale_kind": "refund",
+  "lines": [
+    {
+      "id": "refund_line_001",
+      "source_product_id": "synthetic_variant_001",
+      "quantity": "2",
+      "gross_total": {
+        "amount": "4.98",
+        "currency": "THB"
+      }
+    }
+  ],
+  "gross_total": {
+    "amount": "4.98",
+    "currency": "THB"
+  }
+}
