@@ -1,12 +1,12 @@
 # OpenRetailSchema — présentation
 
-[English (canonical documentation)](../../README.md) · [Architecture (EN)](../ARCHITECTURE.md) · [Roadmap (EN)](../ROADMAP.md) · [Contribuer (EN)](../../CONTRIBUTING.md)
+[English (canonical documentation)](../../README.md) · [Intégrations POS et contributions](POS.md) · [Architecture (EN)](../ARCHITECTURE.md) · [Roadmap (EN)](../ROADMAP.md) · [Contribuer (EN)](../../CONTRIBUTING.md) · [Apache 2.0](../../LICENSE)
 
 **Un schéma commun, indépendant des éditeurs, pour faciliter l’intégration des logiciels de caisse (POS).**
 
 OpenRetailSchema vise à permettre à plusieurs applications d’exploiter les données de différents POS sans réécrire à chaque fois toutes les correspondances de données. Le standard est public et le projet est destiné aux développeurs extérieurs comme aux produits F-Buisson.
 
-**État : développement initial.** Les premiers contrats concernent les ventes, les produits et les indicateurs agrégés d’activité. Le validateur fonctionne localement ; aucun connecteur POS réel n’est encore certifié.
+**État : développement initial.** Les premiers contrats concernent les ventes, les produits et les indicateurs agrégés d’activité. Le validateur fonctionne localement ; aucun connecteur POS réel n’est encore certifié **dans ce dépôt**. Une connexion Loyverse par jeton a cependant été éprouvée sur un vrai compte dans un autre logiciel F-Buisson : [preuves et limites documentées](POS.md).
 
 ### Principes
 
@@ -16,6 +16,10 @@ OpenRetailSchema vise à permettre à plusieurs applications d’exploiter les d
 - Maintenir des schémas versionnés et des exemples synthétiques reproductibles.
 - Construire les connecteurs progressivement, en annonçant les capacités réellement vérifiées.
 - Préserver la confidentialité des données et des identifiants des magasins.
+
+### Participer
+
+Nous recherchons de la [documentation officielle, des correspondances de champs et des exemples fictifs](POS.md) pour d'autres POS. Ne publiez jamais de jeton, d'export réel ou de données clients dans une issue.
 
 ### Premières étapes
 
