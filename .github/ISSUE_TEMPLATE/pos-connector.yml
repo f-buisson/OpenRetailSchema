@@ -1,0 +1,75 @@
+name: POS connector proposal
+description: Propose a documented POS adapter or generic export mapping without sharing private data.
+title: "[POS] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping extend OpenRetailSchema. Share **public documentation and synthetic fixtures only**.
+        Never paste access tokens, API secrets, personal/customer/employee data, private SDKs, or unredacted vendor exports.
+        Please confirm permission to share anything submitted.
+  - type: input
+    id: provider
+    attributes:
+      label: POS provider and product
+      description: Include the exact product/edition. API availability can vary by plan.
+      placeholder: Example POS, Retail Edition
+    validations:
+      required: true
+  - type: input
+    id: official_docs
+    attributes:
+      label: Official publicly accessible API or export documentation
+      description: Official URL if public; otherwise explain at a high level without reproducing restricted material.
+      placeholder: https://vendor.example/developers/api
+    validations:
+      required: true
+  - type: dropdown
+    id: evidence
+    attributes:
+      label: What can you verify?
+      options:
+        - Public documentation only
+        - Synthetic fixture and public documentation
+        - Tested on an authorized account (results only, no private data)
+        - CSV export specification
+        - Other or not yet known
+    validations:
+      required: true
+  - type: textarea
+    id: capabilities
+    attributes:
+      label: Available read capabilities
+      description: Mark each as confirmed, conditional, unavailable or unknown.
+      placeholder: "Products: confirmed. Sales: conditional. Staff scheduling: not available."
+    validations:
+      required: true
+  - type: textarea
+    id: transport
+    attributes:
+      label: Authorization, pagination and access restrictions
+      description: Discuss published auth methods, scopes, quotas, plan limitations and webhook support without credentials.
+    validations:
+      required: false
+  - type: textarea
+    id: mapping
+    attributes:
+      label: Mapping and semantic pitfalls
+      description: Especially currencies, tax inclusion, missing costs, refunds, timezones, reference IDs and incremental updates.
+    validations:
+      required: false
+  - type: textarea
+    id: synthetic
+    attributes:
+      label: Synthetic example or proposed test coverage
+      description: Include small **fabricated** records only, or propose the tests that would verify a connector.
+    validations:
+      required: false
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Contribution safety
+      options:
+        - label: I have not included credentials, sensitive information or unredacted data, and may share the material I provided.
+          required: true
