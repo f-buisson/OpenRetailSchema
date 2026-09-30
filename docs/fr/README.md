@@ -1,6 +1,6 @@
 # OpenRetailSchema — présentation
 
-[English (canonical documentation)](../../README.md) · [Intégrations POS et contributions](POS.md) · [Architecture (EN)](../ARCHITECTURE.md) · [Roadmap (EN)](../ROADMAP.md) · [Contribuer (EN)](../../CONTRIBUTING.md) · [Apache 2.0](../../LICENSE)
+[English (canonical documentation)](../../README.md) · [Import CSV](CSV.md) · [Intégrations POS et contributions](POS.md) · [Architecture (EN)](../ARCHITECTURE.md) · [Roadmap (EN)](../ROADMAP.md) · [Contribuer (EN)](../../CONTRIBUTING.md) · [Apache 2.0](../../LICENSE)
 
 **Un schéma commun, indépendant des éditeurs, pour faciliter l’intégration des logiciels de caisse (POS).**
 
@@ -24,7 +24,7 @@ Nous recherchons de la [documentation officielle, des correspondances de champs 
 ### Premières étapes
 
 1. Contrat JSON commun et validation locale.
-2. Import CSV générique.
+2. Premier import CSV d'articles disponible, avec mapping explicite et [guide pratique](CSV.md) ; ventes et stocks restent à développer.
 3. Lecteur Loyverse expérimental en lecture seule déjà ajouté, avec tests synthétiques ; validation indépendante sur compte autorisé encore nécessaire.
 4. Étude d’un connecteur StoreLine sur la base d’interfaces effectivement accessibles et autorisées.
 5. SDK, API facultative et contributions de la communauté.
