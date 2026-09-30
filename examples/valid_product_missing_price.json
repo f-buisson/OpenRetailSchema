@@ -1,0 +1,12 @@
+{
+  "schema_version": "0.1.0",
+  "entity_type": "product",
+  "id": "loyverse:synthetic_variant_unknown_price",
+  "source": {
+    "provider": "loyverse",
+    "external_id": "synthetic_variant_unknown_price"
+  },
+  "store_id": "synthetic_store",
+  "sku": "SYN-001",
+  "name": "Synthetic catalog item without a reported price"
+}
