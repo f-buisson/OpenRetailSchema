@@ -31,6 +31,11 @@ class SchemaValidationTests(unittest.TestCase):
     def test_missing_product_price_remains_unset(self):
         self.assertEqual(self.run_validator("valid_product_missing_price.json").returncode, 0)
 
+    def test_local_event_time_without_offset_is_rejected(self):
+        result = self.run_validator("invalid_sale_local_time.json")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("date-time", result.stderr)
+
     def test_invalid_floating_point_money(self):
         result = self.run_validator("invalid_sale_float.json")
         self.assertEqual(result.returncode, 1)
