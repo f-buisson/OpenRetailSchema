@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "resource": "product",
+  "store_id": "store_synthetic",
+  "source_namespace": "demo-export-v1",
+  "delimiter": ";",
+  "encoding": "utf-8-sig",
+  "decimal_separator": ",",
+  "currency": "EUR",
+  "columns": {
+    "external_id": "reference",
+    "name": "label",
+    "sku": "sku",
+    "barcode": "barcode",
+    "sale_price": "gross_unit_price"
+  }
+}
