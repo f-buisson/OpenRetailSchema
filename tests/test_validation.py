@@ -31,6 +31,15 @@ class SchemaValidationTests(unittest.TestCase):
     def test_missing_product_price_remains_unset(self):
         self.assertEqual(self.run_validator("valid_product_missing_price.json").returncode, 0)
 
+    def test_dst_fallback_interval_is_ordered_by_absolute_instant(self):
+        result = self.run_validator("valid_activity_dst_fallback.json")
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_reversed_activity_interval_is_rejected(self):
+        result = self.run_validator("invalid_activity_reversed.json")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("interval_end: must represent an instant after interval_start", result.stderr)
+
     def test_local_event_time_without_offset_is_rejected(self):
         result = self.run_validator("invalid_sale_local_time.json")
         self.assertEqual(result.returncode, 1)
