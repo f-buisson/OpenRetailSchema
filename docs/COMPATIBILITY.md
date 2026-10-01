@@ -28,6 +28,16 @@ Unknown source data stays unknown. In particular:
 - a refund is identified by `sale_kind: "refund"`; connectors must preserve the source sign convention rather than inventing a negative sign;
 - timestamps are RFC 3339 date-times with an offset or `Z`; local wall-clock strings without an offset are not canonical event timestamps.
 
+### Refund and return sign semantics
+
+`sale_kind` carries the transaction direction. A canonical refund is therefore identified explicitly by `sale_kind: "refund"`; the sign of `quantity` or a money `amount` must not be used to infer that direction.
+
+`quantity` and money amounts preserve the values represented by the source mapping. OpenRetailSchema does **not** negate a positive source quantity or amount merely because the record is a refund, and it does not turn a negative source value positive. The synthetic `examples/valid_refund.json` intentionally demonstrates a refund with positive quantity and positive gross amounts.
+
+A connector must document the vendor convention it observes and map it without inventing a different sign convention. Consumers that need signed arithmetic must derive their accounting sign from `sale_kind` under their own documented policy rather than rewriting canonical source facts. A mixed sale/return transaction that cannot be represented losslessly as the current record-level `sale_kind` must remain unsupported or be split only when the source semantics provide a deterministic, traceable split; it must not be guessed.
+
+The current v0.1 contract uses `refund` as the canonical return/refund direction and does not introduce a separate `return` enum value without evidence that it represents a distinct interoperable semantic.
+
 Money is a decimal string plus a three-letter uppercase currency code. The current schema does not define whether a vendor's multiple money representations are shop, settlement or presentment currency; a connector must not collapse those concepts unless the mapping is documented and lossless.
 
 ## Cross-field semantics
