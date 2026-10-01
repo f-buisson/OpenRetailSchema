@@ -1,0 +1,31 @@
+{
+  "schema_version": "0.1.0",
+  "entity_type": "sale",
+  "id": "synthetic:sale_zero_tax",
+  "source": {
+    "provider": "synthetic",
+    "external_id": "sale_zero_tax"
+  },
+  "store_id": "store_demo",
+  "occurred_at": "2026-01-15T12:00:00+01:00",
+  "sale_kind": "sale",
+  "lines": [
+    {
+      "id": "line_001",
+      "source_product_id": "item_001",
+      "quantity": "1",
+      "gross_total": {
+        "amount": "10.00",
+        "currency": "EUR"
+      }
+    }
+  ],
+  "gross_total": {
+    "amount": "10.00",
+    "currency": "EUR"
+  },
+  "tax_total": {
+    "amount": "0",
+    "currency": "EUR"
+  }
+}
