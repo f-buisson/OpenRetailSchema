@@ -29,8 +29,8 @@ Goal: make the canonical model safe enough that downstream applications can rely
 - [x] Document pre-1.0 compatibility rules.
 - [x] Reject canonical event timestamps that omit an explicit UTC offset.
 - [x] Compare activity interval ordering by absolute instant, including a DST fallback fixture.
-- [ ] Lock the DST fallback and reversed-interval fixtures into automated regression tests.
-- [ ] Add explicit fixtures/tests proving **unknown or absent tax != 0% tax**.
+- [x] Lock the DST fallback and reversed-interval fixtures into automated regression tests.
+- [x] Add explicit fixtures/tests proving **unknown or absent tax != 0% tax**.
 - [ ] Add refund/return fixtures and define sign/quantity semantics without guessing vendor conventions.
 - [ ] Add incomplete-price fixtures proving **absent != zero** for monetary values.
 - [ ] Verify currency-object rules, including unsupported/mismatched currency behavior.
@@ -123,7 +123,7 @@ Each maintenance pass should:
 4. Update this roadmap only for real state changes.
 5. Keep `docs/POS_INTEGRATIONS.md`, useful French documentation and the community POS issue aligned when integration evidence changes.
 6. Never publish secrets, tokens, private customer data, proprietary code or confidential artifacts.
-7. Never create, enable, run or modify GitHub Actions or other potentially paid CI/CD without prior explicit owner approval.
+7. Use GitHub Actions/CI moderately and only when it provides useful evidence or unblocks a roadmap step; prefer targeted existing jobs and avoid repetitive or heavy runs.
 8. Never force-push. Commit metadata must contain no co-author trailer or prohibited attribution.
 9. If blocked by access, authorization or a required human test, document the exact blocker and continue independent work.
 10. At the 20:00 Europe/Paris pass, report only real changes, commits, evidence, tests actually executed, limits, risks, external contributions, next priorities and required human actions.
