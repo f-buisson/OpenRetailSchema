@@ -1,4 +1,5 @@
 """Regression tests use only synthetic, non-customer records."""
+import json
 import subprocess
 import sys
 import unittest
@@ -30,6 +31,15 @@ class SchemaValidationTests(unittest.TestCase):
 
     def test_missing_product_price_remains_unset(self):
         self.assertEqual(self.run_validator("valid_product_missing_price.json").returncode, 0)
+
+    def test_absent_tax_is_distinct_from_explicit_zero_tax(self):
+        absent_tax = json.loads((SAMPLES / "valid_sale.json").read_text(encoding="utf-8"))
+        zero_tax = json.loads((SAMPLES / "valid_sale_zero_tax.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(self.run_validator("valid_sale.json").returncode, 0)
+        self.assertEqual(self.run_validator("valid_sale_zero_tax.json").returncode, 0)
+        self.assertNotIn("tax_total", absent_tax)
+        self.assertEqual(zero_tax["tax_total"], {"amount": "0", "currency": "EUR"})
 
     def test_dst_fallback_interval_is_ordered_by_absolute_instant(self):
         result = self.run_validator("valid_activity_dst_fallback.json")
