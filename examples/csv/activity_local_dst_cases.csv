@@ -1,0 +1,4 @@
+external_id,interval_start_local,interval_end_local,store_timezone,start_disambiguation,end_disambiguation,transaction_count,gross_revenue,currency
+activity-spring-nonexistent,2026-03-29T02:15:00,2026-03-29T03:15:00,Europe/Paris,,,1,12.40,EUR
+activity-fallback-explicit,2026-10-25T02:15:00,2026-10-25T02:15:00,Europe/Paris,+02:00,+01:00,3,29.70,EUR
+activity-fallback-ambiguous,2026-10-25T02:15:00,2026-10-25T02:30:00,Europe/Paris,,,2,18.00,EUR
