@@ -47,8 +47,8 @@ Do not skip `REVIEW` to mark implementation accepted.
 
 - Work ID: `P1-TIME-01`
 - Roadmap phase: `P1 — Generic CSV import`
-- State: `READY`
-- Observed base HEAD: `e41a0152f8b014c6059a390c6acf0cb4b4a66364`
+- State: `BUILDING`
+- Observed base HEAD: `149a4ed7f62ec348dcfb377d72018414f8ffec71`
 - Produced HEAD: `-`
 - Scope: make the documented sales/activity timestamp mapping executable with one small vendor-neutral normalization helper and focused tests; do not implement the sales/activity importer yet. PR #8 remains a separate synthetic-fixture change and must not be represented as importer certification.
 - Acceptance criteria:
@@ -65,7 +65,7 @@ Do not skip `REVIEW` to mark implementation accepted.
   - `-`
 - Review verdict: `-`
 - Rework or blocker: `-`
-- Next action: Builder refreshes `main` and this file, transitions `READY -> BUILDING`, implements `P1-TIME-01` on a small dedicated branch, runs the required local tests, records the produced HEAD/evidence, then hands the same Work ID to review without opening new scope.
+- Next action: implement the scoped normalization helper and focused tests, run the required local tests, then hand this Work ID to review without opening new scope.
 
 ## Handoff discipline
 
