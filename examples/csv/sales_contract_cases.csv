@@ -1,0 +1,4 @@
+external_id,occurred_at,sale_kind,quantity,gross_total,currency
+sale-001,2026-10-02T12:15:00+02:00,sale,2,19.80,EUR
+refund-001,2026-10-02T13:10:00+02:00,refund,1,-9.90,EUR
+sale-missing-total,2026-10-02T14:00:00+02:00,sale,1,,EUR
