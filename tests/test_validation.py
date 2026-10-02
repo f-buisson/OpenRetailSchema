@@ -47,6 +47,11 @@ class SchemaValidationTests(unittest.TestCase):
         self.assertNotIn("tax_total", absent_tax)
         self.assertEqual(zero_tax["tax_total"], {"amount": "0", "currency": "EUR"})
 
+    def test_mixed_sale_currencies_are_rejected(self):
+        result = self.run_validator("invalid_sale_mixed_currency.json")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("all monetary values in a sale must use one currency", result.stderr)
+
     def test_dst_fallback_interval_is_ordered_by_absolute_instant(self):
         result = self.run_validator("valid_activity_dst_fallback.json")
         self.assertEqual(result.returncode, 0, result.stderr)
