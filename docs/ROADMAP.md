@@ -34,7 +34,7 @@ Goal: make the canonical model safe enough that downstream applications can rely
 - [x] Add refund/return fixtures and define sign/quantity semantics without guessing vendor conventions.
 - [x] Add incomplete-price fixtures proving **absent != zero** for monetary values.
 - [x] Verify currency-object rules, including unsupported/mismatched currency behavior.
-- [ ] Review RAW/provenance retention rules for secret, PII and payload leakage risks.
+- [x] Review RAW/provenance retention rules for secret, PII and payload leakage risks.
 - [x] Publish the Apache 2.0 license with owner approval.
 - [x] Publish a POS evidence registry and safe issue form for external connector proposals.
 
