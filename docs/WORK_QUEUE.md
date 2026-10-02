@@ -47,9 +47,9 @@ Do not skip `REVIEW` to mark implementation accepted.
 
 - Work ID: `P1-TIME-01`
 - Roadmap phase: `P1 — Generic CSV import`
-- State: `BUILDING`
+- State: `REVIEW`
 - Observed base HEAD: `149a4ed7f62ec348dcfb377d72018414f8ffec71`
-- Produced HEAD: `-`
+- Produced HEAD: `15d72270e6d41fe58b772f248afbea39dc116f7e`
 - Scope: make the documented sales/activity timestamp mapping executable with one small vendor-neutral normalization helper and focused tests; do not implement the sales/activity importer yet. PR #8 remains a separate synthetic-fixture change and must not be represented as importer certification.
 - Acceptance criteria:
   - An input timestamp that already carries `Z` or an explicit UTC offset is accepted without timezone inference and represents the same absolute instant after normalization.
@@ -62,10 +62,14 @@ Do not skip `REVIEW` to mark implementation accepted.
   - Diff limited to the normalization helper, focused tests, and only documentation strictly required to keep behavior aligned.
   - No secrets, private code/data, co-author trailer, or prohibited attribution in the produced commit metadata/content.
 - Evidence produced:
-  - `-`
+  - Added `importers/timestamps.py` with explicit offset handling, mandatory IANA timezone for naive values, UTC round-trip detection of nonexistent local times, and explicit `occurrence=0|1` fallback disambiguation.
+  - Added `tests/test_timestamps.py` covering offset-bearing equivalence, missing/invalid timezone, Europe/Paris spring gap, both fallback occurrences, and inapplicable occurrence markers.
+  - Focused equivalent local execution in the available runtime: `python -m unittest tests.test_timestamps -v` -> PASS. Direct repository checkout was unavailable in that runtime because outbound DNS to GitHub was unavailable.
+  - Repository CI on PR #9, run `37077414096`: `python -m unittest discover -s tests -v` -> PASS on Python 3.12 / Ubuntu; job completed successfully.
+  - No roadmap checkbox changed; no sales/activity importer or vendor-specific behavior was added.
 - Review verdict: `-`
 - Rework or blocker: `-`
-- Next action: implement the scoped normalization helper and focused tests, run the required local tests, then hand this Work ID to review without opening new scope.
+- Next action: Reviewer inspects PR #9 and the timestamp semantics, verifies the passing regression evidence, then chooses `REVIEW -> ACCEPTED`, `REWORK`, or `BLOCKED` without expanding scope.
 
 ## Handoff discipline
 
