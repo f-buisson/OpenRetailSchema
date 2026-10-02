@@ -29,8 +29,14 @@ class SchemaValidationTests(unittest.TestCase):
     def test_valid_refund_with_positive_source_quantity(self):
         self.assertEqual(self.run_validator("valid_refund.json").returncode, 0)
 
-    def test_missing_product_price_remains_unset(self):
+    def test_absent_product_price_is_distinct_from_reported_price(self):
+        absent_price = json.loads((SAMPLES / "valid_product_missing_price.json").read_text(encoding="utf-8"))
+        reported_price = json.loads((SAMPLES / "valid_product.json").read_text(encoding="utf-8"))
+
         self.assertEqual(self.run_validator("valid_product_missing_price.json").returncode, 0)
+        self.assertEqual(self.run_validator("valid_product.json").returncode, 0)
+        self.assertNotIn("sale_price", absent_price)
+        self.assertEqual(reported_price["sale_price"], {"amount": "2.49", "currency": "EUR"})
 
     def test_absent_tax_is_distinct_from_explicit_zero_tax(self):
         absent_tax = json.loads((SAMPLES / "valid_sale.json").read_text(encoding="utf-8"))
