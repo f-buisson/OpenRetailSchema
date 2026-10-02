@@ -1,0 +1,3 @@
+external_id,interval_start,interval_end,store_timezone,transaction_count,gross_revenue,currency
+activity-fallback,2026-10-25T02:15:00+02:00,2026-10-25T02:15:00+01:00,Europe/Paris,3,29.70,EUR
+activity-missing-revenue,2026-10-25T03:00:00+01:00,2026-10-25T03:15:00+01:00,Europe/Paris,1,,EUR
