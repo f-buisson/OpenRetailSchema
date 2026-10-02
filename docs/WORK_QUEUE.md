@@ -24,8 +24,8 @@ READY -> BUILDING
 BUILDING -> REVIEW
 REVIEW -> ACCEPTED
 REVIEW -> REWORK
-REVIEW -> BLOCKED
 REWORK -> BUILDING
+REVIEW -> BLOCKED
 BLOCKED -> READY
 ACCEPTED -> READY
 ```
@@ -45,21 +45,27 @@ Do not skip `REVIEW` to mark implementation accepted.
 
 ## Current handoff
 
-- Work ID: `UNASSIGNED`
-- Roadmap phase: `UNASSIGNED`
-- State: `IDLE`
-- Observed base HEAD: `ceeabfa7be8d2c788a1e10f49e65461799e07b20`
+- Work ID: `P1-TIME-01`
+- Roadmap phase: `P1 — Generic CSV import`
+- State: `READY`
+- Observed base HEAD: `e41a0152f8b014c6059a390c6acf0cb4b4a66364`
 - Produced HEAD: `-`
-- Scope: `-`
+- Scope: make the documented sales/activity timestamp mapping executable with one small vendor-neutral normalization helper and focused tests; do not implement the sales/activity importer yet. PR #8 remains a separate synthetic-fixture change and must not be represented as importer certification.
 - Acceptance criteria:
-  - `-`
+  - An input timestamp that already carries `Z` or an explicit UTC offset is accepted without timezone inference and represents the same absolute instant after normalization.
+  - A naive local timestamp is accepted only with an explicit IANA timezone and, when the local wall time is repeated, an explicit occurrence/offset disambiguation.
+  - `2026-03-29T02:15` in `Europe/Paris` is rejected as nonexistent; ambiguous `2026-10-25T02:15` without disambiguation is rejected; both valid fall-back occurrences can be distinguished.
+  - Focused tests prove these cases without network access, vendor assumptions, real data, or silent timezone inference.
+  - Existing local regression suite remains green; the roadmap criterion stays unchecked until review confirms the executable contract is sufficient.
 - Evidence required:
-  - `-`
+  - Exact local test commands and passing output for the focused timestamp tests and existing regression suite.
+  - Diff limited to the normalization helper, focused tests, and only documentation strictly required to keep behavior aligned.
+  - No secrets, private code/data, co-author trailer, or prohibited attribution in the produced commit metadata/content.
 - Evidence produced:
   - `-`
 - Review verdict: `-`
 - Rework or blocker: `-`
-- Next action: select the first incomplete acceptance criterion in the highest-priority roadmap phase after refreshing the repository.
+- Next action: Builder refreshes `main` and this file, transitions `READY -> BUILDING`, implements `P1-TIME-01` on a small dedicated branch, runs the required local tests, records the produced HEAD/evidence, then hands the same Work ID to review without opening new scope.
 
 ## Handoff discipline
 
