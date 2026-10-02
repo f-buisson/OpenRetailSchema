@@ -16,6 +16,20 @@ The current state consists of **reference contracts, an offline validator, and a
 
 The public fixtures are synthetic. The optional `source.raw_ref` is a non-sensitive reference to a raw payload, **not** a guarantee that storage has been implemented.
 
+### RAW/provenance security boundary
+
+Raw retention is **not implemented in v0.1**. A future implementation must treat source payloads as potentially containing credentials, personal data and other provider-sensitive fields even when the canonical record does not expose them.
+
+- Retain raw payloads only when a documented normalization, audit or replay requirement justifies retention; collection alone is not a retention reason.
+- Keep raw payloads outside canonical records, logs, exceptions, public fixtures and repository history. Never place access tokens, authorization headers or other credentials in `source.raw_ref`.
+- `source.raw_ref` is an opaque, non-sensitive locator. It must not contain an embedded payload, URL userinfo, query parameters or fragments carrying source data or credentials.
+- Access to retained raw data must be narrower than access to normalized records, scoped to the relevant store/tenant, and auditable where a deployment supports auditing.
+- Define a finite retention period before enabling raw storage. Expiry must delete the payload and may leave a non-sensitive provenance record; OpenRetailSchema v0.1 does not prescribe a universal duration because legal and operational requirements differ by deployment.
+- Redaction must happen before raw content reaches application logs, diagnostics, fixtures or support bundles. Redaction is a defense against disclosure, not a substitute for retention limits or access control.
+- A missing, expired or inaccessible raw payload must not invalidate an otherwise valid canonical record. Consumers must not require dereferencing `raw_ref` to interpret canonical fields.
+
+The repository's fixture-safety regression tests provide a narrow public-repository guard for common sensitive field names and unsafe `raw_ref` forms. They do **not** certify arbitrary runtime payloads as free of personal data or secrets, and they do not constitute a runtime retention implementation.
+
 ## Version 0.1 record contract
 
 The canonical file is `schemas/v0.1/record.schema.json` (JSON Schema Draft 2020-12). Initial entities: `sale`, `product`, `activity_metric`. This is an experimental compatibility contract; incompatible changes must be documented and versioned.
