@@ -1,0 +1,15 @@
+{
+  "schema_version": "0.1.0",
+  "entity_type": "product",
+  "id": "synthetic:product:invalid-currency",
+  "source": {
+    "provider": "synthetic",
+    "external_id": "product-invalid-currency"
+  },
+  "store_id": "synthetic-store",
+  "name": "Synthetic product",
+  "sale_price": {
+    "amount": "2.49",
+    "currency": "eur"
+  }
+}
