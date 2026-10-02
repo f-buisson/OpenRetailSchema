@@ -28,9 +28,11 @@ The canonical file is `schemas/v0.1/record.schema.json` (JSON Schema Draft 2020-
 - `source.raw_ref`: optional non-sensitive reference; never insert credentials or full raw customer records.
 - `extensions`: optional **namespaced** vendor fields (for example `examplepos:register_code`), without inventing universal semantics.
 
-Monetary values use decimal **strings** with ISO 4217 currency codes, not floating-point JSON numbers. A sale's amounts are optional unless provided by the source. Refunds have their own `sale_kind`, and signed amounts and quantities preserve the source convention. No formula or rounding is implied.
+Monetary values use decimal **strings** with three-letter uppercase currency codes, not floating-point JSON numbers. The v0.1 schema validates the code shape (`^[A-Z]{3}$`) but does **not** embed an ISO 4217 registry or claim that every syntactically valid code is supported by a connector or consumer. Connectors must preserve a documented source currency, must not infer one from country or locale, and must treat a currency they cannot map safely as unsupported rather than substituting a default. Within one canonical sale, every reported monetary value must use the same currency; mixed-currency sales are rejected until the contract can represent distinct money roles without loss.
 
-An activity metric stores offset-aware `interval_start` and `interval_end`, plus an optional store timezone. The schema validates timestamp format, not chronological ordering, business-day boundaries, or whether aggregation from vendor events is complete. Consumers must not assume customer counts from transaction counts.
+A sale's amounts are optional unless provided by the source. Refunds have their own `sale_kind`, and signed amounts and quantities preserve the source convention. No formula or rounding is implied.
+
+An activity metric stores offset-aware `interval_start` and `interval_end`, plus an optional store timezone. The schema validates timestamp format, while the offline validator also rejects intervals whose end instant is not after their start instant. Consumers must not infer business-day boundaries or aggregation completeness from those checks, and must not assume customer counts from transaction counts.
 
 ## Connector capability contract (proposed)
 
@@ -46,4 +48,4 @@ python scripts/validate.py examples/valid_sale.json
 python -m unittest discover -s tests -v
 ```
 
-This runs locally. No hosted workflow is configured.
+These commands run locally. The repository also has a minimal GitHub Actions regression workflow; CI is evidence for the exact commit it tests, not a substitute for connector live testing.
