@@ -32,7 +32,7 @@ Goal: make the canonical model safe enough that downstream applications can rely
 - [x] Lock the DST fallback and reversed-interval fixtures into automated regression tests.
 - [x] Add explicit fixtures/tests proving **unknown or absent tax != 0% tax**.
 - [x] Add refund/return fixtures and define sign/quantity semantics without guessing vendor conventions.
-- [ ] Add incomplete-price fixtures proving **absent != zero** for monetary values.
+- [x] Add incomplete-price fixtures proving **absent != zero** for monetary values.
 - [ ] Verify currency-object rules, including unsupported/mismatched currency behavior.
 - [ ] Review RAW/provenance retention rules for secret, PII and payload leakage risks.
 - [x] Publish the Apache 2.0 license with owner approval.
