@@ -26,6 +26,22 @@ def _has_explicit_offset(value: str) -> bool:
     return parsed.tzinfo is not None and parsed.utcoffset() is not None
 
 
+def _sale_currencies(document: dict) -> set[str]:
+    """Return currencies reported by monetary fields within one sale."""
+    currencies = set()
+    for field in ("gross_total", "net_total", "tax_total"):
+        money = document.get(field)
+        if isinstance(money, dict) and isinstance(money.get("currency"), str):
+            currencies.add(money["currency"])
+    for line in document.get("lines", []):
+        if not isinstance(line, dict):
+            continue
+        money = line.get("gross_total")
+        if isinstance(money, dict) and isinstance(money.get("currency"), str):
+            currencies.add(money["currency"])
+    return currencies
+
+
 def semantic_errors(document: object) -> list[str]:
     """Small cross-field checks JSON Schema cannot express clearly."""
     if not isinstance(document, dict):
@@ -34,6 +50,10 @@ def semantic_errors(document: object) -> list[str]:
     for field in ("occurred_at", "interval_start", "interval_end"):
         if field in document and not _has_explicit_offset(document[field]):
             errors.append(f"{field}: date-time must include Z or an explicit UTC offset")
+    if document.get("entity_type") == "sale":
+        currencies = _sale_currencies(document)
+        if len(currencies) > 1:
+            errors.append("currency: all monetary values in a sale must use one currency")
     if document.get("entity_type") == "activity_metric":
         start = document.get("interval_start")
         end = document.get("interval_end")
