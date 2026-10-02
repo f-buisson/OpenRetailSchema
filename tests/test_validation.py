@@ -52,6 +52,11 @@ class SchemaValidationTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertIn("all monetary values in a sale must use one currency", result.stderr)
 
+    def test_invalid_currency_code_shape_is_rejected(self):
+        result = self.run_validator("invalid_product_currency_code.json")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("does not match '^[A-Z]{3}$'", result.stderr)
+
     def test_dst_fallback_interval_is_ordered_by_absolute_instant(self):
         result = self.run_validator("valid_activity_dst_fallback.json")
         self.assertEqual(result.returncode, 0, result.stderr)
