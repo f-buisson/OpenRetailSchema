@@ -1,0 +1,27 @@
+{
+  "schema_version": "0.1.0",
+  "entity_type": "sale",
+  "id": "synthetic:mixed_currency",
+  "source": {
+    "provider": "synthetic",
+    "external_id": "mixed_currency"
+  },
+  "store_id": "store_demo",
+  "occurred_at": "2026-09-29T14:15:00+02:00",
+  "sale_kind": "sale",
+  "lines": [
+    {
+      "id": "line_001",
+      "source_product_id": "item_001",
+      "quantity": "1",
+      "gross_total": {
+        "amount": "10.00",
+        "currency": "EUR"
+      }
+    }
+  ],
+  "gross_total": {
+    "amount": "10.00",
+    "currency": "USD"
+  }
+}
