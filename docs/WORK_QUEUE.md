@@ -58,8 +58,8 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P1-TIME-01`
 - Roadmap phase: `P1 — Generic CSV import`
-- State: `READY`
-- Observed base HEAD: `e41a0152f8b014c6059a390c6acf0cb4b4a66364`
+- State: `BUILDING`
+- Observed base HEAD: `d7dd6d53995d471c2f2647bfee11f94154f260c1`
 - Produced HEAD: `-`
 - Scope: make the documented sales/activity timestamp mapping executable with one small vendor-neutral normalization helper and focused tests; do not implement the sales/activity importer yet. PR #8 remains a separate synthetic-fixture change and must not be represented as importer certification.
 - Acceptance criteria:
@@ -73,10 +73,10 @@ The project must keep advancing while useful independent work exists.
   - Diff limited to the normalization helper, focused tests, and only documentation strictly required to keep behavior aligned.
   - No secrets, private code/data, co-author trailer, or prohibited attribution in the produced commit metadata/content.
 - Evidence produced:
-  - `-`
+  - Work started from refreshed compatible product HEAD `d7dd6d5`.
 - Review verdict: `-`
 - Rework or deferred dependency: `-`
-- Next action: Builder refreshes `main` and this file, treats this coordination commit as expected, transitions `READY -> BUILDING`, implements `P1-TIME-01` from the latest compatible product HEAD, runs the required local tests, records the Produced HEAD/evidence, then hands the same Work ID to review without opening new scope.
+- Next action: implement the normalization helper and focused tests, execute targeted and full regression tests, then hand this Work ID to review.
 
 ## Handoff discipline
 
