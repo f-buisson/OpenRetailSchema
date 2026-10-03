@@ -3,7 +3,13 @@
 from decimal import Decimal
 import unittest
 
-from connectors.loyverse import LoyverseClient, LoyverseError, merchant_currency, source_decimal
+from connectors.loyverse import (
+    LoyverseClient,
+    LoyverseError,
+    merchant_currency,
+    source_decimal,
+    source_external_id,
+)
 
 
 class LoyverseTests(unittest.TestCase):
@@ -85,6 +91,19 @@ class LoyverseTests(unittest.TestCase):
         for value in unsupported:
             with self.subTest(value=value):
                 self.assertIsNone(source_decimal({"price": value}, "price"))
+
+    def test_source_external_id_preserves_opaque_string(self):
+        for value in ("item_123", "  meaningful-id  ", "0"):
+            with self.subTest(value=value):
+                self.assertEqual(source_external_id({"id": value}), value)
+
+    def test_source_external_id_fails_closed_without_valid_string(self):
+        rejected = (None, "", "   ", True, False, 0, 42, 1.5, [], {}, ["id"])
+        self.assertIsNone(source_external_id({}))
+        self.assertIsNone(source_external_id(None))
+        for value in rejected:
+            with self.subTest(value=value):
+                self.assertIsNone(source_external_id({"id": value}))
 
     def test_merchant_raw_response(self):
         raw = {"id": "synthetic", "currency": {"code": "THB", "decimal_places": 2}}
