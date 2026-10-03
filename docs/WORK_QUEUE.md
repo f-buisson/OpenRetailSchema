@@ -58,8 +58,8 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-04`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `READY`
-- Observed main HEAD: `7423ea1dac298b6144952153dc3e7e747b3643f4`
+- State: `BUILDING`
+- Observed main HEAD: `95b3bdfe9c7462653388a72cbe05035db5589c6e`
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
 - Reuse classification: OpenRetailSchema already has accepted Loyverse helpers for merchant currency, finite source decimals and opaque source IDs. External project evidence confirms unknown-versus-zero and merchant-currency behavior as design/test input only; it does not certify this connector.
 - Scope: add one bounded raw-to-canonical money normalization helper plus focused synthetic tests. Compose an already-validated finite source numeric field with an already-validated merchant currency code into the canonical v0.1 money shape `{amount, currency}`. Preserve zero as zero and missing/invalid amount as unknown; never invent a currency or amount. Serialize `Decimal` deterministically as a plain JSON-compatible decimal string without exponent notation or binary-float conversion. Do not build full product/sale mappings, tax inference, retries, checkpoints, live calls or OAuth behavior in this lot.
@@ -77,9 +77,9 @@ The project must keep advancing while useful independent work exists.
   - Exact full regression command and passing output, locally or through one justified lightweight CI run on the exact product commit.
   - Confirmation that tests use fabricated data only and that no secret, token, real payload, customer data, private code, co-author trailer or unsupported live/certification claim was introduced.
 - Rework or deferred dependency: `-`
-- Evidence: pending Builder implementation.
+- Evidence: Builder started from refreshed `main` at `95b3bdfe9c7462653388a72cbe05035db5589c6e`; implementation and execution evidence pending.
 - Limits: this lot does not complete roadmap-wide Loyverse normalization, tax semantics, end-to-end mappings, retries/checkpoints or live/OAuth evidence.
-- Next action: Builder must refresh `main` and this file, transition `P2-LOYVERSE-NORM-04` from `READY` to `BUILDING`, implement only this canonical-money slice with synthetic tests, then provide exact focused/full regression evidence before moving the same Work ID to `REVIEW`.
+- Next action: implement only the canonical-money helper and fabricated focused tests, then run focused/full regression evidence on the exact product commit before moving this Work ID to `REVIEW`.
 
 ## Handoff discipline
 
