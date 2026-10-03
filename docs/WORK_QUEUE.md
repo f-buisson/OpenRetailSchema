@@ -22,6 +22,7 @@ Allowed transitions:
 IDLE -> READY
 READY -> BUILDING
 BUILDING -> REVIEW
+BUILDING -> REVIEW
 REVIEW -> ACCEPTED
 REVIEW -> REWORK
 REWORK -> BUILDING
@@ -58,7 +59,7 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P1-FIXTURES-01`
 - Roadmap phase: `P1 — Generic CSV import`
-- State: `REVIEW`
+- State: `ACCEPTED`
 - Observed base HEAD: `9d19ad1032dd8c63d65b9bd035b17823bb7b45fa`
 - Produced HEAD: `af75dcd7938642e482bddeb6a23e580a54ee3d60`
 - Scope: make the existing fabricated sales/activity CSV contract cases executable regression evidence for refunds, missing monetary values and DST boundaries. Reuse the accepted timestamp normalizer where appropriate; do not implement a full sales/activity importer, persistent storage, vendor behavior, or connector certification. PR #8 is a separate open fixture proposal: inspect it before editing overlapping fixture files and avoid duplicating or overwriting concurrent work.
@@ -81,9 +82,9 @@ The project must keep advancing while useful independent work exists.
   - Open PR #8 was inspected before implementation. Its naive-local DST fixture proposal remains separate; no PR #8 fixture rows or files were duplicated or overwritten.
   - Exact-head GitHub Actions run `37112774933` completed successfully for `af75dcd7938642e482bddeb6a23e580a54ee3d60`. Its single Ubuntu job completed successfully and ran `python -m unittest discover -s tests -v` successfully after installing `requirements-dev.txt`.
   - No local execution result is claimed: this runtime does not expose a repository checkout/execution environment for the GitHub branch. The exact produced commit is nevertheless covered by the existing full regression CI above.
-- Review verdict: `-`
+- Review verdict: `ACCEPTED` — the Produced HEAD is limited to one offline regression-test file, directly loads the committed fabricated fixtures, preserves the explicit refund sign without inferring vendor semantics, keeps missing monetary cells distinct from zero, and proves the repeated fallback wall time represents distinct absolute instants through the accepted normalizer. Exact-head full regression CI is green.
 - Rework or deferred dependency: `-`
-- Next action: Reviewer should inspect PR #10 and the exact-head green regression evidence, then decide ACCEPTED, REWORK or DEFERRED. The Builder must not expand this scope while it is in REVIEW.
+- Next action: Planner should immediately open the next independent incomplete roadmap lot. The remaining P1 idempotency criterion is conditional on persistent storage being introduced; if that dependency is not currently available, preserve it as incomplete and proceed to the next independent criterion without blocking the project.
 
 ## Handoff discipline
 
