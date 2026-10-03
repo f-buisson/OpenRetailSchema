@@ -58,9 +58,9 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P1-FIXTURES-01`
 - Roadmap phase: `P1 — Generic CSV import`
-- State: `READY`
-- Observed base HEAD: `69e1c7f2e1ff3995108a5a1d4976ee3c1be5c86d`
-- Produced HEAD: `-`
+- State: `BUILDING`
+- Observed base HEAD: `9d19ad1032dd8c63d65b9bd035b17823bb7b45fa`
+- Produced HEAD: `af75dcd7938642e482bddeb6a23e580a54ee3d60`
 - Scope: make the existing fabricated sales/activity CSV contract cases executable regression evidence for refunds, missing monetary values and DST boundaries. Reuse the accepted timestamp normalizer where appropriate; do not implement a full sales/activity importer, persistent storage, vendor behavior, or connector certification. PR #8 is a separate open fixture proposal: inspect it before editing overlapping fixture files and avoid duplicating or overwriting concurrent work.
 - Acceptance criteria:
   - Regression tests load the committed fabricated sales/activity CSV fixtures rather than reproducing their rows only as inline literals.
@@ -75,10 +75,14 @@ The project must keep advancing while useful independent work exists.
   - Exact full regression command and passing output, locally when available or on the exact produced commit via the existing lightweight CI.
   - Diff limited to fixture regression tests and only fixture/documentation changes strictly necessary to close a demonstrated coverage gap.
   - No secrets, real POS/customer data, private code, co-author trailer, prohibited attribution, or unsupported vendor claims.
-- Evidence produced: `-`
+- Evidence produced:
+  - PR #10, Produced HEAD `af75dcd7938642e482bddeb6a23e580a54ee3d60`, adds only `tests/test_sales_activity_csv_fixtures.py` and loads the committed CSV fixture files directly.
+  - Four focused offline tests assert the explicit `-9.90` refund source value remains negative, empty sale/activity monetary cells remain empty rather than zero, and the offset-bearing fallback interval represents two distinct instants exactly 3600 seconds apart through `normalize_timestamp`.
+  - Open PR #8 was inspected before implementation. Its naive-local DST fixture proposal remains separate; no PR #8 fixture rows or files were duplicated or overwritten.
+  - No local execution result is claimed: this runtime does not expose a repository checkout/execution environment for the GitHub branch. The existing PR CI had not yet reported a run for Produced HEAD at the time of this handoff check.
 - Review verdict: `-`
 - Rework or deferred dependency: `-`
-- Next action: Builder should refresh `main` and this file, inspect open PR #8 for overlap, transition `P1-FIXTURES-01` from `READY` to `BUILDING`, then implement the smallest offline regression tests that exercise the committed refund, missing-value and DST fixture rows. Preserve the scope boundary: fixtures/contracts only, not a sales/activity importer.
+- Next action: keep this lot in `BUILDING` until the existing lightweight CI reports the full regression result for PR #10. On a green exact-head run, the next Builder pass may transition to `REVIEW`; on failure, fix only the demonstrated regression within this scope.
 
 ## Handoff discipline
 
