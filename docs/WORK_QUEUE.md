@@ -56,18 +56,26 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `P2-LOYVERSE-NORM-02`
+- Work ID: `P2-LOYVERSE-NORM-02-INTEGRATE`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `ACCEPTED`
-- Observed review HEAD: `1e509eea4745e0abc53cf5ade4ace36286e7fd34`
-- Produced HEAD: `357be67696f3ffaee47c52535a1f77ae7e439833` on `builder/P2-LOYVERSE-NORM-02` (PR #12), based on `20b5e95eac870a799dbc963c9b4fca612cbf3e63`.
-- Scope reviewed: bounded synthetic normalization of Loyverse product/variant monetary and stock-like numeric source values, preserving unknown/null separately from explicit zero and failing closed for unsupported shapes.
-- Evidence: PR #12 changes only `connectors/loyverse.py` and `tests/test_loyverse.py`; `source_decimal()` accepts finite `Decimal` and exact integers, preserves zero and precision, and rejects booleans, binary floats, strings, non-finite decimals and structured values. Exact produced-commit GitHub Actions run `37125933104` passed `python -m unittest discover -s tests -v` on `357be67696f3ffaee47c52535a1f77ae7e439833`.
-- Concurrency review: current `main` advanced after the produced base through documentation/coordination work (`docs/WORK_QUEUE.md`, `docs/ROADMAP.md`, `docs/LOYVERSE_REUSE.md`). No later product-file change on `main` supersedes the reviewed connector/test diff. PR #12 currently requires integration with the newer base before merge; acceptance certifies the bounded product diff, not a merge result.
-- Review verdict: `ACCEPTED` — all recorded criteria for this bounded lot are satisfied by reproducible synthetic evidence. The connector-wide roadmap criterion remains incomplete; this lot does not certify live behavior, OAuth, taxes, identifiers, provenance, persistence or the full canonical mapping.
+- State: `READY`
+- Observed main HEAD: `8cfe023ffa0cfb4844d39ba6cb4b3f3af43d5154`
+- Source work: accepted `P2-LOYVERSE-NORM-02`, produced at `357be67696f3ffaee47c52535a1f77ae7e439833` in PR #12. The PR is open and currently not mergeable against the newer `main`.
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
+- Scope: integrate the already accepted bounded Loyverse numeric-normalization product diff onto current `main` without semantic expansion. Resolve the stale-base conflict cleanly, preserving current documentation/coordination changes and the accepted `source_decimal()` plus focused tests. Do not add new normalization behavior, live calls, OAuth claims, retries, checkpoints, tax inference, persistence or broad mapping in this lot.
+- Acceptance criteria:
+  - Current `main` receives the accepted `source_decimal()` behavior and its focused synthetic tests with no loss of newer main changes.
+  - Missing/null remain unknown, explicit zero remains zero, finite `Decimal` and exact integers retain the accepted semantics, and unsupported/coercive shapes remain fail-closed exactly as reviewed.
+  - The integration diff contains no unrelated product changes and does not alter the connector-wide roadmap completion claim.
+  - Focused Loyverse tests and the full regression suite pass on the exact integrated commit.
+  - PR #12 is either updated/merged cleanly or superseded by an equivalently reviewable integration path; no force-push is used.
+- Evidence required:
+  - Exact integrated commit SHA and comparison showing the accepted connector/test behavior is present on top of current `main`.
+  - Exact focused test command and passing output.
+  - Exact full regression command and passing output, locally or via the existing lightweight CI on the exact integrated commit.
+  - Confirmation that no secret, token, real payload, customer data, private code, co-author trailer or unsupported certification claim was introduced.
 - Rework or deferred dependency: `-`
-- Next action: Planner should immediately select the next independent incomplete roadmap criterion and create a new `READY` lot. Before any further Loyverse P2/P3 lot, use `docs/LOYVERSE_REUSE.md` as required design/evidence input. Do not treat this acceptance as connector-wide or live certification.
+- Next action: Builder should refresh `main`, read `docs/LOYVERSE_REUSE.md`, transition this same Work ID `READY -> BUILDING`, integrate the accepted PR #12 product diff onto the current base without semantic expansion, run the focused and full regression tests, then hand the same Work ID to review with exact evidence.
 
 ## Handoff discipline
 
