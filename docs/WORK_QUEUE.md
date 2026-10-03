@@ -56,30 +56,27 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `P2-LOYVERSE-NORM-04`
-- Roadmap phase: `P2 — Loyverse reference connector`
-- State: `ACCEPTED`
-- Observed main HEAD: `b7319e386d041711502ae13eb85a9441c103ef10`
-- Produced HEAD: `1f1c4c80050483929bf535c42647d4b865b0cbc2`
-- Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
-- Reuse classification: OpenRetailSchema already has accepted Loyverse helpers for merchant currency, finite source decimals and opaque source IDs. External project evidence confirms unknown-versus-zero and merchant-currency behavior as design/test input only; it does not certify this connector.
-- Scope: add one bounded raw-to-canonical money normalization helper plus focused synthetic tests. Compose an already-validated finite source numeric field with an already-validated merchant currency code into the canonical v0.1 money shape `{amount, currency}`. Preserve zero as zero and missing/invalid amount as unknown; never invent a currency or amount. Serialize `Decimal` deterministically as a plain JSON-compatible decimal string without exponent notation or binary-float conversion. Do not build full product/sale mappings, tax inference, retries, checkpoints, live calls or OAuth behavior in this lot.
+- Work ID: `DEBT-PR-CONSOLIDATE-01`
+- Roadmap phase: cross-phase consolidation before further P2 expansion
+- State: `READY`
+- Observed main HEAD: `43ad54a4142650b0b3b0b682f55f22e3e1fb6d95`
+- Trigger: the last Loyverse normalization lot is accepted, but five older PRs (#8, #9, #10, #11, #12) remain open. Main already contains the accepted Loyverse currency/numeric behavior represented by #11/#12, and P1 timestamp/fixture criteria are marked complete. Opening another P2 code lot before classifying this queue would risk duplicate or competing paths.
+- Scope: perform a bounded stale-PR consolidation. Compare PRs #8-#12 against current `main`, classify each as still useful, fully superseded by `main`, partially superseded, or unsafe to merge. Close only PRs whose intended behavior is already present or deliberately replaced on `main`; do not merge stale code merely to empty the queue. If a PR contains a unique still-required change, leave it open and record the exact missing behavior and the roadmap criterion it serves. Do not modify product behavior in this lot.
 - Acceptance criteria:
-  - A focused helper in `connectors/loyverse.py` returns a canonical v0.1 money object only when both the source amount and uppercase three-letter merchant currency are valid under the existing helpers/contracts.
-  - Explicit numeric zero yields an amount string representing zero and is never treated as missing.
-  - Missing/null/unsupported/non-finite amounts return/fail closed as unknown rather than `{amount: "0", ...}`.
-  - Missing or malformed currency returns/fail closed; there is no default currency.
-  - Finite integer and `Decimal` values are serialized exactly to non-exponent decimal strings accepted by the canonical money schema, including negative/refund-like values and fractional precision.
-  - Focused fabricated tests cover zero, negative, fractional, missing amount, invalid amount, missing currency and malformed currency; existing currency/numeric/source-ID/pagination behavior remains unchanged.
-  - The full regression suite passes on the exact produced product commit.
+  - PRs #8, #9, #10, #11 and #12 are each compared against current `main` and receive an explicit evidence-based classification.
+  - Any PR fully covered or superseded by `main` is closed without merging obsolete code.
+  - Any PR left open has one concrete non-duplicated purpose tied to an incomplete roadmap criterion.
+  - No accepted P0/P1/P2 behavior is removed, no branch is force-pushed, and no new compatibility path/helper is introduced.
+  - `docs/ROADMAP.md` is changed only if the comparison reveals a factual mismatch; completed criteria are not reopened or rechecked without evidence.
+  - After cleanup, the remaining open-PR queue is short and non-overlapping enough that the next P2 lot can be selected without ambiguity.
 - Evidence required:
-  - Exact product commit SHA and diff limited to the bounded helper/tests plus necessary coordination.
-  - Exact focused test command and passing output.
-  - Exact full regression command and passing output, locally or through one justified lightweight CI run on the exact product commit.
-  - Confirmation that tests use fabricated data only and that no secret, token, real payload, customer data, private code, co-author trailer or unsupported live/certification claim was introduced.
-- Evidence: Product commit `1f1c4c80050483929bf535c42647d4b865b0cbc2` remains unchanged. Commits after it modify only coordination and `.github/workflows/tests.yml`; no product file changed. GitHub Actions run `37154602436` on `57bd1f60838222cbfe946604ece7098122f65d94` completed successfully. Job `111295306071` ran the exact focused command `python -m unittest tests.test_loyverse.LoyverseTests.test_canonical_money_serializes_finite_values_exactly tests.test_loyverse.LoyverseTests.test_canonical_money_preserves_unknown_amount tests.test_loyverse.LoyverseTests.test_canonical_money_requires_valid_merchant_currency -v` successfully, then ran `python -m unittest discover -s tests -v` successfully. The tests are fabricated and the bounded product diff introduces no live call, OAuth behavior, token, real payload, customer data, private code or certification claim.
-- Limits: this lot does not complete roadmap-wide Loyverse normalization, tax semantics, end-to-end mappings, retries/checkpoints or live/OAuth evidence. The P2 roadmap criterion remains incomplete.
-- Next action: Planner must immediately select the next independent incomplete roadmap criterion and open a bounded `READY` lot. Do not wait on P1 persistence or live/vendor evidence, and do not mark the global P2 normalization criterion complete from this bounded acceptance alone.
+  - Before/after list of relevant open PR numbers and states.
+  - For every closed PR, a concise pointer to the equivalent/replacement behavior on `main` or the accepted roadmap evidence that makes the PR obsolete.
+  - For every retained PR, the exact unique diff/behavior still absent from `main` and its roadmap owner.
+  - Confirmation that this consolidation introduced no product code, secret, private data, proprietary source, force-push or unsupported certification claim.
+- Debt snapshot: 5 relevant open PRs observed (#8-#12). #11/#12 visibly overlap behavior already present on `main`; #8-#10 concern P1 work whose corresponding roadmap criteria are already marked complete and therefore require classification before any merge. No critical product defect was found in the accepted Loyverse money helper. This lot reduces branch/PR ambiguity rather than adding another implementation path.
+- Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
+- Next action: Builder moves `READY -> BUILDING`, refreshes `main` and all five PR heads, performs the comparison/classification, closes only proven-obsolete PRs, records evidence, then hands the same Work ID to REVIEW. No heavy CI is required unless the comparison exposes a product change that genuinely needs proof.
 
 ## Handoff discipline
 
