@@ -174,3 +174,13 @@ def source_decimal(record: dict, field: str) -> Decimal | None:
     if type(value) is int:
         return Decimal(value)
     return None
+
+
+def source_external_id(record: dict) -> str | None:
+    """Return an opaque vendor id without coercing or rewriting it."""
+    if not isinstance(record, dict) or "id" not in record:
+        return None
+    value = record["id"]
+    if not isinstance(value, str) or not value.strip():
+        return None
+    return value
