@@ -58,8 +58,8 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-04`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `REVIEW`
-- Observed main HEAD: `57bd1f60838222cbfe946604ece7098122f65d94`
+- State: `ACCEPTED`
+- Observed main HEAD: `b7319e386d041711502ae13eb85a9441c103ef10`
 - Produced HEAD: `1f1c4c80050483929bf535c42647d4b865b0cbc2`
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
 - Reuse classification: OpenRetailSchema already has accepted Loyverse helpers for merchant currency, finite source decimals and opaque source IDs. External project evidence confirms unknown-versus-zero and merchant-currency behavior as design/test input only; it does not certify this connector.
@@ -79,7 +79,7 @@ The project must keep advancing while useful independent work exists.
   - Confirmation that tests use fabricated data only and that no secret, token, real payload, customer data, private code, co-author trailer or unsupported live/certification claim was introduced.
 - Evidence: Product commit `1f1c4c80050483929bf535c42647d4b865b0cbc2` remains unchanged. Commits after it modify only coordination and `.github/workflows/tests.yml`; no product file changed. GitHub Actions run `37154602436` on `57bd1f60838222cbfe946604ece7098122f65d94` completed successfully. Job `111295306071` ran the exact focused command `python -m unittest tests.test_loyverse.LoyverseTests.test_canonical_money_serializes_finite_values_exactly tests.test_loyverse.LoyverseTests.test_canonical_money_preserves_unknown_amount tests.test_loyverse.LoyverseTests.test_canonical_money_requires_valid_merchant_currency -v` successfully, then ran `python -m unittest discover -s tests -v` successfully. The tests are fabricated and the bounded product diff introduces no live call, OAuth behavior, token, real payload, customer data, private code or certification claim.
 - Limits: this lot does not complete roadmap-wide Loyverse normalization, tax semantics, end-to-end mappings, retries/checkpoints or live/OAuth evidence. The P2 roadmap criterion remains incomplete.
-- Next action: reviewer certifies the recorded evidence against the unchanged Produced HEAD and issues ACCEPTED, REWORK or DEFERRED without expanding scope.
+- Next action: Planner must immediately select the next independent incomplete roadmap criterion and open a bounded `READY` lot. Do not wait on P1 persistence or live/vendor evidence, and do not mark the global P2 normalization criterion complete from this bounded acceptance alone.
 
 ## Handoff discipline
 
