@@ -58,8 +58,8 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-04`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `REWORK`
-- Observed main HEAD: `ca4c1fd70215f0bae2347de56721fee439aaa4bd`
+- State: `BUILDING`
+- Observed main HEAD: `1c340c11da77a85176f6e204bc5046f6e2a829ff`
 - Produced HEAD: `1f1c4c80050483929bf535c42647d4b865b0cbc2`
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
 - Reuse classification: OpenRetailSchema already has accepted Loyverse helpers for merchant currency, finite source decimals and opaque source IDs. External project evidence confirms unknown-versus-zero and merchant-currency behavior as design/test input only; it does not certify this connector.
@@ -68,7 +68,7 @@ The project must keep advancing while useful independent work exists.
   - A focused helper in `connectors/loyverse.py` returns a canonical v0.1 money object only when both the source amount and uppercase three-letter merchant currency are valid under the existing helpers/contracts.
   - Explicit numeric zero yields an amount string representing zero and is never treated as missing.
   - Missing/null/unsupported/non-finite amounts return/fail closed as unknown rather than `{amount: "0", ...}`.
-  - Missing or malformed currency returns/fails closed; there is no default currency.
+  - Missing or malformed currency returns/fail closed; there is no default currency.
   - Finite integer and `Decimal` values are serialized exactly to non-exponent decimal strings accepted by the canonical money schema, including negative/refund-like values and fractional precision.
   - Focused fabricated tests cover zero, negative, fractional, missing amount, invalid amount, missing currency and malformed currency; existing currency/numeric/source-ID/pagination behavior remains unchanged.
   - The full regression suite passes on the exact produced product commit.
@@ -77,10 +77,10 @@ The project must keep advancing while useful independent work exists.
   - Exact focused test command and passing output.
   - Exact full regression command and passing output, locally or through one justified lightweight CI run on the exact product commit.
   - Confirmation that tests use fabricated data only and that no secret, token, real payload, customer data, private code, co-author trailer or unsupported live/certification claim was introduced.
-- Rework or deferred dependency: `REWORK — product behavior and full regression are green, but the recorded evidence omits the separately required exact focused-test command and its passing output. Correction criterion: execute the focused fabricated Loyverse money tests against the unchanged Produced HEAD (or an evidence-equivalent commit with no product behavior change), record the exact command and passing result, then return the lot through BUILDING -> REVIEW. Do not add product scope and do not rerun the full CI unless a product change actually requires it.`
-- Evidence: Product commit `1f1c4c80050483929bf535c42647d4b865b0cbc2` changes only `connectors/loyverse.py` and `tests/test_loyverse.py` relative to product base `95b3bdfe9c7462653388a72cbe05035db5589c6e`, plus coordination. `canonical_money()` composes the accepted amount and currency helpers; tests cover zero, negative/refund-like values, fractional precision, exponent-form Decimals rendered without exponent notation, missing/invalid amounts and missing/malformed currency using fabricated data only. GitHub Actions run `37144012291` targets the exact Produced HEAD and completed successfully; job `111264118061` ran the full regression command `python -m unittest discover -s tests -v` successfully. No live call, OAuth behavior, token, real payload, customer data or certification claim was introduced.
-- Limits: this lot does not complete roadmap-wide Loyverse normalization, tax semantics, end-to-end mappings, retries/checkpoints or live/OAuth evidence. The P2 roadmap criterion remains incomplete.
-- Next action: Builder should satisfy only the focused-test evidence criterion, preserving product behavior, then hand back through the state machine. The Planner and other independent work are not globally blocked by this REWORK lot.
+- Rework or deferred dependency: `REWORK criterion in progress — product behavior and full regression are already green. The only remaining acceptance evidence is an exact focused invocation of the three canonical-money tests against the repository product code. Do not add product scope and do not rerun the full CI unless a product change requires it.`
+- Evidence: Product commit `1f1c4c80050483929bf535c42647d4b865b0cbc2` changes only `connectors/loyverse.py` and `tests/test_loyverse.py` relative to product base `95b3bdfe9c7462653388a72cbe05035db5589c6e`, plus coordination. `canonical_money()` composes the accepted amount and currency helpers; tests cover zero, negative/refund-like values, fractional precision, exponent-form Decimals rendered without exponent notation, missing/invalid amounts and missing/malformed currency using fabricated data only. GitHub Actions run `37144012291` targets the exact Produced HEAD and completed successfully; job `111264118061` ran the full regression command `python -m unittest discover -s tests -v` successfully. A separate isolated reproduction of the three fabricated money assertions also passed, but it is not counted as the required repository-focused execution because the repository checkout was unavailable in that execution environment. No live call, OAuth behavior, token, real payload, customer data or certification claim was introduced.
+- Limits: this lot does not complete roadmap-wide Loyverse normalization, tax semantics, end-to-end mappings, retries/checkpoints or live/OAuth evidence. The P2 roadmap criterion remains incomplete. The exact repository-focused test command is still missing.
+- Next action: execute `python -m unittest tests.test_loyverse.LoyverseTests.test_canonical_money_serializes_finite_values_exactly tests.test_loyverse.LoyverseTests.test_canonical_money_preserves_unknown_amount tests.test_loyverse.LoyverseTests.test_canonical_money_requires_valid_merchant_currency -v` against the unchanged product code, record its passing output, then transition BUILDING -> REVIEW. If it fails, correct only the demonstrated defect.
 
 ## Handoff discipline
 
