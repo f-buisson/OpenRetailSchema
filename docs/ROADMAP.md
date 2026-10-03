@@ -50,7 +50,7 @@ Goal: provide a vendor-neutral fallback path that does not guess missing busines
 - [x] Detect duplicate product IDs, bad rows and missing fields; reject incomplete imports by default.
 - [x] Document a reproducible local product import with fabricated CSV and mapping examples.
 - [x] Execute the CSV regression tests from a fresh checkout of the exact public repository.
-- [ ] Define sales/activity date, timezone and UTC-offset mapping.
+- [x] Define sales/activity date, timezone and UTC-offset mapping.
 - [ ] Add sales/activity CSV fixtures covering refunds, missing values and DST boundaries.
 - [ ] Define repeated-import/idempotency behavior and test it against persistent storage only when storage is introduced.
 
