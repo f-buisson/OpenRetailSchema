@@ -60,7 +60,8 @@ The project must keep advancing while useful independent work exists.
 - Roadmap phase: `P2 — Loyverse reference connector`
 - State: `BUILDING`
 - Observed main HEAD: `3c70d1a76fe8a82d4f5caf6c5467f95b3d282b28`
-- Source work: accepted `P2-LOYVERSE-NORM-02`, produced at `357be67696f3ffaee47c52535a1f77ae7e439833` in PR #12. At implementation start GitHub reports PR #12 mergeable, but its accepted product diff is being integrated onto refreshed `main` without semantic expansion.
+- Produced HEAD: `8c63c4f34621616dcf285b1ea8fa45b82e932c77` on `main`; connector behavior commit `f0889aeca8b6d5739b261172d2be169a9231b846` followed by focused-test commit `8c63c4f34621616dcf285b1ea8fa45b82e932c77`.
+- Source work: accepted `P2-LOYVERSE-NORM-02`, produced at `357be67696f3ffaee47c52535a1f77ae7e439833` in PR #12. The accepted `connectors/loyverse.py` and `tests/test_loyverse.py` content is now present on refreshed `main` without semantic expansion.
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
 - Scope: integrate the already accepted bounded Loyverse numeric-normalization product diff onto current `main` without semantic expansion. Preserve current documentation/coordination changes and the accepted `source_decimal()` plus focused tests. Do not add new normalization behavior, live calls, OAuth claims, retries, checkpoints, tax inference, persistence or broad mapping in this lot.
 - Acceptance criteria:
@@ -75,8 +76,9 @@ The project must keep advancing while useful independent work exists.
   - Exact full regression command and passing output, locally or via the existing lightweight CI on the exact integrated commit.
   - Confirmation that no secret, token, real payload, customer data, private code, co-author trailer or unsupported certification claim was introduced.
 - Rework or deferred dependency: `-`
-- Progress: refreshed `main`, ROADMAP and this queue; read `docs/LOYVERSE_REUSE.md`; compared the accepted PR #12 connector/test content with current `main`. No newer product-file change supersedes the accepted diff.
-- Next action: integrate the accepted connector/test changes on refreshed `main`, run focused and full regression evidence on the exact integrated commit, then move this same Work ID to `REVIEW` if green.
+- Evidence so far: direct content comparison against accepted HEAD `357be67696f3ffaee47c52535a1f77ae7e439833` shows identical accepted blobs for `connectors/loyverse.py` (`af2fe63a...`) and `tests/test_loyverse.py` (`79a3c5fc...`) on integrated `main`. Existing lightweight CI run `37133216430` targets exact Produced HEAD `8c63c4f34621616dcf285b1ea8fa45b82e932c77` and is still in progress. A local clone/test attempt was not executable because the runtime could not resolve github.com; no local pass is claimed.
+- Limits: exact integrated CI has not completed yet, so the required passing regression evidence is not available in this passage. No live/OAuth behavior or connector-wide certification is claimed.
+- Next action: inspect run `37133216430`; if green, record its exact commands/results and transition this same Work ID `BUILDING -> REVIEW`; if red, correct only the demonstrated integration regression and retest.
 
 ## Handoff discipline
 
