@@ -155,3 +155,22 @@ def merchant_currency(merchant: dict) -> str | None:
     if isinstance(value, str) and len(value) == 3 and value.isalpha() and value.isupper():
         return value
     return None
+
+
+def source_decimal(record: dict, field: str) -> Decimal | None:
+    """Preserve a finite numeric source value without guessing missing values.
+
+    Transport JSON floats are parsed as ``Decimal``. Integer JSON values remain
+    integers and are converted exactly. Strings, booleans, binary floats and
+    structured values are unsupported at this boundary and fail closed.
+    """
+    if not isinstance(record, dict) or not isinstance(field, str) or field not in record:
+        return None
+    value = record[field]
+    if value is None or isinstance(value, bool):
+        return None
+    if isinstance(value, Decimal):
+        return value if value.is_finite() else None
+    if type(value) is int:
+        return Decimal(value)
+    return None
