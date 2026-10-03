@@ -58,10 +58,9 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `DEBT-PR-CONSOLIDATE-01`
 - Roadmap phase: cross-phase consolidation before further P2 expansion
-- State: `REVIEW`
-- Observed main HEAD: `81811701efbae819ed37efa651f51411ce1f89f7`
+- State: `ACCEPTED`
+- Observed main HEAD: `5ab65387e489da3a9a36b5ffbac0cc47d9ab702f`
 - Produced HEAD: `d76f5619b70e612d07384ac05716e0ba037e9eed` (coordination-only BUILDING handoff; no product behavior changed in this lot)
-- Trigger: five older PRs (#8-#12) remained open after their roadmap ownership had either been completed or superseded on `main`.
 - Scope: bounded stale-PR consolidation only; no product behavior changes.
 - Acceptance criteria:
   - PRs #8-#12 are explicitly classified against current `main`.
@@ -69,18 +68,18 @@ The project must keep advancing while useful independent work exists.
   - Any retained PR must serve a concrete incomplete roadmap criterion.
   - No accepted behavior is removed, no force-push occurs, and no compatibility helper is introduced.
   - Roadmap completion is not reopened without evidence.
-- Evidence:
-  - Refreshed `main`, `docs/ROADMAP.md`, this handoff, and PR heads before cleanup.
-  - #8: unique proposed naive-local DST CSV fixture, but its stated P1 ownership is already complete on the roadmap. It does not serve the sole remaining P1 criterion (persistent-storage idempotency), so retaining or merging it would reopen completed scope without evidence. Closed unmerged.
-  - #9: superseded/unsafe to merge. Accepted `main` already owns timestamp normalization through `importers/time_normalization.py` and tests; #9 proposes a competing API/convention. Closed unmerged.
-  - #10: partially unique test file, but every behavior it asserts (refund sign, absent monetary values, offset-bearing fallback semantics) belongs to P0/P1 criteria already marked complete. It does not serve the remaining P1 idempotency criterion or an incomplete P2 criterion. Closed unmerged rather than reopening completed scope.
-  - #11: fully superseded by accepted Loyverse merchant-currency normalization on `main`. Closed unmerged.
-  - #12: fully superseded by accepted Loyverse numeric normalization on `main`. Closed unmerged.
-  - Before cleanup: five open stale PRs in this bounded set. After cleanup: zero open PRs from #8-#12; no overlapping retained purpose remains.
-  - `docs/ROADMAP.md` was not changed: comparison found no factual mismatch requiring completed criteria to be reopened.
-  - No product code, secret, private/customer data, proprietary source, force-push, new helper, CI run, or certification claim was introduced.
+- Review evidence:
+  - Refreshed `main`, `docs/ROADMAP.md`, this handoff, and the PR queue before verdict.
+  - PRs #8, #9, #10, #11 and #12 are all closed and unmerged; the repository has no open pull request at review time.
+  - #8 is unique fixture material but belongs to already completed P1 DST/fixture scope and does not serve the remaining persistent-storage idempotency criterion.
+  - #9 is superseded by the accepted timestamp-normalization path on `main`; merging its competing API would create an unnecessary compatibility path.
+  - #10 contains partially unique executable fixture checks, but those checks cover refund, missing-value and DST semantics already owned by completed P0/P1 criteria and do not serve an incomplete criterion.
+  - #11 and #12 are superseded by accepted Loyverse currency and numeric normalization behavior already present on `main`.
+  - `docs/ROADMAP.md` remains unchanged and correctly keeps P1 persistent-storage idempotency plus the broader P2 connector criteria incomplete.
+  - The Produced HEAD and the later REVIEW handoff changed only `docs/WORK_QUEUE.md`; no product behavior was modified by this consolidation.
+  - No additional CI run was justified for this coordination-only lot.
 - Rework or blocker: `-`
-- Next action: Reviewer verifies the five classifications and closed/unmerged state, then decides ACCEPTED or REWORK. Builder must not select a new scope from REVIEW.
+- Next action: Planner must move `ACCEPTED -> READY` by selecting the next bounded independent incomplete roadmap criterion. Do not wait on P1 persistent-storage idempotency or future live/vendor evidence when independent P2 work remains available.
 
 ## Handoff discipline
 
