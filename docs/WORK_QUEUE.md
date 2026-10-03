@@ -58,11 +58,11 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-02-INTEGRATE`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `READY`
-- Observed main HEAD: `8cfe023ffa0cfb4844d39ba6cb4b3f3af43d5154`
-- Source work: accepted `P2-LOYVERSE-NORM-02`, produced at `357be67696f3ffaee47c52535a1f77ae7e439833` in PR #12. The PR is open and currently not mergeable against the newer `main`.
+- State: `BUILDING`
+- Observed main HEAD: `3c70d1a76fe8a82d4f5caf6c5467f95b3d282b28`
+- Source work: accepted `P2-LOYVERSE-NORM-02`, produced at `357be67696f3ffaee47c52535a1f77ae7e439833` in PR #12. At implementation start GitHub reports PR #12 mergeable, but its accepted product diff is being integrated onto refreshed `main` without semantic expansion.
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
-- Scope: integrate the already accepted bounded Loyverse numeric-normalization product diff onto current `main` without semantic expansion. Resolve the stale-base conflict cleanly, preserving current documentation/coordination changes and the accepted `source_decimal()` plus focused tests. Do not add new normalization behavior, live calls, OAuth claims, retries, checkpoints, tax inference, persistence or broad mapping in this lot.
+- Scope: integrate the already accepted bounded Loyverse numeric-normalization product diff onto current `main` without semantic expansion. Preserve current documentation/coordination changes and the accepted `source_decimal()` plus focused tests. Do not add new normalization behavior, live calls, OAuth claims, retries, checkpoints, tax inference, persistence or broad mapping in this lot.
 - Acceptance criteria:
   - Current `main` receives the accepted `source_decimal()` behavior and its focused synthetic tests with no loss of newer main changes.
   - Missing/null remain unknown, explicit zero remains zero, finite `Decimal` and exact integers retain the accepted semantics, and unsupported/coercive shapes remain fail-closed exactly as reviewed.
@@ -75,7 +75,8 @@ The project must keep advancing while useful independent work exists.
   - Exact full regression command and passing output, locally or via the existing lightweight CI on the exact integrated commit.
   - Confirmation that no secret, token, real payload, customer data, private code, co-author trailer or unsupported certification claim was introduced.
 - Rework or deferred dependency: `-`
-- Next action: Builder should refresh `main`, read `docs/LOYVERSE_REUSE.md`, transition this same Work ID `READY -> BUILDING`, integrate the accepted PR #12 product diff onto the current base without semantic expansion, run the focused and full regression tests, then hand the same Work ID to review with exact evidence.
+- Progress: refreshed `main`, ROADMAP and this queue; read `docs/LOYVERSE_REUSE.md`; compared the accepted PR #12 connector/test content with current `main`. No newer product-file change supersedes the accepted diff.
+- Next action: integrate the accepted connector/test changes on refreshed `main`, run focused and full regression evidence on the exact integrated commit, then move this same Work ID to `REVIEW` if green.
 
 ## Handoff discipline
 
