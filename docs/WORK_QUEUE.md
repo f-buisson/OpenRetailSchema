@@ -56,29 +56,30 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `P2-LOYVERSE-NORM-03`
+- Work ID: `P2-LOYVERSE-NORM-04`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `ACCEPTED`
-- Observed main HEAD before verdict: `fd24a1477201fe1d5d2b75ea6441b2e261f18bd5`
-- Produced HEAD: `b04610c143cc3ec4c95e05f3a2e9e28fbb7d05c8` on `main`; helper commit `2b446b1fe0236be162e12a692ce29371c9259973`, focused-test commit `b04610c143cc3ec4c95e05f3a2e9e28fbb7d05c8`.
+- State: `READY`
+- Observed main HEAD: `7423ea1dac298b6144952153dc3e7e747b3643f4`
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
-- Reuse classification: OpenRetailSchema already has raw Loyverse transport plus bounded currency/numeric helpers; canonical source provenance requires a non-guessing source identifier boundary. External project evidence is design/test input only and does not certify this connector.
-- Scope: add one small Loyverse source-identity normalization helper and focused synthetic tests. Accept an opaque vendor `id` only when it is a non-empty string; preserve its exact content rather than coercing, trimming into a different identifier, hashing, or synthesizing a replacement. Return/fail closed for missing, null, blank/whitespace-only, numeric, boolean or structured values. Keep this helper at the raw-to-canonical boundary; do not build full product/sale mappings, retries, checkpoints, tax inference, live calls or OAuth behavior in this lot.
+- Reuse classification: OpenRetailSchema already has accepted Loyverse helpers for merchant currency, finite source decimals and opaque source IDs. External project evidence confirms unknown-versus-zero and merchant-currency behavior as design/test input only; it does not certify this connector.
+- Scope: add one bounded raw-to-canonical money normalization helper plus focused synthetic tests. Compose an already-validated finite source numeric field with an already-validated merchant currency code into the canonical v0.1 money shape `{amount, currency}`. Preserve zero as zero and missing/invalid amount as unknown; never invent a currency or amount. Serialize `Decimal` deterministically as a plain JSON-compatible decimal string without exponent notation or binary-float conversion. Do not build full product/sale mappings, tax inference, retries, checkpoints, live calls or OAuth behavior in this lot.
 - Acceptance criteria:
-  - A focused helper in `connectors/loyverse.py` exposes a validated opaque source identifier suitable for canonical `source.external_id` without inventing missing data.
-  - A valid non-empty string identifier is preserved byte-for-byte as a Python string, including meaningful surrounding characters; validation may reject whitespace-only but must not silently rewrite identifiers.
-  - Missing/null, empty or whitespace-only strings, booleans, numbers, lists and objects fail closed and never become strings such as `"None"`, `"0"` or synthesized IDs.
-  - Focused tests prove valid preservation and every rejected class above using fabricated data only.
-  - Existing currency/numeric/pagination behavior remains unchanged and the full regression suite passes.
+  - A focused helper in `connectors/loyverse.py` returns a canonical v0.1 money object only when both the source amount and uppercase three-letter merchant currency are valid under the existing helpers/contracts.
+  - Explicit numeric zero yields an amount string representing zero and is never treated as missing.
+  - Missing/null/unsupported/non-finite amounts return/fail closed as unknown rather than `{amount: "0", ...}`.
+  - Missing or malformed currency returns/fails closed; there is no default currency.
+  - Finite integer and `Decimal` values are serialized exactly to non-exponent decimal strings accepted by the canonical money schema, including negative/refund-like values and fractional precision.
+  - Focused fabricated tests cover zero, negative, fractional, missing amount, invalid amount, missing currency and malformed currency; existing currency/numeric/source-ID/pagination behavior remains unchanged.
+  - The full regression suite passes on the exact produced product commit.
 - Evidence required:
   - Exact product commit SHA and diff limited to the bounded helper/tests plus necessary coordination.
   - Exact focused test command and passing output.
   - Exact full regression command and passing output, locally or through one justified lightweight CI run on the exact product commit.
-  - Confirmation that no secret, token, real payload, customer data, private code, co-author trailer or unsupported live/certification claim was introduced.
+  - Confirmation that tests use fabricated data only and that no secret, token, real payload, customer data, private code, co-author trailer or unsupported live/certification claim was introduced.
 - Rework or deferred dependency: `-`
-- Evidence: compare `ebcd6b1..b04610c` changes only `connectors/loyverse.py`, `tests/test_loyverse.py` and coordination. `source_external_id()` returns the original valid string unchanged, including meaningful surrounding characters, and rejects missing/null/empty/whitespace-only, booleans, numbers and structured values without coercion or synthesis. Tests use fabricated values only. Existing lightweight CI run `37140272492` targets exact Produced HEAD `b04610c143cc3ec4c95e05f3a2e9e28fbb7d05c8`, completed successfully, and ran the full regression command `python -m unittest discover -s tests -v`. No additional CI was required for review.
-- Limits: acceptance certifies this bounded source-identity slice only. It does not complete the roadmap-wide Loyverse normalization criterion and does not establish live/OAuth evidence.
-- Next action: Planner should immediately select the next independent incomplete roadmap criterion and create a bounded `READY` lot. Keep P1 repeated-import/idempotency incomplete until a real persistence boundary exists.
+- Evidence: pending Builder implementation.
+- Limits: this lot does not complete roadmap-wide Loyverse normalization, tax semantics, end-to-end mappings, retries/checkpoints or live/OAuth evidence.
+- Next action: Builder must refresh `main` and this file, transition `P2-LOYVERSE-NORM-04` from `READY` to `BUILDING`, implement only this canonical-money slice with synthetic tests, then provide exact focused/full regression evidence before moving the same Work ID to `REVIEW`.
 
 ## Handoff discipline
 
