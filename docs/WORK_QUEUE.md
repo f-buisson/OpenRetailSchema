@@ -56,29 +56,27 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `P2-LOYVERSE-NORM-02-INTEGRATE`
+- Work ID: `P2-LOYVERSE-NORM-03`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `ACCEPTED`
-- Observed main HEAD: `3c70d1a76fe8a82d4f5caf6c5467f95b3d282b28`
-- Produced HEAD: `8c63c4f34621616dcf285b1ea8fa45b82e932c77` on `main`; connector behavior commit `f0889aeca8b6d5739b261172d2be169a9231b846` followed by focused-test commit `8c63c4f34621616dcf285b1ea8fa45b82e932c77`.
-- Source work: accepted `P2-LOYVERSE-NORM-02`, produced at `357be67696f3ffaee47c52535a1f77ae7e439833` in PR #12. The accepted `connectors/loyverse.py` and `tests/test_loyverse.py` content is now present on refreshed `main` without semantic expansion.
+- State: `READY`
+- Observed main HEAD: `1f377f7afee3d73cacfc3014cf56d9d868b361c5`
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
-- Scope: integrate the already accepted bounded Loyverse numeric-normalization product diff onto current `main` without semantic expansion. Preserve current documentation/coordination changes and the accepted `source_decimal()` plus focused tests. Do not add new normalization behavior, live calls, OAuth claims, retries, checkpoints, tax inference, persistence or broad mapping in this lot.
+- Reuse classification: OpenRetailSchema already has raw Loyverse transport plus bounded currency/numeric helpers; canonical source provenance requires a non-guessing source identifier boundary. External project evidence is design/test input only and does not certify this connector.
+- Scope: add one small Loyverse source-identity normalization helper and focused synthetic tests. Accept an opaque vendor `id` only when it is a non-empty string; preserve its exact content rather than coercing, trimming into a different identifier, hashing, or synthesizing a replacement. Return/fail closed for missing, null, blank/whitespace-only, numeric, boolean or structured values. Keep this helper at the raw-to-canonical boundary; do not build full product/sale mappings, retries, checkpoints, tax inference, live calls or OAuth behavior in this lot.
 - Acceptance criteria:
-  - Current `main` receives the accepted `source_decimal()` behavior and its focused synthetic tests with no loss of newer main changes.
-  - Missing/null remain unknown, explicit zero remains zero, finite `Decimal` and exact integers retain the accepted semantics, and unsupported/coercive shapes remain fail-closed exactly as reviewed.
-  - The integration diff contains no unrelated product changes and does not alter the connector-wide roadmap completion claim.
-  - Focused Loyverse tests and the full regression suite pass on the exact integrated commit.
-  - PR #12 is either updated/merged cleanly or superseded by an equivalently reviewable integration path; no force-push is used.
+  - A focused helper in `connectors/loyverse.py` exposes a validated opaque source identifier suitable for canonical `source.external_id` without inventing missing data.
+  - A valid non-empty string identifier is preserved byte-for-byte as a Python string, including meaningful surrounding characters; validation may reject whitespace-only but must not silently rewrite identifiers.
+  - Missing/null, empty or whitespace-only strings, booleans, numbers, lists and objects fail closed and never become strings such as `"None"`, `"0"` or synthesized IDs.
+  - Focused tests prove valid preservation and every rejected class above using fabricated data only.
+  - Existing currency/numeric/pagination behavior remains unchanged and the full regression suite passes.
 - Evidence required:
-  - Exact integrated commit SHA and comparison showing the accepted connector/test behavior is present on top of current `main`.
+  - Exact product commit SHA and diff limited to the bounded helper/tests plus necessary coordination.
   - Exact focused test command and passing output.
-  - Exact full regression command and passing output, locally or via the existing lightweight CI on the exact integrated commit.
-  - Confirmation that no secret, token, real payload, customer data, private code, co-author trailer or unsupported certification claim was introduced.
+  - Exact full regression command and passing output, locally or through one justified lightweight CI run on the exact product commit.
+  - Confirmation that no secret, token, real payload, customer data, private code, co-author trailer or unsupported live/certification claim was introduced.
 - Rework or deferred dependency: `-`
-- Evidence: direct content comparison against accepted HEAD `357be67696f3ffaee47c52535a1f77ae7e439833` shows identical accepted blobs for `connectors/loyverse.py` (`af2fe63a...`) and `tests/test_loyverse.py` (`79a3c5fc...`) on integrated `main`. Existing lightweight CI run `37133216430` completed successfully on exact Produced HEAD `8c63c4f34621616dcf285b1ea8fa45b82e932c77`. Its Ubuntu job installed `requirements-dev.txt` and successfully ran the full regression command `python -m unittest discover -s tests -v`. Review confirmed the integration diff from `3c70d1a...` is limited to the accepted connector behavior, its focused tests and coordination, and that later commits through `6d0ca33b...` only change coordination. No additional semantic change was introduced.
-- Limits: no local pass is claimed because the earlier runtime could not resolve github.com. No live/OAuth behavior or connector-wide certification is claimed; this evidence is synthetic repository regression evidence only. The roadmap-wide Loyverse normalization criterion remains incomplete.
-- Next action: Planner must immediately select the next independent incomplete roadmap criterion and create a bounded `READY` lot. The deferred P1 persistence-dependent idempotency criterion remains incomplete and must not hold the queue.
+- Limits: this lot does not complete the roadmap-wide Loyverse normalization criterion and does not establish live/OAuth evidence.
+- Next action: Builder refreshes `main`, confirms this Work ID is still `READY`, transitions `P2-LOYVERSE-NORM-03` to `BUILDING`, implements only the bounded source-identity helper/tests, runs focused and full regression evidence, then hands the same Work ID to review.
 
 ## Handoff discipline
 
