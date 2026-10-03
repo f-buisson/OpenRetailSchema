@@ -13,8 +13,8 @@ Allowed states:
 - `BUILDING` — implementation has started from the recorded base.
 - `REVIEW` — implementation is complete enough to review.
 - `ACCEPTED` — evidence satisfies the recorded acceptance criteria.
-- `REWORK` — review found specific defects that must be corrected before new scope is opened.
-- `BLOCKED` — progress requires a documented dependency, authorization or external condition.
+- `REWORK` — review found specific defects that must be corrected.
+- `DEFERRED` — this specific lot cannot currently be completed because it depends on an external condition, authorization, live account, hardware, unavailable evidence or other dependency. DEFERRED never blocks the project.
 
 Allowed transitions:
 
@@ -25,23 +25,34 @@ BUILDING -> REVIEW
 REVIEW -> ACCEPTED
 REVIEW -> REWORK
 REWORK -> BUILDING
-REVIEW -> BLOCKED
-BLOCKED -> READY
+REVIEW -> DEFERRED
+DEFERRED -> READY
 ACCEPTED -> READY
 ```
 
 Do not skip `REVIEW` to mark implementation accepted.
 
+## Non-blocking rule
+
+The project must keep advancing while useful independent work exists.
+
+1. A dependency may defer one lot, but it must never freeze the global queue.
+2. When a lot becomes `DEFERRED`, record the exact dependency and the condition that would make that lot actionable again.
+3. In the same reviewer/planner cycle when practical, move on to the next independent incomplete roadmap criterion and create a new `READY` lot.
+4. If the first incomplete criterion of the highest-priority phase depends on unavailable external evidence, preserve that criterion as incomplete and work on the next independent criterion without falsely marking the deferred criterion complete.
+5. Human access, vendor authorization, live credentials, external hardware or unavailable real data are reasons to defer that specific proof, not reasons to stop development, tests, documentation, adapters, fixtures or other independent roadmap work.
+
 ## Concurrency rules
 
-1. Record the observed HEAD before starting a transition.
+1. Record the observed product HEAD before starting a transition.
 2. Immediately before writing, refresh HEAD and this file.
-3. If HEAD changed unexpectedly, re-evaluate the lot instead of overwriting newer work.
-4. Only the phase responsible for the current transition may change the state.
-5. A lot is not complete because code exists; completion requires reproducible evidence.
-6. Cosmetic edits do not justify a state transition.
-7. If a run ends after code changes but before evidence is complete, leave the state at `BUILDING` or `REVIEW` as appropriate and describe the missing evidence.
-8. If the same blocker survives two consecutive planning passes, narrow the task or move to the next independent roadmap criterion while keeping the blocker documented.
+3. A commit that only updates `docs/WORK_QUEUE.md` for coordination is an expected handoff change, not a product-base collision.
+4. If product files changed unexpectedly, re-evaluate the lot instead of overwriting newer work.
+5. Only the phase responsible for the current transition may change the state.
+6. A lot is not complete because code exists; completion requires reproducible evidence.
+7. Cosmetic edits do not justify a state transition.
+8. If a run ends after code changes but before evidence is complete, leave the state at `BUILDING` or `REVIEW` as appropriate and describe the missing evidence.
+9. Never leave the global workflow waiting on one unavailable dependency when another useful independent roadmap item can be worked.
 
 ## Current handoff
 
@@ -64,9 +75,9 @@ Do not skip `REVIEW` to mark implementation accepted.
 - Evidence produced:
   - `-`
 - Review verdict: `-`
-- Rework or blocker: `-`
-- Next action: Builder refreshes `main` and this file, transitions `READY -> BUILDING`, implements `P1-TIME-01` on a small dedicated branch, runs the required local tests, records the produced HEAD/evidence, then hands the same Work ID to review without opening new scope.
+- Rework or deferred dependency: `-`
+- Next action: Builder refreshes `main` and this file, treats this coordination commit as expected, transitions `READY -> BUILDING`, implements `P1-TIME-01` from the latest compatible product HEAD, runs the required local tests, records the Produced HEAD/evidence, then hands the same Work ID to review without opening new scope.
 
 ## Handoff discipline
 
-Keep this file compact. Replace the current handoff when a new lot starts; durable product decisions belong in the relevant specification or documentation, not in this coordination file.
+Keep this file compact. Replace the current handoff when a new lot starts; durable product decisions belong in the relevant specification or documentation, not in this coordination file. A deferred lot remains documented in durable roadmap/evidence notes, but the active handoff must move to independent useful work instead of stopping the project.
