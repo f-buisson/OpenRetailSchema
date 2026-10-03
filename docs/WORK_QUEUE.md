@@ -58,8 +58,8 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-03`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `READY`
-- Observed main HEAD: `1f377f7afee3d73cacfc3014cf56d9d868b361c5`
+- State: `BUILDING`
+- Observed main HEAD: `ebcd6b189c61b42a4eed77de59ccdc97c9409bae`
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
 - Reuse classification: OpenRetailSchema already has raw Loyverse transport plus bounded currency/numeric helpers; canonical source provenance requires a non-guessing source identifier boundary. External project evidence is design/test input only and does not certify this connector.
 - Scope: add one small Loyverse source-identity normalization helper and focused synthetic tests. Accept an opaque vendor `id` only when it is a non-empty string; preserve its exact content rather than coercing, trimming into a different identifier, hashing, or synthesizing a replacement. Return/fail closed for missing, null, blank/whitespace-only, numeric, boolean or structured values. Keep this helper at the raw-to-canonical boundary; do not build full product/sale mappings, retries, checkpoints, tax inference, live calls or OAuth behavior in this lot.
@@ -76,7 +76,7 @@ The project must keep advancing while useful independent work exists.
   - Confirmation that no secret, token, real payload, customer data, private code, co-author trailer or unsupported live/certification claim was introduced.
 - Rework or deferred dependency: `-`
 - Limits: this lot does not complete the roadmap-wide Loyverse normalization criterion and does not establish live/OAuth evidence.
-- Next action: Builder refreshes `main`, confirms this Work ID is still `READY`, transitions `P2-LOYVERSE-NORM-03` to `BUILDING`, implements only the bounded source-identity helper/tests, runs focused and full regression evidence, then hands the same Work ID to review.
+- Next action: implement only the bounded source-identity helper and fabricated tests, then produce focused/full regression evidence before handing this same Work ID to review.
 
 ## Handoff discipline
 
