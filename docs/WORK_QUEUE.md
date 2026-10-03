@@ -58,8 +58,9 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-02`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `READY`
-- Observed base HEAD: `44f7c0c396aff4d67c702aff4b6f55fc67142bac`
+- State: `BUILDING`
+- Observed base HEAD: `20b5e95eac870a799dbc963c9b4fca612cbf3e63`
+- Produced HEAD: `357be67696f3ffaee47c52535a1f77ae7e439833` on `builder/P2-LOYVERSE-NORM-02` (PR #12).
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
 - Scope: continue the incomplete Loyverse normalization audit with one synthetic product-value boundary. Add a small normalization helper or equivalent tested boundary for Loyverse product/variant monetary and stock values that preserves source absence/null as unknown rather than zero. Keep raw transport dictionaries separate from canonical records. Do not add live calls, OAuth claims, pagination changes, persistence, receipts, tax inference, or broad product mapping.
 - Acceptance criteria:
@@ -75,10 +76,14 @@ The project must keep advancing while useful independent work exists.
   - Exact full regression command and passing output, locally when available or on the exact produced commit via existing lightweight CI when useful.
   - Diff limited to the Loyverse connector, focused tests, and minimal documentation only if needed to state a demonstrated boundary.
   - No network access, token, real payload, customer data, private code, co-author trailer, prohibited attribution, or unsupported vendor claim.
-- Evidence produced: `-`
+- Evidence produced:
+  - PR #12 changes only `connectors/loyverse.py` and `tests/test_loyverse.py` at produced HEAD `357be67696f3ffaee47c52535a1f77ae7e439833`.
+  - `source_decimal()` preserves missing/null as `None`, explicit integer/Decimal zero as zero, exact integer conversion and finite Decimal precision; booleans, binary floats, strings, non-finite Decimal values and structured values fail closed to `None`.
+  - Focused synthetic tests cover both `price` and `in_stock` unknown-versus-zero behavior, high Decimal precision and unsupported shapes without network access.
+  - No local execution is claimed in this environment. At the latest check, no GitHub Actions run had yet been published for the exact produced HEAD, so regression execution proof remains pending.
 - Review verdict: `-`
 - Rework or deferred dependency: `-`
-- Next action: Builder should refresh `main`, confirm this Work ID is still `READY`, transition `P2-LOYVERSE-NORM-02` to `BUILDING`, implement only this unknown-versus-zero normalization slice with synthetic tests, run the focused and full regression suites, then hand the same Work ID to review without expanding scope.
+- Next action: Builder should check CI for exact produced HEAD `357be67696f3ffaee47c52535a1f77ae7e439833`; if the existing full regression suite is green, record that exact run and transition this same Work ID to `REVIEW`; if it fails, correct only the demonstrated regression and keep the scope bounded.
 
 ## Handoff discipline
 
