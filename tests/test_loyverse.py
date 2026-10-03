@@ -6,6 +6,7 @@ import unittest
 from connectors.loyverse import (
     LoyverseClient,
     LoyverseError,
+    canonical_money,
     merchant_currency,
     source_decimal,
     source_external_id,
@@ -104,6 +105,36 @@ class LoyverseTests(unittest.TestCase):
         for value in rejected:
             with self.subTest(value=value):
                 self.assertIsNone(source_external_id({"id": value}))
+
+    def test_canonical_money_serializes_finite_values_exactly(self):
+        merchant = {"currency": {"code": "EUR"}}
+        cases = (
+            (0, "0"),
+            (Decimal("0.000"), "0.000"),
+            (-9, "-9"),
+            (Decimal("-9.90"), "-9.90"),
+            (Decimal("1234567890.12345678901234567890"), "1234567890.12345678901234567890"),
+            (Decimal("1E+3"), "1000"),
+            (Decimal("1E-7"), "0.0000001"),
+        )
+        for value, expected in cases:
+            with self.subTest(value=value):
+                self.assertEqual(
+                    canonical_money({"price": value}, "price", merchant),
+                    {"amount": expected, "currency": "EUR"},
+                )
+
+    def test_canonical_money_preserves_unknown_amount(self):
+        merchant = {"currency": "EUR"}
+        for record in ({}, {"price": None}, {"price": "0"}, {"price": 1.5}, {"price": Decimal("NaN")}):
+            with self.subTest(record=record):
+                self.assertIsNone(canonical_money(record, "price", merchant))
+
+    def test_canonical_money_requires_valid_merchant_currency(self):
+        record = {"price": Decimal("2.49")}
+        for merchant in ({}, {"currency": None}, {"currency": "eur"}, {"currency": "EURO"}, {"currency": {"code": "usd"}}):
+            with self.subTest(merchant=merchant):
+                self.assertIsNone(canonical_money(record, "price", merchant))
 
     def test_merchant_raw_response(self):
         raw = {"id": "synthetic", "currency": {"code": "THB", "decimal_places": 2}}

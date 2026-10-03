@@ -184,3 +184,12 @@ def source_external_id(record: dict) -> str | None:
     if not isinstance(value, str) or not value.strip():
         return None
     return value
+
+
+def canonical_money(record: dict, field: str, merchant: dict) -> dict | None:
+    """Compose validated source amount and merchant currency into v0.1 money."""
+    amount = source_decimal(record, field)
+    currency = merchant_currency(merchant)
+    if amount is None or currency is None:
+        return None
+    return {"amount": format(amount, "f"), "currency": currency}
