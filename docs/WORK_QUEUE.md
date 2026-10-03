@@ -58,33 +58,16 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-02`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `REVIEW`
-- Observed base HEAD: `20b5e95eac870a799dbc963c9b4fca612cbf3e63`
-- Produced HEAD: `357be67696f3ffaee47c52535a1f77ae7e439833` on `builder/P2-LOYVERSE-NORM-02` (PR #12).
+- State: `ACCEPTED`
+- Observed review HEAD: `1e509eea4745e0abc53cf5ade4ace36286e7fd34`
+- Produced HEAD: `357be67696f3ffaee47c52535a1f77ae7e439833` on `builder/P2-LOYVERSE-NORM-02` (PR #12), based on `20b5e95eac870a799dbc963c9b4fca612cbf3e63`.
+- Scope reviewed: bounded synthetic normalization of Loyverse product/variant monetary and stock-like numeric source values, preserving unknown/null separately from explicit zero and failing closed for unsupported shapes.
+- Evidence: PR #12 changes only `connectors/loyverse.py` and `tests/test_loyverse.py`; `source_decimal()` accepts finite `Decimal` and exact integers, preserves zero and precision, and rejects booleans, binary floats, strings, non-finite decimals and structured values. Exact produced-commit GitHub Actions run `37125933104` passed `python -m unittest discover -s tests -v` on `357be67696f3ffaee47c52535a1f77ae7e439833`.
+- Concurrency review: current `main` advanced after the produced base through documentation/coordination work (`docs/WORK_QUEUE.md`, `docs/ROADMAP.md`, `docs/LOYVERSE_REUSE.md`). No later product-file change on `main` supersedes the reviewed connector/test diff. PR #12 currently requires integration with the newer base before merge; acceptance certifies the bounded product diff, not a merge result.
+- Review verdict: `ACCEPTED` — all recorded criteria for this bounded lot are satisfied by reproducible synthetic evidence. The connector-wide roadmap criterion remains incomplete; this lot does not certify live behavior, OAuth, taxes, identifiers, provenance, persistence or the full canonical mapping.
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
-- Scope: continue the incomplete Loyverse normalization audit with one synthetic product-value boundary. Add a small normalization helper or equivalent tested boundary for Loyverse product/variant monetary and stock values that preserves source absence/null as unknown rather than zero. Keep raw transport dictionaries separate from canonical records. Do not add live calls, OAuth claims, pagination changes, persistence, receipts, tax inference, or broad product mapping.
-- Acceptance criteria:
-  - Synthetic cases prove missing and explicit null price/stock inputs remain unknown (`None`/omitted as appropriate) and are never converted to numeric zero.
-  - Explicit numeric zero remains distinguishable from missing/null and is preserved as zero when the source shape is otherwise valid.
-  - Accepted numeric values preserve decimal precision; booleans, NaN/infinity, malformed strings and unsupported shapes fail closed instead of being guessed or coerced.
-  - The implementation remains a normalization boundary only; it must not fabricate canonical currency, tax, identifiers or provenance fields that the source slice cannot prove.
-  - Tests are offline, deterministic and synthetic, and the existing regression suite remains green.
-  - The roadmap Loyverse normalization criterion remains incomplete unless review finds the connector-wide audit sufficient; this lot alone must not claim live connector or OAuth certification.
-- Evidence required:
-  - Focused tests showing absent/null != zero and explicit zero behavior for both monetary and stock-like values.
-  - Exact focused test command and passing output.
-  - Exact full regression command and passing output, locally when available or on the exact produced commit via existing lightweight CI when useful.
-  - Diff limited to the Loyverse connector, focused tests, and minimal documentation only if needed to state a demonstrated boundary.
-  - No network access, token, real payload, customer data, private code, co-author trailer, prohibited attribution, or unsupported vendor claim.
-- Evidence produced:
-  - PR #12 changes only `connectors/loyverse.py` and `tests/test_loyverse.py` at produced HEAD `357be67696f3ffaee47c52535a1f77ae7e439833`.
-  - `source_decimal()` preserves missing/null as `None`, explicit integer/Decimal zero as zero, exact integer conversion and finite Decimal precision; booleans, binary floats, strings, non-finite Decimal values and structured values fail closed to `None`.
-  - Focused synthetic tests cover both `price` and `in_stock` unknown-versus-zero behavior, high Decimal precision and unsupported shapes without network access.
-  - GitHub Actions run `37125933104` completed successfully on exact produced HEAD `357be67696f3ffaee47c52535a1f77ae7e439833`; job `test` (`111211099357`) passed `python -m unittest discover -s tests -v` after installing `requirements-dev.txt` on the existing Ubuntu workflow.
-  - No local execution is claimed in this environment; CI provides the exact produced-commit full-regression evidence.
-- Review verdict: `-`
 - Rework or deferred dependency: `-`
-- Next action: Reviewer should inspect PR #12 against this bounded normalization scope and the exact green CI evidence, then decide `ACCEPTED`, `REWORK` or `DEFERRED` without expanding the lot.
+- Next action: Planner should immediately select the next independent incomplete roadmap criterion and create a new `READY` lot. Before any further Loyverse P2/P3 lot, use `docs/LOYVERSE_REUSE.md` as required design/evidence input. Do not treat this acceptance as connector-wide or live certification.
 
 ## Handoff discipline
 
