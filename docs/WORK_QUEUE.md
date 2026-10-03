@@ -58,8 +58,8 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `DEBT-PR-CONSOLIDATE-01`
 - Roadmap phase: cross-phase consolidation before further P2 expansion
-- State: `READY`
-- Observed main HEAD: `43ad54a4142650b0b3b0b682f55f22e3e1fb6d95`
+- State: `BUILDING`
+- Observed main HEAD: `81811701efbae819ed37efa651f51411ce1f89f7`
 - Trigger: the last Loyverse normalization lot is accepted, but five older PRs (#8, #9, #10, #11, #12) remain open. Main already contains the accepted Loyverse currency/numeric behavior represented by #11/#12, and P1 timestamp/fixture criteria are marked complete. Opening another P2 code lot before classifying this queue would risk duplicate or competing paths.
 - Scope: perform a bounded stale-PR consolidation. Compare PRs #8-#12 against current `main`, classify each as still useful, fully superseded by `main`, partially superseded, or unsafe to merge. Close only PRs whose intended behavior is already present or deliberately replaced on `main`; do not merge stale code merely to empty the queue. If a PR contains a unique still-required change, leave it open and record the exact missing behavior and the roadmap criterion it serves. Do not modify product behavior in this lot.
 - Acceptance criteria:
@@ -69,14 +69,17 @@ The project must keep advancing while useful independent work exists.
   - No accepted P0/P1/P2 behavior is removed, no branch is force-pushed, and no new compatibility path/helper is introduced.
   - `docs/ROADMAP.md` is changed only if the comparison reveals a factual mismatch; completed criteria are not reopened or rechecked without evidence.
   - After cleanup, the remaining open-PR queue is short and non-overlapping enough that the next P2 lot can be selected without ambiguity.
-- Evidence required:
-  - Before/after list of relevant open PR numbers and states.
-  - For every closed PR, a concise pointer to the equivalent/replacement behavior on `main` or the accepted roadmap evidence that makes the PR obsolete.
-  - For every retained PR, the exact unique diff/behavior still absent from `main` and its roadmap owner.
-  - Confirmation that this consolidation introduced no product code, secret, private data, proprietary source, force-push or unsupported certification claim.
-- Debt snapshot: 5 relevant open PRs observed (#8-#12). #11/#12 visibly overlap behavior already present on `main`; #8-#10 concern P1 work whose corresponding roadmap criteria are already marked complete and therefore require classification before any merge. No critical product defect was found in the accepted Loyverse money helper. This lot reduces branch/PR ambiguity rather than adding another implementation path.
-- Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
-- Next action: Builder moves `READY -> BUILDING`, refreshes `main` and all five PR heads, performs the comparison/classification, closes only proven-obsolete PRs, records evidence, then hands the same Work ID to REVIEW. No heavy CI is required unless the comparison exposes a product change that genuinely needs proof.
+- Evidence produced so far:
+  - Refreshed `main`: current HEAD before this transition was coordination-only commit `81811701efbae819ed37efa651f51411ce1f89f7`; product base remains compatible with observed `43ad54a4142650b0b3b0b682f55f22e3e1fb6d95`.
+  - Refreshed all five open PR heads: #8 `74626e3`, #9 `58de7d1`, #10 `af75dcd`, #11 `61ebc90`, #12 `357be67`.
+  - #9 is superseded by accepted `main`: `main` has `importers/time_normalization.py` plus `tests/test_time_normalization.py` covering explicit offsets, required IANA timezone, spring gaps, fallback ambiguity and both occurrences. The stale PR proposes a competing `importers/timestamps.py` API with different parameter/occurrence conventions, so it must not be merged.
+  - #11 is fully superseded by accepted `main`: its bounded merchant-currency normalization tests correspond to the already accepted P2 currency-normalization behavior.
+  - #12 is fully superseded by accepted `main`: its `source_decimal` behavior corresponds to the already accepted P2 numeric-normalization behavior.
+  - #8 remains potentially unique: `main` still lacks `examples/csv/activity_local_dst_cases.csv`, and its fixture guide explicitly says naive-local DST fixture coverage is future work. Classification must decide whether this unique fixture is still required by an incomplete roadmap criterion before closing or retaining it.
+  - #10 remains potentially unique: `main` does not contain `tests/test_sales_activity_csv_fixtures.py`; its executable checks for refund sign, absent monetary values and offset-bearing fallback fixtures are not present under that path. Classification must tie any retained purpose to an incomplete roadmap criterion rather than reopening already completed P1 criteria without evidence.
+  - No product code, roadmap checkbox, secret, private/customer data, proprietary source, force-push or certification claim was introduced by this transition.
+- Rework or blocker: `-`
+- Next action: complete the bounded classification of #8 and #10 against the current accepted P1 evidence/roadmap ownership; then close every proven-obsolete PR (#9/#11/#12 and any of #8/#10 proven obsolete), retain only a PR with a concrete purpose tied to an incomplete criterion, record the before/after queue, and hand this Work ID to REVIEW. No heavy CI is required because this lot changes no product behavior.
 
 ## Handoff discipline
 
