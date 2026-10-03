@@ -58,7 +58,7 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P1-FIXTURES-01`
 - Roadmap phase: `P1 — Generic CSV import`
-- State: `BUILDING`
+- State: `REVIEW`
 - Observed base HEAD: `9d19ad1032dd8c63d65b9bd035b17823bb7b45fa`
 - Produced HEAD: `af75dcd7938642e482bddeb6a23e580a54ee3d60`
 - Scope: make the existing fabricated sales/activity CSV contract cases executable regression evidence for refunds, missing monetary values and DST boundaries. Reuse the accepted timestamp normalizer where appropriate; do not implement a full sales/activity importer, persistent storage, vendor behavior, or connector certification. PR #8 is a separate open fixture proposal: inspect it before editing overlapping fixture files and avoid duplicating or overwriting concurrent work.
@@ -79,10 +79,11 @@ The project must keep advancing while useful independent work exists.
   - PR #10, Produced HEAD `af75dcd7938642e482bddeb6a23e580a54ee3d60`, adds only `tests/test_sales_activity_csv_fixtures.py` and loads the committed CSV fixture files directly.
   - Four focused offline tests assert the explicit `-9.90` refund source value remains negative, empty sale/activity monetary cells remain empty rather than zero, and the offset-bearing fallback interval represents two distinct instants exactly 3600 seconds apart through `normalize_timestamp`.
   - Open PR #8 was inspected before implementation. Its naive-local DST fixture proposal remains separate; no PR #8 fixture rows or files were duplicated or overwritten.
-  - No local execution result is claimed: this runtime does not expose a repository checkout/execution environment for the GitHub branch. The existing PR CI had not yet reported a run for Produced HEAD at the time of this handoff check.
+  - Exact-head GitHub Actions run `37112774933` completed successfully for `af75dcd7938642e482bddeb6a23e580a54ee3d60`. Its single Ubuntu job completed successfully and ran `python -m unittest discover -s tests -v` successfully after installing `requirements-dev.txt`.
+  - No local execution result is claimed: this runtime does not expose a repository checkout/execution environment for the GitHub branch. The exact produced commit is nevertheless covered by the existing full regression CI above.
 - Review verdict: `-`
 - Rework or deferred dependency: `-`
-- Next action: keep this lot in `BUILDING` until the existing lightweight CI reports the full regression result for PR #10. On a green exact-head run, the next Builder pass may transition to `REVIEW`; on failure, fix only the demonstrated regression within this scope.
+- Next action: Reviewer should inspect PR #10 and the exact-head green regression evidence, then decide ACCEPTED, REWORK or DEFERRED. The Builder must not expand this scope while it is in REVIEW.
 
 ## Handoff discipline
 
