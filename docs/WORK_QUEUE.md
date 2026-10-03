@@ -58,7 +58,7 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-02`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `BUILDING`
+- State: `REVIEW`
 - Observed base HEAD: `20b5e95eac870a799dbc963c9b4fca612cbf3e63`
 - Produced HEAD: `357be67696f3ffaee47c52535a1f77ae7e439833` on `builder/P2-LOYVERSE-NORM-02` (PR #12).
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
@@ -80,10 +80,11 @@ The project must keep advancing while useful independent work exists.
   - PR #12 changes only `connectors/loyverse.py` and `tests/test_loyverse.py` at produced HEAD `357be67696f3ffaee47c52535a1f77ae7e439833`.
   - `source_decimal()` preserves missing/null as `None`, explicit integer/Decimal zero as zero, exact integer conversion and finite Decimal precision; booleans, binary floats, strings, non-finite Decimal values and structured values fail closed to `None`.
   - Focused synthetic tests cover both `price` and `in_stock` unknown-versus-zero behavior, high Decimal precision and unsupported shapes without network access.
-  - No local execution is claimed in this environment. At the latest check, no GitHub Actions run had yet been published for the exact produced HEAD, so regression execution proof remains pending.
+  - GitHub Actions run `37125933104` completed successfully on exact produced HEAD `357be67696f3ffaee47c52535a1f77ae7e439833`; job `test` (`111211099357`) passed `python -m unittest discover -s tests -v` after installing `requirements-dev.txt` on the existing Ubuntu workflow.
+  - No local execution is claimed in this environment; CI provides the exact produced-commit full-regression evidence.
 - Review verdict: `-`
 - Rework or deferred dependency: `-`
-- Next action: Builder should check CI for exact produced HEAD `357be67696f3ffaee47c52535a1f77ae7e439833`; if the existing full regression suite is green, record that exact run and transition this same Work ID to `REVIEW`; if it fails, correct only the demonstrated regression and keep the scope bounded.
+- Next action: Reviewer should inspect PR #12 against this bounded normalization scope and the exact green CI evidence, then decide `ACCEPTED`, `REWORK` or `DEFERRED` without expanding the lot.
 
 ## Handoff discipline
 
