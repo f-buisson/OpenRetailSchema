@@ -56,31 +56,29 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `P1-TIME-01`
+- Work ID: `P1-FIXTURES-01`
 - Roadmap phase: `P1 — Generic CSV import`
-- State: `ACCEPTED`
-- Observed base HEAD: `d7dd6d53995d471c2f2647bfee11f94154f260c1`
-- Produced HEAD: `6baddb533c79f18af97428b6f14679a5d512027d`
-- Scope: make the documented sales/activity timestamp mapping executable with one small vendor-neutral normalization helper and focused tests; do not implement the sales/activity importer yet. PR #8 remains a separate synthetic-fixture change and must not be represented as importer certification.
+- State: `READY`
+- Observed base HEAD: `69e1c7f2e1ff3995108a5a1d4976ee3c1be5c86d`
+- Produced HEAD: `-`
+- Scope: make the existing fabricated sales/activity CSV contract cases executable regression evidence for refunds, missing monetary values and DST boundaries. Reuse the accepted timestamp normalizer where appropriate; do not implement a full sales/activity importer, persistent storage, vendor behavior, or connector certification. PR #8 is a separate open fixture proposal: inspect it before editing overlapping fixture files and avoid duplicating or overwriting concurrent work.
 - Acceptance criteria:
-  - An input timestamp that already carries `Z` or an explicit UTC offset is accepted without timezone inference and represents the same absolute instant after normalization.
-  - A naive local timestamp is accepted only with an explicit IANA timezone and, when the local wall time is repeated, an explicit occurrence/offset disambiguation.
-  - `2026-03-29T02:15` in `Europe/Paris` is rejected as nonexistent; ambiguous `2026-10-25T02:15` without disambiguation is rejected; both valid fall-back occurrences can be distinguished.
-  - Focused tests prove these cases without network access, vendor assumptions, real data, or silent timezone inference.
-  - Existing local regression suite remains green; the roadmap criterion stays unchecked until review confirms the executable contract is sufficient.
+  - Regression tests load the committed fabricated sales/activity CSV fixtures rather than reproducing their rows only as inline literals.
+  - The refund case proves the explicit negative source amount/sign is preserved as supplied; no vendor refund convention is inferred.
+  - The missing monetary-value case proves an empty/absent source value remains missing and is never converted to numeric zero.
+  - The DST activity case proves the two offset-bearing repeated wall times represent distinct absolute instants through the accepted timestamp normalization contract.
+  - Any additional naive-local DST case taken from PR #8 must preserve the documented rule: nonexistent spring time and ambiguous fallback time without disambiguation are rejected. Do not duplicate those rows if PR #8 changes or lands first.
+  - Tests are offline, deterministic and synthetic; existing regression suite remains green.
+  - The roadmap fixture criterion is not marked complete by the Builder; review decides whether the evidence is sufficient.
 - Evidence required:
-  - Exact local test commands and passing output for the focused timestamp tests and existing regression suite.
-  - Diff limited to the normalization helper, focused tests, and only documentation strictly required to keep behavior aligned.
-  - No secrets, private code/data, co-author trailer, or prohibited attribution in the produced commit metadata/content.
-- Evidence produced:
-  - `importers/time_normalization.py` adds explicit offset-aware and IANA-local normalization with no silent timezone inference.
-  - `tests/test_time_normalization.py` adds 9 focused cases: explicit offset, `Z`, missing timezone, Paris spring gap, Paris fallback ambiguity, both fallback occurrences, invalid occurrence use, offset-aware disambiguation rejection, and unknown IANA zone.
-  - GitHub Actions run `37109656921` on Produced HEAD executed `python -m unittest discover -s tests -v` successfully on Ubuntu/Python 3.12; job completed successfully in 11 seconds.
-  - The execution environment available to this pass had no network access for a fresh local clone, so a separate local command could not be honestly claimed. The repository's existing CI ran the exact full regression command against the produced commit and is green.
-  - Roadmap criterion `Define sales/activity date, timezone and UTC-offset mapping` was marked complete by reviewer commit `29bb8233` after review.
-- Review verdict: `ACCEPTED` — the produced diff is limited to the coordination file, normalization helper and focused tests; offset-aware inputs preserve their instant, naive inputs require an explicit IANA zone, Paris DST gap/fallback behavior is explicit and tested, and the full existing regression command passed on the exact Produced HEAD.
+  - Exact focused test command and passing output for the fixture regression tests.
+  - Exact full regression command and passing output, locally when available or on the exact produced commit via the existing lightweight CI.
+  - Diff limited to fixture regression tests and only fixture/documentation changes strictly necessary to close a demonstrated coverage gap.
+  - No secrets, real POS/customer data, private code, co-author trailer, prohibited attribution, or unsupported vendor claims.
+- Evidence produced: `-`
+- Review verdict: `-`
 - Rework or deferred dependency: `-`
-- Next action: Planner should immediately open the next independent incomplete P1 lot: sales/activity CSV fixtures covering refunds, missing values and DST boundaries. Do not claim a sales/activity importer or connector certification from this acceptance.
+- Next action: Builder should refresh `main` and this file, inspect open PR #8 for overlap, transition `P1-FIXTURES-01` from `READY` to `BUILDING`, then implement the smallest offline regression tests that exercise the committed refund, missing-value and DST fixture rows. Preserve the scope boundary: fixtures/contracts only, not a sales/activity importer.
 
 ## Handoff discipline
 
