@@ -56,34 +56,29 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `P2-LOYVERSE-NORM-01`
+- Work ID: `P2-LOYVERSE-NORM-02`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `ACCEPTED`
-- Observed base HEAD: `addec2106678b108b27aede2526dd3b9e862e950`
-- Produced HEAD: `61ebc90497532e8e8dbc66d26049adc3f016a825` on `builder/P2-LOYVERSE-NORM-01` (PR #11).
-- Deferred predecessor: P1 repeated-import/idempotency remains incomplete because the roadmap explicitly requires testing it against persistent storage only when storage is introduced. Resume that criterion when a repository persistence boundary exists; do not invent storage merely to close P1.
-- Scope: audit the experimental `connectors/loyverse.py` boundary against the canonical contracts and implement one small synthetic normalization slice for merchant currency only. Keep transport/raw dictionaries separate from canonical records. Do not add live calls, OAuth claims, pagination changes, persistence, product/sales mapping, or vendor behavior not supported by repository evidence.
+- State: `READY`
+- Observed base HEAD: `44f7c0c396aff4d67c702aff4b6f55fc67142bac`
+- Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
+- Scope: continue the incomplete Loyverse normalization audit with one synthetic product-value boundary. Add a small normalization helper or equivalent tested boundary for Loyverse product/variant monetary and stock values that preserves source absence/null as unknown rather than zero. Keep raw transport dictionaries separate from canonical records. Do not add live calls, OAuth claims, pagination changes, persistence, receipts, tax inference, or broad product mapping.
 - Acceptance criteria:
-  - Existing `merchant_currency()` behavior is covered by focused synthetic tests for the documented accepted shapes already represented by the function: uppercase three-letter string and `{code: ...}` object.
-  - Missing, null, malformed, lowercase, non-three-letter, non-string and malformed-object currency inputs return missing/unsupported (`None`) rather than zero, a guessed currency, or an exception.
-  - The audit confirms this helper is extraction/normalization only and does not claim that a synthetic test certifies the OpenRetailSchema connector or OAuth.
-  - No canonical record is emitted unless it can satisfy the existing canonical currency contract; if the current schema requires more than this helper can prove, keep the output as the normalized currency code and document/test that boundary rather than fabricating fields.
-  - Tests are offline, deterministic and synthetic; the existing regression suite remains green.
-  - The Builder does not mark the roadmap normalization criterion complete; review decides whether this first slice plus audit evidence is sufficient or whether another normalization slice is required.
+  - Synthetic cases prove missing and explicit null price/stock inputs remain unknown (`None`/omitted as appropriate) and are never converted to numeric zero.
+  - Explicit numeric zero remains distinguishable from missing/null and is preserved as zero when the source shape is otherwise valid.
+  - Accepted numeric values preserve decimal precision; booleans, NaN/infinity, malformed strings and unsupported shapes fail closed instead of being guessed or coerced.
+  - The implementation remains a normalization boundary only; it must not fabricate canonical currency, tax, identifiers or provenance fields that the source slice cannot prove.
+  - Tests are offline, deterministic and synthetic, and the existing regression suite remains green.
+  - The roadmap Loyverse normalization criterion remains incomplete unless review finds the connector-wide audit sufficient; this lot alone must not claim live connector or OAuth certification.
 - Evidence required:
-  - Exact focused test command and passing output for the Loyverse currency normalization tests.
-  - Exact full regression command and passing output, locally when available or on the exact produced commit via the existing lightweight CI when useful.
-  - Diff limited to `connectors/loyverse.py`, focused tests, and only minimal documentation needed to state a demonstrated boundary.
-  - No network access in tests; no token, real payload, customer data, private code, co-author trailer, prohibited attribution, or unsupported vendor/OAuth claim.
-- Evidence produced:
-  - PR #11 changes one file only: `tests/test_loyverse.py` (+37/-4); no transport or canonical schema code changed.
-  - Synthetic tests accept only the two explicit supported merchant currency shapes (`"EUR"` and `{code: "THB"}`) and fail closed to `None` for missing, null, lowercase, wrong-length, non-string and malformed-object inputs.
-  - A boundary test demonstrates that `merchant_currency()` returns only a normalized string code and does not emit a canonical record.
-  - GitHub Actions run `37119230866` executed on exact produced HEAD `61ebc90497532e8e8dbc66d26049adc3f016a825` and completed successfully. Its Ubuntu job ran `python -m unittest discover -s tests -v` successfully.
-  - No focused local command was claimed: no local checkout execution evidence was available in this Builder environment. Full-suite CI on the exact produced commit is the reproducible execution proof for this lot.
-- Review verdict: `ACCEPTED` — the bounded currency-normalization slice satisfies every recorded criterion. The helper remains extraction-only, fails closed on unsupported currency shapes, emits no canonical record, and the exact Produced HEAD has a successful full regression run. This acceptance does not certify the connector, OAuth, or live behavior.
+  - Focused tests showing absent/null != zero and explicit zero behavior for both monetary and stock-like values.
+  - Exact focused test command and passing output.
+  - Exact full regression command and passing output, locally when available or on the exact produced commit via existing lightweight CI when useful.
+  - Diff limited to the Loyverse connector, focused tests, and minimal documentation only if needed to state a demonstrated boundary.
+  - No network access, token, real payload, customer data, private code, co-author trailer, prohibited attribution, or unsupported vendor claim.
+- Evidence produced: `-`
+- Review verdict: `-`
 - Rework or deferred dependency: `-`
-- Next action: Planner should immediately open another independent small lot for the still-incomplete P2 criterion `Audit and normalize connectors/loyverse.py against the canonical contracts`. Do not mark that roadmap criterion complete from this currency-only slice. P1 repeated-import/idempotency remains deferred until a real persistence boundary exists and does not block P2 work.
+- Next action: Builder should refresh `main`, confirm this Work ID is still `READY`, transition `P2-LOYVERSE-NORM-02` to `BUILDING`, implement only this unknown-versus-zero normalization slice with synthetic tests, run the focused and full regression suites, then hand the same Work ID to review without expanding scope.
 
 ## Handoff discipline
 
