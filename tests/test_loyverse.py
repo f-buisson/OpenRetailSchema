@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 """Offline, fabricated Loyverse transport tests. Never require a real token."""
+from decimal import Decimal
 import unittest
 
-from connectors.loyverse import LoyverseClient, LoyverseError, merchant_currency
+from connectors.loyverse import LoyverseClient, LoyverseError, merchant_currency, source_decimal
 
 
 class LoyverseTests(unittest.TestCase):
@@ -54,6 +55,36 @@ class LoyverseTests(unittest.TestCase):
         self.assertEqual(merchant_currency({"currency": "EUR"}), "EUR")
         self.assertIsNone(merchant_currency({"currency": None}))
         self.assertIsNone(merchant_currency({"currency": {"code": "BAHT-THAI"}}))
+
+    def test_source_decimal_keeps_unknown_distinct_from_zero(self):
+        for field in ("price", "in_stock"):
+            self.assertIsNone(source_decimal({}, field))
+            self.assertIsNone(source_decimal({field: None}, field))
+            self.assertEqual(source_decimal({field: 0}, field), Decimal("0"))
+            self.assertEqual(source_decimal({field: Decimal("0.000")}, field), Decimal("0.000"))
+
+    def test_source_decimal_preserves_precision(self):
+        value = Decimal("1234567890.12345678901234567890")
+        self.assertEqual(source_decimal({"price": value}, "price"), value)
+        self.assertEqual(source_decimal({"in_stock": -7}, "in_stock"), Decimal("-7"))
+
+    def test_source_decimal_fails_closed_for_unsupported_values(self):
+        unsupported = (
+            True,
+            False,
+            float("nan"),
+            float("inf"),
+            1.25,
+            "12.50",
+            "not-a-number",
+            Decimal("NaN"),
+            Decimal("Infinity"),
+            [],
+            {},
+        )
+        for value in unsupported:
+            with self.subTest(value=value):
+                self.assertIsNone(source_decimal({"price": value}, "price"))
 
     def test_merchant_raw_response(self):
         raw = {"id": "synthetic", "currency": {"code": "THB", "decimal_places": 2}}
