@@ -60,6 +60,7 @@ The project must keep advancing while useful independent work exists.
 - Roadmap phase: `P2 — Loyverse reference connector`
 - State: `BUILDING`
 - Observed main HEAD: `95b3bdfe9c7462653388a72cbe05035db5589c6e`
+- Produced HEAD: `1f1c4c80050483929bf535c42647d4b865b0cbc2`
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
 - Reuse classification: OpenRetailSchema already has accepted Loyverse helpers for merchant currency, finite source decimals and opaque source IDs. External project evidence confirms unknown-versus-zero and merchant-currency behavior as design/test input only; it does not certify this connector.
 - Scope: add one bounded raw-to-canonical money normalization helper plus focused synthetic tests. Compose an already-validated finite source numeric field with an already-validated merchant currency code into the canonical v0.1 money shape `{amount, currency}`. Preserve zero as zero and missing/invalid amount as unknown; never invent a currency or amount. Serialize `Decimal` deterministically as a plain JSON-compatible decimal string without exponent notation or binary-float conversion. Do not build full product/sale mappings, tax inference, retries, checkpoints, live calls or OAuth behavior in this lot.
@@ -77,9 +78,9 @@ The project must keep advancing while useful independent work exists.
   - Exact full regression command and passing output, locally or through one justified lightweight CI run on the exact product commit.
   - Confirmation that tests use fabricated data only and that no secret, token, real payload, customer data, private code, co-author trailer or unsupported live/certification claim was introduced.
 - Rework or deferred dependency: `-`
-- Evidence: Builder started from refreshed `main` at `95b3bdfe9c7462653388a72cbe05035db5589c6e`; implementation and execution evidence pending.
-- Limits: this lot does not complete roadmap-wide Loyverse normalization, tax semantics, end-to-end mappings, retries/checkpoints or live/OAuth evidence.
-- Next action: implement only the canonical-money helper and fabricated focused tests, then run focused/full regression evidence on the exact product commit before moving this Work ID to `REVIEW`.
+- Evidence: Product commit `1f1c4c80050483929bf535c42647d4b865b0cbc2` changes only `connectors/loyverse.py` and `tests/test_loyverse.py`. It adds `canonical_money()` and fabricated tests for zero, negative/refund-like values, fractional precision, exponent-form Decimals rendered without exponent notation, missing/invalid amounts and missing/malformed currency. Existing helpers are composed rather than bypassed. GitHub Actions run `37144012291` targets this exact commit and is still in progress; no passing result is claimed yet. No live call, OAuth behavior, token, real payload, customer data or certification claim was introduced.
+- Limits: this lot does not complete roadmap-wide Loyverse normalization, tax semantics, end-to-end mappings, retries/checkpoints or live/OAuth evidence. Local execution is unavailable in this connector session, so exact passing execution evidence must come from the existing lightweight CI run.
+- Next action: check run `37144012291` on exact Produced HEAD `1f1c4c80050483929bf535c42647d4b865b0cbc2`; if green, record the executed commands/results and move `BUILDING -> REVIEW`; if red, correct only the demonstrated regression and rerun targeted evidence.
 
 ## Handoff discipline
 
