@@ -49,11 +49,44 @@ class LoyverseTests(unittest.TestCase):
             list(LoyverseClient("synthetic-token", transport=lambda path, token: {"items": [], "cursor": "next"}).iter_collection("items", max_pages=1))
         self.assertEqual(ctx.exception.code, "page_limit_reached")
 
-    def test_merchant_currency_preserves_unknown(self):
-        self.assertEqual(merchant_currency({"currency": {"code": "THB", "decimal_places": 2}}), "THB")
+    def test_merchant_currency_accepts_only_explicit_supported_shapes(self):
         self.assertEqual(merchant_currency({"currency": "EUR"}), "EUR")
-        self.assertIsNone(merchant_currency({"currency": None}))
-        self.assertIsNone(merchant_currency({"currency": {"code": "BAHT-THAI"}}))
+        self.assertEqual(
+            merchant_currency({"currency": {"code": "THB", "decimal_places": 2}}),
+            "THB",
+        )
+
+    def test_merchant_currency_preserves_missing_or_unsupported(self):
+        unsupported = (
+            {},
+            {"currency": None},
+            {"currency": ""},
+            {"currency": "eur"},
+            {"currency": "EU"},
+            {"currency": "EURO"},
+            {"currency": 978},
+            {"currency": []},
+            {"currency": {}},
+            {"currency": {"code": None}},
+            {"currency": {"code": "thb"}},
+            {"currency": {"code": "BAHT-THAI"}},
+            {"currency": {"code": 764}},
+        )
+        for merchant in unsupported:
+            with self.subTest(merchant=merchant):
+                self.assertIsNone(merchant_currency(merchant))
+        self.assertIsNone(merchant_currency(None))
+        self.assertIsNone(merchant_currency("not-a-merchant"))
+
+    def test_merchant_currency_is_normalization_only(self):
+        merchant = {
+            "id": "synthetic-merchant",
+            "currency": {"code": "USD", "decimal_places": 2},
+            "name": "Fabricated Store",
+        }
+        self.assertEqual(merchant_currency(merchant), "USD")
+        self.assertIsInstance(merchant_currency(merchant), str)
+        self.assertNotIsInstance(merchant_currency(merchant), dict)
 
     def test_merchant_raw_response(self):
         raw = {"id": "synthetic", "currency": {"code": "THB", "decimal_places": 2}}
