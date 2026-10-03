@@ -58,7 +58,7 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P1-TIME-01`
 - Roadmap phase: `P1 — Generic CSV import`
-- State: `REVIEW`
+- State: `ACCEPTED`
 - Observed base HEAD: `d7dd6d53995d471c2f2647bfee11f94154f260c1`
 - Produced HEAD: `6baddb533c79f18af97428b6f14679a5d512027d`
 - Scope: make the documented sales/activity timestamp mapping executable with one small vendor-neutral normalization helper and focused tests; do not implement the sales/activity importer yet. PR #8 remains a separate synthetic-fixture change and must not be represented as importer certification.
@@ -77,10 +77,10 @@ The project must keep advancing while useful independent work exists.
   - `tests/test_time_normalization.py` adds 9 focused cases: explicit offset, `Z`, missing timezone, Paris spring gap, Paris fallback ambiguity, both fallback occurrences, invalid occurrence use, offset-aware disambiguation rejection, and unknown IANA zone.
   - GitHub Actions run `37109656921` on Produced HEAD executed `python -m unittest discover -s tests -v` successfully on Ubuntu/Python 3.12; job completed successfully in 11 seconds.
   - The execution environment available to this pass had no network access for a fresh local clone, so a separate local command could not be honestly claimed. The repository's existing CI ran the exact full regression command against the produced commit and is green.
-  - Roadmap remains unchanged; this lot does not claim a sales/activity importer or connector certification.
-- Review verdict: `-`
+  - Roadmap criterion `Define sales/activity date, timezone and UTC-offset mapping` was marked complete by reviewer commit `29bb8233` after review.
+- Review verdict: `ACCEPTED` — the produced diff is limited to the coordination file, normalization helper and focused tests; offset-aware inputs preserve their instant, naive inputs require an explicit IANA zone, Paris DST gap/fallback behavior is explicit and tested, and the full existing regression command passed on the exact Produced HEAD.
 - Rework or deferred dependency: `-`
-- Next action: Reviewer inspects the helper/tests and CI evidence, then chooses `ACCEPTED`, `REWORK`, or `DEFERRED` without opening concurrent scope.
+- Next action: Planner should immediately open the next independent incomplete P1 lot: sales/activity CSV fixtures covering refunds, missing values and DST boundaries. Do not claim a sales/activity importer or connector certification from this acceptance.
 
 ## Handoff discipline
 
