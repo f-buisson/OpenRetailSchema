@@ -60,12 +60,14 @@ Goal: provide a vendor-neutral fallback path that does not guess missing busines
 
 Goal: turn the experimental reader into the first evidence-backed reference POS connector.
 
+**Reuse first:** before opening a new Loyverse lot, read [the cross-project reuse audit](LOYVERSE_REUSE.md). Existing behavior and evidence from the maintainer's other retail projects should be reused as design/test input rather than rediscovered. Private or non-Apache source code must not be copied into this repository without compatible provenance.
+
 - [x] Review official Loyverse API documentation.
 - [x] Record authorized external personal-token test findings separately from repository certification.
 - [x] Implement an experimental read-only transport with injected synthetic-response tests.
 - [ ] Audit and normalize `connectors/loyverse.py` against the canonical contracts.
 - [ ] Document explicit connector capabilities and unsupported fields/features.
-- [ ] Implement and test pagination.
+- [x] Implement and test pagination.
 - [ ] Implement bounded retries/error classification without unsafe retry of non-idempotent operations.
 - [ ] Implement incremental checkpoints without converting missing values to zero.
 - [ ] Exercise sanitized/synthetic end-to-end mappings.
@@ -117,7 +119,7 @@ Goal: make the project safe and useful for independent consumers.
 
 Each maintenance pass should:
 
-1. Re-read repository HEAD, recent commits, open issues/PRs and the relevant roadmap phase.
+1. Re-read repository HEAD, recent commits, open issues/PRs and the relevant roadmap phase. For Loyverse P2/P3 work, also read `docs/LOYVERSE_REUSE.md` before defining a new lot.
 2. Prefer one small verifiable change over broad cosmetic edits.
 3. Run available local tests when execution access permits; never claim an unexecuted test passed.
 4. Update this roadmap only for real state changes.
