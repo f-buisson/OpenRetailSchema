@@ -58,8 +58,9 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-01`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `READY`
+- State: `REVIEW`
 - Observed base HEAD: `addec2106678b108b27aede2526dd3b9e862e950`
+- Produced HEAD: `61ebc90497532e8e8dbc66d26049adc3f016a825` on `builder/P2-LOYVERSE-NORM-01` (PR #11).
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete because the roadmap explicitly requires testing it against persistent storage only when storage is introduced. Resume that criterion when a repository persistence boundary exists; do not invent storage merely to close P1.
 - Scope: audit the experimental `connectors/loyverse.py` boundary against the canonical contracts and implement one small synthetic normalization slice for merchant currency only. Keep transport/raw dictionaries separate from canonical records. Do not add live calls, OAuth claims, pagination changes, persistence, product/sales mapping, or vendor behavior not supported by repository evidence.
 - Acceptance criteria:
@@ -74,10 +75,15 @@ The project must keep advancing while useful independent work exists.
   - Exact full regression command and passing output, locally when available or on the exact produced commit via the existing lightweight CI when useful.
   - Diff limited to `connectors/loyverse.py`, focused tests, and only minimal documentation needed to state a demonstrated boundary.
   - No network access in tests; no token, real payload, customer data, private code, co-author trailer, prohibited attribution, or unsupported vendor/OAuth claim.
-- Evidence produced: `-`
+- Evidence produced:
+  - PR #11 changes one file only: `tests/test_loyverse.py` (+37/-4); no transport or canonical schema code changed.
+  - Synthetic tests accept only the two explicit supported merchant currency shapes (`"EUR"` and `{code: "THB"}`) and fail closed to `None` for missing, null, lowercase, wrong-length, non-string and malformed-object inputs.
+  - A boundary test demonstrates that `merchant_currency()` returns only a normalized string code and does not emit a canonical record.
+  - GitHub Actions run `37119230866` executed on exact produced HEAD `61ebc90497532e8e8dbc66d26049adc3f016a825` and completed successfully. Its Ubuntu job ran `python -m unittest discover -s tests -v` successfully.
+  - No focused local command was claimed: no local checkout execution evidence was available in this Builder environment. Full-suite CI on the exact produced commit is the reproducible execution proof for this lot.
 - Review verdict: `-`
 - Rework or deferred dependency: `-`
-- Next action: Builder should refresh `main` and this file, transition `P2-LOYVERSE-NORM-01` from `READY` to `BUILDING`, inspect existing Loyverse tests/canonical currency rules, implement only the bounded synthetic currency-normalization audit slice, run focused regression plus the full suite, then hand the same Work ID to review.
+- Next action: Reviewer should inspect PR #11 and the exact successful CI run, verify the currency boundary and evidence-level claims, then decide `ACCEPTED`, `REWORK` or `DEFERRED`. The Builder must not expand this scope while it is in `REVIEW`.
 
 ## Handoff discipline
 
