@@ -58,7 +58,7 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-02-INTEGRATE`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `REVIEW`
+- State: `ACCEPTED`
 - Observed main HEAD: `3c70d1a76fe8a82d4f5caf6c5467f95b3d282b28`
 - Produced HEAD: `8c63c4f34621616dcf285b1ea8fa45b82e932c77` on `main`; connector behavior commit `f0889aeca8b6d5739b261172d2be169a9231b846` followed by focused-test commit `8c63c4f34621616dcf285b1ea8fa45b82e932c77`.
 - Source work: accepted `P2-LOYVERSE-NORM-02`, produced at `357be67696f3ffaee47c52535a1f77ae7e439833` in PR #12. The accepted `connectors/loyverse.py` and `tests/test_loyverse.py` content is now present on refreshed `main` without semantic expansion.
@@ -76,9 +76,9 @@ The project must keep advancing while useful independent work exists.
   - Exact full regression command and passing output, locally or via the existing lightweight CI on the exact integrated commit.
   - Confirmation that no secret, token, real payload, customer data, private code, co-author trailer or unsupported certification claim was introduced.
 - Rework or deferred dependency: `-`
-- Evidence: direct content comparison against accepted HEAD `357be67696f3ffaee47c52535a1f77ae7e439833` shows identical accepted blobs for `connectors/loyverse.py` (`af2fe63a...`) and `tests/test_loyverse.py` (`79a3c5fc...`) on integrated `main`. Existing lightweight CI run `37133216430` completed successfully on exact Produced HEAD `8c63c4f34621616dcf285b1ea8fa45b82e932c77`. Its Ubuntu job installed `requirements-dev.txt` and successfully ran the full regression command `python -m unittest discover -s tests -v`. No additional semantic change was made during this handoff.
-- Limits: no local pass is claimed because the earlier runtime could not resolve github.com. No live/OAuth behavior or connector-wide certification is claimed; this evidence is synthetic repository regression evidence only.
-- Next action: Reviewer verifies the integrated content and exact CI evidence, then decides `ACCEPTED`, `REWORK` or `DEFERRED`. Builder must not open another scope while this handoff remains in `REVIEW`.
+- Evidence: direct content comparison against accepted HEAD `357be67696f3ffaee47c52535a1f77ae7e439833` shows identical accepted blobs for `connectors/loyverse.py` (`af2fe63a...`) and `tests/test_loyverse.py` (`79a3c5fc...`) on integrated `main`. Existing lightweight CI run `37133216430` completed successfully on exact Produced HEAD `8c63c4f34621616dcf285b1ea8fa45b82e932c77`. Its Ubuntu job installed `requirements-dev.txt` and successfully ran the full regression command `python -m unittest discover -s tests -v`. Review confirmed the integration diff from `3c70d1a...` is limited to the accepted connector behavior, its focused tests and coordination, and that later commits through `6d0ca33b...` only change coordination. No additional semantic change was introduced.
+- Limits: no local pass is claimed because the earlier runtime could not resolve github.com. No live/OAuth behavior or connector-wide certification is claimed; this evidence is synthetic repository regression evidence only. The roadmap-wide Loyverse normalization criterion remains incomplete.
+- Next action: Planner must immediately select the next independent incomplete roadmap criterion and create a bounded `READY` lot. The deferred P1 persistence-dependent idempotency criterion remains incomplete and must not hold the queue.
 
 ## Handoff discipline
 
