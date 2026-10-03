@@ -58,8 +58,8 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-03`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `BUILDING`
-- Observed main HEAD: `ebcd6b189c61b42a4eed77de59ccdc97c9409bae`
+- State: `REVIEW`
+- Observed main HEAD: `149421056527863425b36c15f9e301dbc236fb3d`
 - Produced HEAD: `b04610c143cc3ec4c95e05f3a2e9e28fbb7d05c8` on `main`; helper commit `2b446b1fe0236be162e12a692ce29371c9259973`, focused-test commit `b04610c143cc3ec4c95e05f3a2e9e28fbb7d05c8`.
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete until a real persistence boundary exists; do not invent storage only to close it.
 - Reuse classification: OpenRetailSchema already has raw Loyverse transport plus bounded currency/numeric helpers; canonical source provenance requires a non-guessing source identifier boundary. External project evidence is design/test input only and does not certify this connector.
@@ -76,9 +76,9 @@ The project must keep advancing while useful independent work exists.
   - Exact full regression command and passing output, locally or through one justified lightweight CI run on the exact product commit.
   - Confirmation that no secret, token, real payload, customer data, private code, co-author trailer or unsupported live/certification claim was introduced.
 - Rework or deferred dependency: `-`
-- Evidence: product diff adds only `source_external_id()` plus fabricated preservation/rejection tests. The helper returns the original valid string unchanged and rejects missing/null/blank, booleans, numeric and structured values without coercion or synthesis. No CI run was published for the exact Produced HEAD at the last check, so no passing execution is claimed yet.
-- Limits: focused and full regression execution evidence is still missing. This lot does not complete the roadmap-wide Loyverse normalization criterion and does not establish live/OAuth evidence.
-- Next action: check the existing lightweight CI for exact Produced HEAD `b04610c143cc3ec4c95e05f3a2e9e28fbb7d05c8`; if green, record the exact commands/result and transition this same Work ID to `REVIEW`; if red, correct only the demonstrated regression.
+- Evidence: compare `ebcd6b1..b04610c` changes only `connectors/loyverse.py`, `tests/test_loyverse.py` and coordination. `source_external_id()` preserves valid opaque strings unchanged and rejects missing/null/blank, booleans, numeric and structured values. Existing lightweight CI run `37140272492` targets exact Produced HEAD `b04610c143cc3ec4c95e05f3a2e9e28fbb7d05c8` and completed successfully; its regression step is `python -m unittest discover -s tests -v`.
+- Limits: this lot does not complete the roadmap-wide Loyverse normalization criterion and does not establish live/OAuth evidence.
+- Next action: reviewer must certify the exact Produced HEAD and transition this Work ID to `ACCEPTED`, `REWORK` or `DEFERRED`; do not leave it in REVIEW for another cycle.
 
 ## Handoff discipline
 
