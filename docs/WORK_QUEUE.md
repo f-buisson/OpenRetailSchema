@@ -58,7 +58,7 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-01`
 - Roadmap phase: `P2 — Loyverse reference connector`
-- State: `REVIEW`
+- State: `ACCEPTED`
 - Observed base HEAD: `addec2106678b108b27aede2526dd3b9e862e950`
 - Produced HEAD: `61ebc90497532e8e8dbc66d26049adc3f016a825` on `builder/P2-LOYVERSE-NORM-01` (PR #11).
 - Deferred predecessor: P1 repeated-import/idempotency remains incomplete because the roadmap explicitly requires testing it against persistent storage only when storage is introduced. Resume that criterion when a repository persistence boundary exists; do not invent storage merely to close P1.
@@ -81,9 +81,9 @@ The project must keep advancing while useful independent work exists.
   - A boundary test demonstrates that `merchant_currency()` returns only a normalized string code and does not emit a canonical record.
   - GitHub Actions run `37119230866` executed on exact produced HEAD `61ebc90497532e8e8dbc66d26049adc3f016a825` and completed successfully. Its Ubuntu job ran `python -m unittest discover -s tests -v` successfully.
   - No focused local command was claimed: no local checkout execution evidence was available in this Builder environment. Full-suite CI on the exact produced commit is the reproducible execution proof for this lot.
-- Review verdict: `-`
+- Review verdict: `ACCEPTED` — the bounded currency-normalization slice satisfies every recorded criterion. The helper remains extraction-only, fails closed on unsupported currency shapes, emits no canonical record, and the exact Produced HEAD has a successful full regression run. This acceptance does not certify the connector, OAuth, or live behavior.
 - Rework or deferred dependency: `-`
-- Next action: Reviewer should inspect PR #11 and the exact successful CI run, verify the currency boundary and evidence-level claims, then decide `ACCEPTED`, `REWORK` or `DEFERRED`. The Builder must not expand this scope while it is in `REVIEW`.
+- Next action: Planner should immediately open another independent small lot for the still-incomplete P2 criterion `Audit and normalize connectors/loyverse.py against the canonical contracts`. Do not mark that roadmap criterion complete from this currency-only slice. P1 repeated-import/idempotency remains deferred until a real persistence boundary exists and does not block P2 work.
 
 ## Handoff discipline
 
