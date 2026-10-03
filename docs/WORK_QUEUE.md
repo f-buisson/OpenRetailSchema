@@ -56,34 +56,28 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `P1-FIXTURES-01`
-- Roadmap phase: `P1 — Generic CSV import`
-- State: `ACCEPTED`
-- Observed base HEAD: `9d19ad1032dd8c63d65b9bd035b17823bb7b45fa`
-- Produced HEAD: `af75dcd7938642e482bddeb6a23e580a54ee3d60`
-- Scope: make the existing fabricated sales/activity CSV contract cases executable regression evidence for refunds, missing monetary values and DST boundaries. Reuse the accepted timestamp normalizer where appropriate; do not implement a full sales/activity importer, persistent storage, vendor behavior, or connector certification. PR #8 is a separate open fixture proposal: inspect it before editing overlapping fixture files and avoid duplicating or overwriting concurrent work.
+- Work ID: `P2-LOYVERSE-NORM-01`
+- Roadmap phase: `P2 — Loyverse reference connector`
+- State: `READY`
+- Observed base HEAD: `addec2106678b108b27aede2526dd3b9e862e950`
+- Deferred predecessor: P1 repeated-import/idempotency remains incomplete because the roadmap explicitly requires testing it against persistent storage only when storage is introduced. Resume that criterion when a repository persistence boundary exists; do not invent storage merely to close P1.
+- Scope: audit the experimental `connectors/loyverse.py` boundary against the canonical contracts and implement one small synthetic normalization slice for merchant currency only. Keep transport/raw dictionaries separate from canonical records. Do not add live calls, OAuth claims, pagination changes, persistence, product/sales mapping, or vendor behavior not supported by repository evidence.
 - Acceptance criteria:
-  - Regression tests load the committed fabricated sales/activity CSV fixtures rather than reproducing their rows only as inline literals.
-  - The refund case proves the explicit negative source amount/sign is preserved as supplied; no vendor refund convention is inferred.
-  - The missing monetary-value case proves an empty/absent source value remains missing and is never converted to numeric zero.
-  - The DST activity case proves the two offset-bearing repeated wall times represent distinct absolute instants through the accepted timestamp normalization contract.
-  - Any additional naive-local DST case taken from PR #8 must preserve the documented rule: nonexistent spring time and ambiguous fallback time without disambiguation are rejected. Do not duplicate those rows if PR #8 changes or lands first.
-  - Tests are offline, deterministic and synthetic; existing regression suite remains green.
-  - The roadmap fixture criterion is not marked complete by the Builder; review decides whether the evidence is sufficient.
+  - Existing `merchant_currency()` behavior is covered by focused synthetic tests for the documented accepted shapes already represented by the function: uppercase three-letter string and `{code: ...}` object.
+  - Missing, null, malformed, lowercase, non-three-letter, non-string and malformed-object currency inputs return missing/unsupported (`None`) rather than zero, a guessed currency, or an exception.
+  - The audit confirms this helper is extraction/normalization only and does not claim that a synthetic test certifies the OpenRetailSchema connector or OAuth.
+  - No canonical record is emitted unless it can satisfy the existing canonical currency contract; if the current schema requires more than this helper can prove, keep the output as the normalized currency code and document/test that boundary rather than fabricating fields.
+  - Tests are offline, deterministic and synthetic; the existing regression suite remains green.
+  - The Builder does not mark the roadmap normalization criterion complete; review decides whether this first slice plus audit evidence is sufficient or whether another normalization slice is required.
 - Evidence required:
-  - Exact focused test command and passing output for the fixture regression tests.
-  - Exact full regression command and passing output, locally when available or on the exact produced commit via the existing lightweight CI.
-  - Diff limited to fixture regression tests and only fixture/documentation changes strictly necessary to close a demonstrated coverage gap.
-  - No secrets, real POS/customer data, private code, co-author trailer, prohibited attribution, or unsupported vendor claims.
-- Evidence produced:
-  - PR #10, Produced HEAD `af75dcd7938642e482bddeb6a23e580a54ee3d60`, adds only `tests/test_sales_activity_csv_fixtures.py` and loads the committed CSV fixture files directly.
-  - Four focused offline tests assert the explicit `-9.90` refund source value remains negative, empty sale/activity monetary cells remain empty rather than zero, and the offset-bearing fallback interval represents two distinct instants exactly 3600 seconds apart through `normalize_timestamp`.
-  - Open PR #8 was inspected before implementation. Its naive-local DST fixture proposal remains separate; no PR #8 fixture rows or files were duplicated or overwritten.
-  - Exact-head GitHub Actions run `37112774933` completed successfully for `af75dcd7938642e482bddeb6a23e580a54ee3d60`. Its single Ubuntu job completed successfully and ran `python -m unittest discover -s tests -v` successfully after installing `requirements-dev.txt`.
-  - No local execution result is claimed: this runtime does not expose a repository checkout/execution environment for the GitHub branch. The exact produced commit is nevertheless covered by the existing full regression CI above.
-- Review verdict: `ACCEPTED` — the Produced HEAD is limited to one offline regression-test file, directly loads the committed fabricated fixtures, preserves the explicit refund sign without inferring vendor semantics, keeps missing monetary cells distinct from zero, and proves the repeated fallback wall time represents distinct absolute instants through the accepted normalizer. Exact-head full regression CI is green.
+  - Exact focused test command and passing output for the Loyverse currency normalization tests.
+  - Exact full regression command and passing output, locally when available or on the exact produced commit via the existing lightweight CI when useful.
+  - Diff limited to `connectors/loyverse.py`, focused tests, and only minimal documentation needed to state a demonstrated boundary.
+  - No network access in tests; no token, real payload, customer data, private code, co-author trailer, prohibited attribution, or unsupported vendor/OAuth claim.
+- Evidence produced: `-`
+- Review verdict: `-`
 - Rework or deferred dependency: `-`
-- Next action: Planner should immediately open the next independent incomplete roadmap lot. The remaining P1 idempotency criterion is conditional on persistent storage being introduced; if that dependency is not currently available, preserve it as incomplete and proceed to the next independent criterion without blocking the project.
+- Next action: Builder should refresh `main` and this file, transition `P2-LOYVERSE-NORM-01` from `READY` to `BUILDING`, inspect existing Loyverse tests/canonical currency rules, implement only the bounded synthetic currency-normalization audit slice, run focused regression plus the full suite, then hand the same Work ID to review.
 
 ## Handoff discipline
 
