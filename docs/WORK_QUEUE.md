@@ -58,14 +58,15 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-CAPABILITIES-01`
 - Roadmap phase: P2 — document explicit connector capabilities and unsupported fields/features
-- State: `BUILDING`
+- State: `REVIEW`
 - Base product HEAD: `47a77543cbd05897b459b03a16e7dbc635b326ff`.
 - Observed start HEAD: `4569fe83336ccbb2372cc0bbf5e5c206a247c8f3` (planner handoff only after the recorded product base).
-- Produced HEAD so far: `77695c196b81a708b91cb4d62124f8245fcfaf2e`.
-- Progress: `docs/POS_INTEGRATIONS.md` now has one explicit Loyverse capability declaration. Manual comparison against exact `connectors/loyverse.py` confirms GET-only `merchant()`, raw `_COLLECTIONS` for items/variants/inventory/taxes/stores/receipts/employees/pos_devices/shifts, bounded cursor pagination, canonical product + sale only, no canonical activity, no writes, no retries and no persistent checkpoints. Evidence levels remain separated; live connector and OAuth certification are explicitly untested.
-- Remaining acceptance work: correct the stale statements in `docs/ARCHITECTURE.md` so architecture reflects the accepted product/sale canonical mapping boundary. No regression result is claimed in this pass; no executable product code changed.
-- Scope guard: do not introduce the P3 versioned capability-manifest abstraction early and do not add a parallel transport/mapping path.
-- Next action: update `docs/ARCHITECTURE.md` only, re-check it against current connector symbols and capability declaration, then move `BUILDING -> REVIEW` with the documentation diff as evidence. Run the local regression suite if execution access permits; do not require heavy CI for this documentation-only lot.
+- Produced HEAD: `fea2e8f3a368d77f27763820a82fdbcc3b2b5f9e`.
+- Evidence: `docs/POS_INTEGRATIONS.md` declares the current Loyverse capability boundary: GET-only merchant and allowlisted raw collections, bounded pagination, canonical product + sale only, canonical activity and writes unsupported, retries/checkpoints unimplemented, and live connector/OAuth certification untested. `docs/ARCHITECTURE.md` now matches that boundary and no longer says the transport cannot output canonical records.
+- Consistency check: compared the documentation against exact `connectors/loyverse.py` on main: `_COLLECTIONS` contains items/variants/inventory/taxes/stores/receipts/employees/pos_devices/shifts; `merchant()` is GET-only through the transport; `iter_collection()` provides bounded cursor pagination; `canonical_product()` and `canonical_sale()` are the only canonical Loyverse mappers. No activity mapper, write operation, retry loop or persistent checkpoint exists.
+- Test evidence: no test execution is claimed for this documentation-only completion pass. No executable product code changed.
+- Scope guard satisfied: no P3 capability manifest, parallel transport/mapping path, secret, real payload or unsupported inferred field was introduced.
+- Review request: verify the documentation diff and capability/code consistency, then decide ACCEPTED or REWORK. The roadmap checkbox remains unchanged for the reviewer to accept with reproducible evidence.
 
 ## Handoff discipline
 
