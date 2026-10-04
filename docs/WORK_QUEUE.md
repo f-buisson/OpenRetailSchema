@@ -61,17 +61,11 @@ The project must keep advancing while useful independent work exists.
 - State: `BUILDING`
 - Base product HEAD: `47a77543cbd05897b459b03a16e7dbc635b326ff`.
 - Observed start HEAD: `4569fe83336ccbb2372cc0bbf5e5c206a247c8f3` (planner handoff only after the recorded product base).
-- Scope: make the public Loyverse capability declaration match the implementation already on `main`; correct the stale architecture statement that says the transport does not emit canonical records. Do not introduce the P3 versioned capability-manifest abstraction early and do not add a parallel transport/mapping path.
-- Acceptance criteria:
-  1. `docs/POS_INTEGRATIONS.md` has one explicit Loyverse capability matrix/declaration separating raw readable resources from canonical emission, and marks unsupported/unimplemented behavior without implying live certification.
-  2. The declaration matches `connectors/loyverse.py`: GET-only merchant plus the currently allowlisted collections; pagination is supported; canonical emission is product + sale only; activity and write operations are unsupported; retries, checkpoints and OAuth certification remain unimplemented/untested as applicable.
-  3. `docs/ARCHITECTURE.md` no longer contradicts accepted behavior: it describes the current product/sale canonical mapping boundary without claiming raw collections are canonical entities.
-  4. Evidence levels remain explicit: repository behavior is synthetic-tested; external personal-token observations remain external evidence; no live OpenRetailSchema or OAuth claim is introduced.
-  5. No secret, real payload, private code, vendor-confidential material or inferred unsupported field is added. No new helper/manifest/compatibility layer is created for documentation-only capability facts.
-  6. A targeted consistency check (manual diff against `_COLLECTIONS`, `merchant()`, `canonical_product()` and `canonical_sale()` is sufficient) is recorded, and the existing local regression suite is run if the environment permits; no heavy CI is required for documentation-only changes.
-- Required evidence: changed-file diff showing the capability declaration and architecture correction; explicit comparison to current connector symbols/resources; regression result if actually executed. Do not claim an unexecuted test.
-- Debt check: 0 open PRs. No duplicate capability implementation exists. Immediate debt found: `docs/ARCHITECTURE.md` still says the Loyverse transport does not output canonical records, contradicting the accepted product/sale mappers and current POS registry. This lot fixes that contradiction while completing the next P2 criterion and deliberately avoids creating the future P3 manifest early.
-- Next action: update only the capability/architecture documentation needed to reflect current code, verify it against exact `main`, then supply recorded evidence for review.
+- Produced HEAD so far: `77695c196b81a708b91cb4d62124f8245fcfaf2e`.
+- Progress: `docs/POS_INTEGRATIONS.md` now has one explicit Loyverse capability declaration. Manual comparison against exact `connectors/loyverse.py` confirms GET-only `merchant()`, raw `_COLLECTIONS` for items/variants/inventory/taxes/stores/receipts/employees/pos_devices/shifts, bounded cursor pagination, canonical product + sale only, no canonical activity, no writes, no retries and no persistent checkpoints. Evidence levels remain separated; live connector and OAuth certification are explicitly untested.
+- Remaining acceptance work: correct the stale statements in `docs/ARCHITECTURE.md` so architecture reflects the accepted product/sale canonical mapping boundary. No regression result is claimed in this pass; no executable product code changed.
+- Scope guard: do not introduce the P3 versioned capability-manifest abstraction early and do not add a parallel transport/mapping path.
+- Next action: update `docs/ARCHITECTURE.md` only, re-check it against current connector symbols and capability declaration, then move `BUILDING -> REVIEW` with the documentation diff as evidence. Run the local regression suite if execution access permits; do not require heavy CI for this documentation-only lot.
 
 ## Handoff discipline
 
