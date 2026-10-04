@@ -4,11 +4,11 @@
 
 **Capability and evidence status are separate.** An official API existing, an API being exercised in another application, and an OpenRetailSchema connector being released are three different claims.
 
-Last reviewed: **2026-09-30**.
+Last reviewed: **2026-10-04**.
 
 | Platform | Public interface evidenced | Independent OpenRetailSchema connector | Next contribution |
 | --- | --- | --- | --- |
-| [Loyverse](https://developer.loyverse.com/docs/) | REST v1.0, personal tokens and OAuth 2.0. Catalog, inventory, tax, merchant, store and receipt resources are documented. | Not yet validated against a live account. Read-only token access has been exercised successfully in a separate F-Buisson application (details below). | Independent token test against an authorized **test** account, synthetic pagination/402/429 fixtures, then OAuth evaluation. |
+| [Loyverse](https://developer.loyverse.com/docs/) | REST v1.0, personal tokens and OAuth 2.0. Catalog, inventory, tax, merchant, store and receipt resources are documented. | Synthetic-tested read-only transport and canonical product/receipt normalization; not yet validated against a live account. | Authorized test-account connector run, bounded retry/checkpoint work, then OAuth evaluation. |
 | [Square](https://developer.squareup.com/reference/square) | Orders, catalog, inventory and OAuth APIs documented. | None. | A documented read-only capability proposal and synthetic orders/catalog fixtures. |
 | [Shopify](https://shopify.dev/docs/api/admin-graphql/latest) | GraphQL Admin APIs document products, inventory and orders; Shopify POS-specific behavior must be validated independently. | None. | GraphQL read scopes, POS-origin filters, pagination, synthetic examples. |
 | [Lightspeed Retail X-Series](https://x-series-api.lightspeedhq.com/docs/introduction) | HTTP API with OAuth and personal tokens; the latter have plan restrictions. | None. | A read-only capability matrix, rate-limit handling and sanitized fixtures. |
@@ -19,6 +19,14 @@ Last reviewed: **2026-09-30**.
 | Other POS platforms | Open for proposals. | None. | [Open a POS connector request](https://github.com/f-buisson/OpenRetailSchema/issues/new/choose). |
 
 These references describe vendor platforms, not partnerships or endorsements. No platform except Loyverse has product-test evidence recorded here. Do not merge vendor SDKs or text unless their redistribution terms permit it.
+
+## Loyverse canonical mapping boundary
+
+The current connector emits only two canonical v0.1 entity types: **product** from variant data and **sale** from receipt data. Both paths are covered by fabricated schema-validation tests and fail closed when required source identity or other required mapping inputs are malformed. Optional monetary values remain absent when the source value or currency cannot be represented safely; explicit numeric zero remains zero.
+
+The transport can read additional documented collections, including `shifts`, but raw collection availability is not a canonical mapping claim. OpenRetailSchema currently emits **no canonical activity record from Loyverse**. A shift, receipt stream or POS session is not assumed to represent the canonical aggregated activity interval without a documented, semantically sufficient mapping for the required activity fields. Activity therefore remains explicitly unsupported by this adapter rather than being fabricated by inference.
+
+Likewise, transport support for items, inventory, taxes, stores, employees, POS devices or shifts does not mean those resources are normalized into canonical records. Only the product and sale mappers above are part of the current canonical emission surface. This boundary is synthetic-tested repository behavior, not live connector certification.
 
 ## Evidence: existing Loyverse token integration
 
