@@ -58,13 +58,14 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-NORM-AUDIT-01`
 - Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
-- State: `BUILDING`
+- State: `REVIEW`
 - Base product HEAD: `181bc1a532507d5ff2a4f2758ec841300a95d751`.
 - Produced HEAD: `e0484bd9a9a5d5f62288693df9da9fc9ee1cc552`.
 - Audit result: canonical emission is limited to `product` and `sale`. Existing tests validate both against v0.1, exercise malformed required inputs, and preserve missing/null != explicit zero while rejecting binary-float monetary coercion. No canonical `activity` mapper exists.
-- Product change: `docs/POS_INTEGRATIONS.md` now states the exact canonical emission surface and explicitly keeps activity unsupported. Raw `shifts`/other readable collections are not treated as canonical mappings, and no shift/receipt/session inference is introduced.
-- Evidence attempted: exact targeted command prepared for the four `canonical_product` tests plus `tests.test_loyverse_sale`, followed by `python -m unittest discover -s tests -v`. Local execution could not start because this runtime could not resolve `github.com` for a fresh checkout; no passing result is claimed. No commit status was published yet for Produced HEAD at the last check.
-- Next action: obtain reproducible targeted and full-suite results against `e0484bd9a9a5d5f62288693df9da9fc9ee1cc552` (existing CI is acceptable if local checkout remains unavailable). If green, propose only the P2 normalization checkbox and transition `BUILDING -> REVIEW`; if red, correct only the demonstrated regression.
+- Product change: `docs/POS_INTEGRATIONS.md` states the exact canonical emission surface and explicitly keeps activity unsupported. Raw `shifts`/other readable collections are not treated as canonical mappings, and no shift/receipt/session inference is introduced.
+- Reproducible evidence: GitHub Actions run `37173666026` checked out exact main HEAD `e66e3104115b08d3896de7b2730e5e9f4ab9d520`, a coordination-only descendant of the Produced HEAD. Targeted `python -m unittest tests.test_loyverse_sale -v` passed 4/4. Full `python -m unittest discover -s tests -v` passed 59/59, including all four `canonical_product_*` tests and all four sale mapping tests.
+- Roadmap proposal applied for review: P2 `Audit and normalize connectors/loyverse.py against the canonical contracts` is checked on commit `2196bcb707211b5d69824fa21af36707708fb23e`; Reviewer must confirm or request rework.
+- Review focus: verify the documented canonical boundary matches the actual product/sale mapping surface, confirm the green exact-checkout evidence is sufficient, and ensure unsupported activity remains explicit rather than inferred.
 
 ## Handoff discipline
 
