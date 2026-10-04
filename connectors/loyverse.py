@@ -10,6 +10,7 @@ from __future__ import annotations
 import http.client
 import json
 import os
+from datetime import datetime
 from decimal import Decimal
 from urllib.parse import urlencode
 
@@ -59,7 +60,6 @@ def _transport(path: str, token: str) -> dict:
         if len(payload) > _MAX_RESPONSE_BYTES:
             raise LoyverseError("response_too_large")
         try:
-            # Preserve monetary precision until the normalizer decides units.
             value = json.loads(payload.decode("utf-8"), parse_float=Decimal)
         except (UnicodeDecodeError, json.JSONDecodeError):
             raise LoyverseError("invalid_json") from None
@@ -85,11 +85,7 @@ def _http_error(status: int) -> LoyverseError:
 
 
 class LoyverseClient:
-    """Read-only transport with explicit page limits and injectable test I/O.
-
-    This class yields *raw vendor dictionaries*, not canonical records.
-    No token is stored on disk and no vendor payload is logged.
-    """
+    """Read-only transport with explicit page limits and injectable test I/O."""
 
     def __init__(self, token: str, *, transport=None):
         if not isinstance(token, str) or not token.strip() or "\n" in token or "\r" in token:
@@ -99,7 +95,6 @@ class LoyverseClient:
 
     @classmethod
     def from_environment(cls):
-        """Use LOYVERSE_API_TOKEN without placing credentials in CLI history."""
         return cls(os.environ.get("LOYVERSE_API_TOKEN", ""))
 
     def merchant(self) -> dict:
@@ -158,12 +153,7 @@ def merchant_currency(merchant: dict) -> str | None:
 
 
 def source_decimal(record: dict, field: str) -> Decimal | None:
-    """Preserve a finite numeric source value without guessing missing values.
-
-    Transport JSON floats are parsed as ``Decimal``. Integer JSON values remain
-    integers and are converted exactly. Strings, booleans, binary floats and
-    structured values are unsupported at this boundary and fail closed.
-    """
+    """Preserve a finite numeric source value without guessing missing values."""
     if not isinstance(record, dict) or not isinstance(field, str) or field not in record:
         return None
     value = record[field]
@@ -196,13 +186,7 @@ def canonical_money(record: dict, field: str, merchant: dict) -> dict | None:
 
 
 def canonical_product(variant: dict, merchant: dict) -> dict:
-    """Map one fabricated-compatible Loyverse variant to a canonical product.
-
-    This boundary is intentionally narrow: it requires the variant's own opaque
-    source id and name, accepts only non-empty string SKU/barcode values, and
-    omits an unknown price instead of inventing zero. It does not fetch, join or
-    infer parent item data.
-    """
+    """Map one fabricated-compatible Loyverse variant to a canonical product."""
     external_id = source_external_id(variant)
     if external_id is None:
         raise LoyverseError("invalid_product_identity")
@@ -230,4 +214,84 @@ def canonical_product(variant: dict, merchant: dict) -> dict:
     price = canonical_money(variant, "price", merchant)
     if price is not None:
         record["sale_price"] = price
+    return record
+
+
+def _opaque_string(record: dict, field: str) -> str | None:
+    if not isinstance(record, dict) or field not in record:
+        return None
+    value = record[field]
+    return value if isinstance(value, str) and value.strip() else None
+
+
+def _event_timestamp(record: dict, field: str) -> str | None:
+    value = _opaque_string(record, field)
+    if value is None:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return value if parsed.tzinfo is not None and parsed.utcoffset() is not None else None
+
+
+def canonical_sale(receipt: dict, merchant: dict) -> dict:
+    """Map a documented-compatible Loyverse receipt to one canonical v0.1 sale.
+
+    Loyverse documents ``SALE``/``REFUND`` explicitly and reports refund money
+    as the amount returned to the customer. Values and signs are preserved; the
+    transaction direction is represented by ``sale_kind`` rather than invented
+    negation. Only opaque variant references are mapped as products.
+    """
+    receipt_number = _opaque_string(receipt, "receipt_number")
+    if receipt_number is None:
+        raise LoyverseError("invalid_sale_identity")
+    store_id = _opaque_string(receipt, "store_id")
+    if store_id is None:
+        raise LoyverseError("invalid_sale_store")
+    occurred_at = _event_timestamp(receipt, "receipt_date")
+    if occurred_at is None:
+        raise LoyverseError("invalid_sale_time")
+
+    receipt_type = receipt.get("receipt_type") if isinstance(receipt, dict) else None
+    kinds = {"SALE": "sale", "REFUND": "refund"}
+    if receipt_type not in kinds:
+        raise LoyverseError("invalid_sale_kind")
+
+    source_lines = receipt.get("line_items") if isinstance(receipt, dict) else None
+    if not isinstance(source_lines, list) or not source_lines:
+        raise LoyverseError("invalid_sale_lines")
+    lines = []
+    for line in source_lines:
+        line_id = _opaque_string(line, "id")
+        variant_id = _opaque_string(line, "variant_id")
+        quantity = source_decimal(line, "quantity")
+        if line_id is None or variant_id is None or quantity is None:
+            raise LoyverseError("invalid_sale_line")
+        canonical_line = {
+            "id": "loyverse:line:" + line_id,
+            "source_product_id": variant_id,
+            "quantity": format(quantity, "f"),
+        }
+        gross = canonical_money(line, "gross_total_money", merchant)
+        if gross is not None:
+            canonical_line["gross_total"] = gross
+        lines.append(canonical_line)
+
+    record = {
+        "schema_version": "0.1.0",
+        "entity_type": "sale",
+        "id": "loyverse:receipt:" + receipt_number,
+        "source": {"provider": "loyverse", "external_id": receipt_number},
+        "store_id": store_id,
+        "occurred_at": occurred_at,
+        "sale_kind": kinds[receipt_type],
+        "lines": lines,
+    }
+    total = canonical_money(receipt, "total_money", merchant)
+    if total is not None:
+        record["gross_total"] = total
+    tax = canonical_money(receipt, "total_tax", merchant)
+    if tax is not None:
+        record["tax_total"] = tax
     return record
