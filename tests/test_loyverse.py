@@ -1,16 +1,24 @@
 # SPDX-License-Identifier: Apache-2.0
 """Offline, fabricated Loyverse transport tests. Never require a real token."""
 from decimal import Decimal
+import json
+from pathlib import Path
 import unittest
+
+from jsonschema import Draft202012Validator, FormatChecker
 
 from connectors.loyverse import (
     LoyverseClient,
     LoyverseError,
     canonical_money,
+    canonical_product,
     merchant_currency,
     source_decimal,
     source_external_id,
 )
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 class LoyverseTests(unittest.TestCase):
@@ -77,17 +85,8 @@ class LoyverseTests(unittest.TestCase):
 
     def test_source_decimal_fails_closed_for_unsupported_values(self):
         unsupported = (
-            True,
-            False,
-            float("nan"),
-            float("inf"),
-            1.25,
-            "12.50",
-            "not-a-number",
-            Decimal("NaN"),
-            Decimal("Infinity"),
-            [],
-            {},
+            True, False, float("nan"), float("inf"), 1.25, "12.50",
+            "not-a-number", Decimal("NaN"), Decimal("Infinity"), [], {},
         )
         for value in unsupported:
             with self.subTest(value=value):
@@ -109,20 +108,14 @@ class LoyverseTests(unittest.TestCase):
     def test_canonical_money_serializes_finite_values_exactly(self):
         merchant = {"currency": {"code": "EUR"}}
         cases = (
-            (0, "0"),
-            (Decimal("0.000"), "0.000"),
-            (-9, "-9"),
+            (0, "0"), (Decimal("0.000"), "0.000"), (-9, "-9"),
             (Decimal("-9.90"), "-9.90"),
             (Decimal("1234567890.12345678901234567890"), "1234567890.12345678901234567890"),
-            (Decimal("1E+3"), "1000"),
-            (Decimal("1E-7"), "0.0000001"),
+            (Decimal("1E+3"), "1000"), (Decimal("1E-7"), "0.0000001"),
         )
         for value, expected in cases:
             with self.subTest(value=value):
-                self.assertEqual(
-                    canonical_money({"price": value}, "price", merchant),
-                    {"amount": expected, "currency": "EUR"},
-                )
+                self.assertEqual(canonical_money({"price": value}, "price", merchant), {"amount": expected, "currency": "EUR"})
 
     def test_canonical_money_preserves_unknown_amount(self):
         merchant = {"currency": "EUR"}
@@ -135,6 +128,46 @@ class LoyverseTests(unittest.TestCase):
         for merchant in ({}, {"currency": None}, {"currency": "eur"}, {"currency": "EURO"}, {"currency": {"code": "usd"}}):
             with self.subTest(merchant=merchant):
                 self.assertIsNone(canonical_money(record, "price", merchant))
+
+    def test_canonical_product_is_schema_valid_and_deterministic(self):
+        variant = {"id": "variant_opaque", "name": "Synthetic tea", "sku": "TEA-1", "barcode": "000123", "price": Decimal("2.50")}
+        merchant = {"currency": {"code": "EUR"}}
+        first = canonical_product(variant, merchant)
+        second = canonical_product(dict(variant), merchant)
+        self.assertEqual(first, second)
+        self.assertEqual(first["id"], "loyverse:variant:variant_opaque")
+        self.assertEqual(first["source"], {"provider": "loyverse", "external_id": "variant_opaque"})
+        self.assertEqual(first["sale_price"], {"amount": "2.50", "currency": "EUR"})
+        with (ROOT / "schemas" / "v0.1" / "record.schema.json").open(encoding="utf-8") as stream:
+            schema = json.load(stream)
+        errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(first))
+        self.assertEqual(errors, [])
+
+    def test_canonical_product_keeps_missing_price_distinct_from_zero(self):
+        merchant = {"currency": "EUR"}
+        absent = canonical_product({"id": "a", "name": "Absent"}, merchant)
+        null = canonical_product({"id": "n", "name": "Null", "price": None}, merchant)
+        zero = canonical_product({"id": "z", "name": "Zero", "price": 0}, merchant)
+        unsupported = canonical_product({"id": "s", "name": "String", "price": "0"}, merchant)
+        self.assertNotIn("sale_price", absent)
+        self.assertNotIn("sale_price", null)
+        self.assertNotIn("sale_price", unsupported)
+        self.assertEqual(zero["sale_price"], {"amount": "0", "currency": "EUR"})
+
+    def test_canonical_product_rejects_invalid_required_fields(self):
+        cases = (({}, "invalid_product_identity"), ({"id": "", "name": "X"}, "invalid_product_identity"), ({"id": "x"}, "invalid_product_name"), ({"id": "x", "name": "   "}, "invalid_product_name"))
+        for variant, code in cases:
+            with self.subTest(variant=variant):
+                with self.assertRaises(LoyverseError) as ctx:
+                    canonical_product(variant, {"currency": "EUR"})
+                self.assertEqual(ctx.exception.code, code)
+
+    def test_canonical_product_rejects_malformed_optional_fields(self):
+        for field, value in (("sku", 123), ("sku", ""), ("barcode", False), ("barcode", "   ")):
+            with self.subTest(field=field, value=value):
+                with self.assertRaises(LoyverseError) as ctx:
+                    canonical_product({"id": "x", "name": "Synthetic", field: value}, {"currency": "EUR"})
+                self.assertEqual(ctx.exception.code, "invalid_product_" + field)
 
     def test_merchant_raw_response(self):
         raw = {"id": "synthetic", "currency": {"code": "THB", "decimal_places": 2}}
