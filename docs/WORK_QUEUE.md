@@ -59,22 +59,20 @@ The project must keep advancing while useful independent work exists.
 - Work ID: `P2-LOYVERSE-PRODUCT-01`
 - Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
 - State: `BUILDING`
-- Observed main HEAD: `801e2787880cc42bb06a4f21c64e38679e46bb4e` (READY handoff only; product base remains compatible)
+- Observed main HEAD: `801e2787880cc42bb06a4f21c64e38679e46bb4e` (READY handoff only; product base was compatible)
+- Produced HEAD: `974c769bd4ada236fb5e9dddaeb68bb001c40794` (product normalization plus targeted tests)
 - Scope: add one canonical Loyverse product/variant normalization path using the already accepted `source_external_id()` and `canonical_money()` primitives; synthetic input only. Do not add a second transport, pagination path, money parser, identifier helper or vendor-data fallback.
-- Reuse classification: OpenRetailSchema already owns the primitive ID/currency/decimal/money semantics; external Loyverse work supplies behavioral/test input only. This lot composes those existing primitives into the repository's canonical product contract with repository-native code.
-- Acceptance criteria:
-  - A synthetic Loyverse product/variant fixture with valid opaque source id and non-empty name maps deterministically to a schema-valid v0.1 `product` record with `source.provider = "loyverse"` and the exact source external id preserved.
-  - Canonical `id` construction is deterministic and collision-safe for the mapped source identity; no random or inferred identifier is introduced.
-  - A valid source price is emitted only through the existing `canonical_money()` path and uses validated merchant currency; explicit zero remains `0` while absent/null/unsupported price remains absent rather than becoming zero.
-  - Missing/blank required identity or name fails closed with a stable sanitized error/result; malformed optional SKU/barcode values are not silently coerced.
-  - Targeted tests cover happy path, missing-vs-zero price, malformed required identity/name and at least one malformed optional field.
-  - The resulting record is exercised through the repository's canonical schema validator/conformance path, not only asserted as a Python dictionary.
-  - Existing Loyverse tests and the relevant canonical contract regression tests pass locally; no full GitHub Actions run is required unless local evidence is unavailable or a reviewer needs independent proof.
-  - Public capability documentation is not advanced beyond implemented behavior; if this lot exposes a new public mapping entry point, its supported/unsupported boundary is documented in the same lot.
-- Required evidence: exact targeted test command/result, exact canonical validation/regression command/result, produced commit SHA, and confirmation that no real payload, token or private source code entered the repository.
-- Rework or blocker: local checkout execution is unavailable in this run; implement and use existing CI only if needed for reproducible execution evidence.
-- Debt state: 0 open PRs at planning time; stale PRs #8-#12 were closed unmerged by the accepted consolidation lot. No critical TODO/FIXME was found in the default-branch code search. This lot reuses the single existing Loyverse normalization primitives instead of creating parallel helpers.
-- Next action: implement the bounded product normalization and targeted schema-validation tests, then obtain reproducible execution evidence before REVIEW.
+- Implemented:
+  - `canonical_product()` composes the accepted opaque-id and money primitives into a deterministic `loyverse:variant:<external_id>` canonical product without transport or parent-item inference.
+  - Required source id/name fail closed with stable sanitized codes; malformed non-null SKU/barcode fail closed rather than being coerced.
+  - Price is omitted for absent/null/unsupported values and explicit numeric zero is preserved through `canonical_money()`.
+  - Fabricated tests cover deterministic/schema-valid output, missing-vs-zero price, invalid required fields and malformed optional fields; schema validation uses the repository v0.1 Draft 2020-12 schema directly.
+- Evidence available:
+  - Repository HEAD was refreshed immediately before the progress handoff and remained the produced test commit; no concurrent product change was observed.
+  - No real payload, credential, customer data or external/private source code was used; all new test records are fabricated literals.
+  - No workflow run was published yet for Produced HEAD when checked, so no execution result is claimed.
+- Rework or blocker: this execution environment has repository API/write access but no local checkout runner. Exact targeted and regression execution evidence is therefore still missing; this is an execution-proof limitation, not a product-data dependency.
+- Next action: execute `python -m unittest tests.test_loyverse.LoyverseTests.test_canonical_product_is_schema_valid_and_deterministic tests.test_loyverse.LoyverseTests.test_canonical_product_keeps_missing_price_distinct_from_zero tests.test_loyverse.LoyverseTests.test_canonical_product_rejects_invalid_required_fields tests.test_loyverse.LoyverseTests.test_canonical_product_rejects_malformed_optional_fields` and `python -m unittest discover -s tests -v` against Produced HEAD. If both are green, record the exact results and move `BUILDING -> REVIEW`; if not, correct only the demonstrated regression.
 
 ## Handoff discipline
 
