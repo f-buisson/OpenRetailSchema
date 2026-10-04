@@ -66,7 +66,7 @@ Goal: turn the experimental reader into the first evidence-backed reference POS 
 - [x] Record authorized external personal-token test findings separately from repository certification.
 - [x] Implement an experimental read-only transport with injected synthetic-response tests.
 - [x] Audit and normalize `connectors/loyverse.py` against the canonical contracts.
-- [ ] Document explicit connector capabilities and unsupported fields/features.
+- [x] Document explicit connector capabilities and unsupported fields/features.
 - [x] Implement and test pagination.
 - [x] Implement bounded retries/error classification without unsafe retry of non-idempotent operations.
 - [ ] Implement incremental checkpoints without converting missing values to zero.
