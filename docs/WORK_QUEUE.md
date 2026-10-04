@@ -58,8 +58,9 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-CAPABILITIES-01`
 - Roadmap phase: P2 — document explicit connector capabilities and unsupported fields/features
-- State: `READY`
+- State: `BUILDING`
 - Base product HEAD: `47a77543cbd05897b459b03a16e7dbc635b326ff`.
+- Observed start HEAD: `4569fe83336ccbb2372cc0bbf5e5c206a247c8f3` (planner handoff only after the recorded product base).
 - Scope: make the public Loyverse capability declaration match the implementation already on `main`; correct the stale architecture statement that says the transport does not emit canonical records. Do not introduce the P3 versioned capability-manifest abstraction early and do not add a parallel transport/mapping path.
 - Acceptance criteria:
   1. `docs/POS_INTEGRATIONS.md` has one explicit Loyverse capability matrix/declaration separating raw readable resources from canonical emission, and marks unsupported/unimplemented behavior without implying live certification.
@@ -70,7 +71,7 @@ The project must keep advancing while useful independent work exists.
   6. A targeted consistency check (manual diff against `_COLLECTIONS`, `merchant()`, `canonical_product()` and `canonical_sale()` is sufficient) is recorded, and the existing local regression suite is run if the environment permits; no heavy CI is required for documentation-only changes.
 - Required evidence: changed-file diff showing the capability declaration and architecture correction; explicit comparison to current connector symbols/resources; regression result if actually executed. Do not claim an unexecuted test.
 - Debt check: 0 open PRs. No duplicate capability implementation exists. Immediate debt found: `docs/ARCHITECTURE.md` still says the Loyverse transport does not output canonical records, contradicting the accepted product/sale mappers and current POS registry. This lot fixes that contradiction while completing the next P2 criterion and deliberately avoids creating the future P3 manifest early.
-- Next action: Builder transitions `READY -> BUILDING`, updates only the capability/architecture documentation needed to reflect current code, verifies it against exact `main`, and supplies the recorded evidence for review.
+- Next action: update only the capability/architecture documentation needed to reflect current code, verify it against exact `main`, then supply recorded evidence for review.
 
 ## Handoff discipline
 
