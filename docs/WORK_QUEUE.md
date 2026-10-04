@@ -2,7 +2,7 @@
 
 This file coordinates small reviewable lots between planning, implementation and review.
 
-This repository state is authoritative. Always refresh `main`, `docs/ROADMAP.md` and this file before changing anything.
+The repository state is authoritative. Always refresh `main`, `docs/ROADMAP.md` and this file before changing anything.
 
 ## State machine
 
@@ -60,18 +60,15 @@ The project must keep advancing while useful independent work exists.
 - Roadmap phase: P2 — implement bounded retries/error classification without unsafe retry of non-idempotent operations
 - State: `BUILDING`
 - Base product HEAD: `c7c623503fc1e33ef682116fcaedb9a3b0774341`.
-- Observed start HEAD: `895ab27d8bb2eb1cab27f5485cff6a3f917d75ad`; its only change after the compatible product base is the Planner handoff in this file.
-- Reuse classification: implemented/evidenced in the maintainer's other retail projects, not yet ported to OpenRetailSchema. Reuse the established 401/402/403/429/provider-failure and Retry-After edge cases as design/test input only; do not copy private source or treat external evidence as connector certification.
-- Scope: extend the single existing Loyverse GET transport path with one bounded retry policy. Do not create a parallel transport/client. Keep all currently exposed operations read-only. Retry only transient failures that are safe for GET; authentication/authorization/plan errors and other permanent client failures must fail immediately. Preserve sanitized errors and never expose token, query secrets or provider response bodies.
-- Acceptance criteria:
-  1. Synthetic targeted tests prove a transient GET failure can recover within a finite configured/default attempt bound and that exhaustion returns a stable sanitized `LoyverseError` classification.
-  2. Synthetic negative tests prove 401, 402 and 403 are not retried; existing explicit classifications remain intact. 429 handling is bounded and honors a valid bounded `Retry-After` signal if the implementation exposes response metadata; malformed/excessive delay input must not create an unbounded wait.
-  3. No non-idempotent/write retry path is introduced. The connector remains GET-only and uses one canonical transport/retry implementation.
-  4. Existing pagination, canonical product/sale, missing-versus-zero and public contract tests remain green. Retry behavior must not invent records, checkpoints, amounts or missing values.
-  5. Public capability/architecture documentation is updated in the same lot if retry support changes an advertised capability; documentation must distinguish synthetic-tested behavior from live certification.
-- Required evidence: targeted retry/error tests including recovery, exhaustion and permanent-error no-retry cases; then the local regression suite. Do not launch heavy CI unless local execution cannot provide the required proof or a repository gate specifically requires it.
-- Next executable action: implement the retry policy in the existing client transport path, add targeted synthetic tests, update advertised capability documentation, then execute targeted and regression tests.
-- Debt check: 0 open PRs at planning time; no TODO/FIXME search hits; no existing retry implementation found on `main`; pagination and canonical mapping already exist and are explicitly out of scope. This lot does not add a competing path.
+- Observed start HEAD: `895ab27d8bb2eb1cab27f5485cff6a3f917d75ad`; its only change after the compatible product base was the Planner handoff in this file.
+- Produced HEAD so far: `71caf91df4c44db243bb5d1216d13e668875dbe5`.
+- Implemented: the existing GET path now has a finite 1..5-attempt policy (default 3); only connection failures, 429, and classified 5xx provider errors are retryable. 401/402/403 and other permanent failures remain immediate. `merchant()` and paginated collection reads share the same `_get()` path; no write operation or second transport was introduced. 429 can carry a short `Retry-After` delta capped at 5 seconds.
+- Synthetic tests added: transient recovery, transient exhaustion preserving sanitized classification, 401/402/403 single-attempt behavior, bounded 429 delay, retry-attempt validation, and malformed/excessive Retry-After inputs.
+- Evidence status: execution is not yet claimed. A fresh local checkout was attempted after the commits but the environment could not resolve `github.com`, so no targeted or regression result is recorded.
+- Known pre-review correction: harden `_bounded_retry_after()` so non-finite numeric strings such as `nan`/`inf` are rejected before sleeping; the new synthetic test intentionally includes these cases. Then update the public capability documentation from “Not implemented” to synthetic-tested bounded GET retries.
+- Acceptance criteria still pending: execute `python -m unittest tests.test_loyverse_retry -v`, then the full local suite from the exact corrected HEAD. Only after both are green should the lot move `BUILDING -> REVIEW`.
+- Next executable action: make the finite-delay correction, align `docs/POS_INTEGRATIONS.md`/architecture if needed, run targeted + full regression when execution access is available, and record the exact Produced HEAD and evidence.
+- Debt check: pagination and canonical mapping remain unchanged; no competing client or write retry path was added.
 
 ## Handoff discipline
 
