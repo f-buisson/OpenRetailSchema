@@ -56,30 +56,25 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `DEBT-PR-CONSOLIDATE-01`
-- Roadmap phase: cross-phase consolidation before further P2 expansion
-- State: `ACCEPTED`
-- Observed main HEAD: `5ab65387e489da3a9a36b5ffbac0cc47d9ab702f`
-- Produced HEAD: `d76f5619b70e612d07384ac05716e0ba037e9eed` (coordination-only BUILDING handoff; no product behavior changed in this lot)
-- Scope: bounded stale-PR consolidation only; no product behavior changes.
+- Work ID: `P2-LOYVERSE-PRODUCT-01`
+- Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
+- State: `READY`
+- Observed main HEAD: `9953fd0f3da72d7d74992822663b787ff45e0436`
+- Scope: add one canonical Loyverse product/variant normalization path using the already accepted `source_external_id()` and `canonical_money()` primitives; synthetic input only. Do not add a second transport, pagination path, money parser, identifier helper or vendor-data fallback.
+- Reuse classification: OpenRetailSchema already owns the primitive ID/currency/decimal/money semantics; external Loyverse work supplies behavioral/test input only. This lot composes those existing primitives into the repository's canonical product contract with repository-native code.
 - Acceptance criteria:
-  - PRs #8-#12 are explicitly classified against current `main`.
-  - Fully covered/superseded PRs are closed without merging obsolete code.
-  - Any retained PR must serve a concrete incomplete roadmap criterion.
-  - No accepted behavior is removed, no force-push occurs, and no compatibility helper is introduced.
-  - Roadmap completion is not reopened without evidence.
-- Review evidence:
-  - Refreshed `main`, `docs/ROADMAP.md`, this handoff, and the PR queue before verdict.
-  - PRs #8, #9, #10, #11 and #12 are all closed and unmerged; the repository has no open pull request at review time.
-  - #8 is unique fixture material but belongs to already completed P1 DST/fixture scope and does not serve the remaining persistent-storage idempotency criterion.
-  - #9 is superseded by the accepted timestamp-normalization path on `main`; merging its competing API would create an unnecessary compatibility path.
-  - #10 contains partially unique executable fixture checks, but those checks cover refund, missing-value and DST semantics already owned by completed P0/P1 criteria and do not serve an incomplete criterion.
-  - #11 and #12 are superseded by accepted Loyverse currency and numeric normalization behavior already present on `main`.
-  - `docs/ROADMAP.md` remains unchanged and correctly keeps P1 persistent-storage idempotency plus the broader P2 connector criteria incomplete.
-  - The Produced HEAD and the later REVIEW handoff changed only `docs/WORK_QUEUE.md`; no product behavior was modified by this consolidation.
-  - No additional CI run was justified for this coordination-only lot.
+  - A synthetic Loyverse product/variant fixture with valid opaque source id and non-empty name maps deterministically to a schema-valid v0.1 `product` record with `source.provider = "loyverse"` and the exact source external id preserved.
+  - Canonical `id` construction is deterministic and collision-safe for the mapped source identity; no random or inferred identifier is introduced.
+  - A valid source price is emitted only through the existing `canonical_money()` path and uses validated merchant currency; explicit zero remains `0` while absent/null/unsupported price remains absent rather than becoming zero.
+  - Missing/blank required identity or name fails closed with a stable sanitized error/result; malformed optional SKU/barcode values are not silently coerced.
+  - Targeted tests cover happy path, missing-vs-zero price, malformed required identity/name and at least one malformed optional field.
+  - The resulting record is exercised through the repository's canonical schema validator/conformance path, not only asserted as a Python dictionary.
+  - Existing Loyverse tests and the relevant canonical contract regression tests pass locally; no full GitHub Actions run is required unless local evidence is unavailable or a reviewer needs independent proof.
+  - Public capability documentation is not advanced beyond implemented behavior; if this lot exposes a new public mapping entry point, its supported/unsupported boundary is documented in the same lot.
+- Required evidence: exact targeted test command/result, exact canonical validation/regression command/result, produced commit SHA, and confirmation that no real payload, token or private source code entered the repository.
 - Rework or blocker: `-`
-- Next action: Planner must move `ACCEPTED -> READY` by selecting the next bounded independent incomplete roadmap criterion. Do not wait on P1 persistent-storage idempotency or future live/vendor evidence when independent P2 work remains available.
+- Debt state: 0 open PRs at planning time; stale PRs #8-#12 were closed unmerged by the accepted consolidation lot. No critical TODO/FIXME was found in the default-branch code search. This lot reuses the single existing Loyverse normalization primitives instead of creating parallel helpers.
+- Next action: Builder moves `READY -> BUILDING` from the latest compatible `main`, implements only this bounded synthetic product normalization slice and records reproducible evidence before REVIEW.
 
 ## Handoff discipline
 
