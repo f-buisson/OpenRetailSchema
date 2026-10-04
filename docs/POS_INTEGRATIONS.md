@@ -8,7 +8,7 @@ Last reviewed: **2026-10-04**.
 
 | Platform | Public interface evidenced | Independent OpenRetailSchema connector | Next contribution |
 | --- | --- | --- | --- |
-| [Loyverse](https://developer.loyverse.com/docs/) | REST v1.0, personal tokens and OAuth 2.0. Catalog, inventory, tax, merchant, store and receipt resources are documented. | Synthetic-tested read-only transport and canonical product/receipt normalization; not yet validated against a live account. | Authorized test-account connector run, bounded retry/checkpoint work, then OAuth evaluation. |
+| [Loyverse](https://developer.loyverse.com/docs/) | REST v1.0, personal tokens and OAuth 2.0. Catalog, inventory, tax, merchant, store and receipt resources are documented. | Synthetic-tested read-only transport and canonical product/receipt normalization; not yet validated against a live account. | Authorized test-account connector run, checkpoint work, then OAuth evaluation. |
 | [Square](https://developer.squareup.com/reference/square) | Orders, catalog, inventory and OAuth APIs documented. | None. | A documented read-only capability proposal and synthetic orders/catalog fixtures. |
 | [Shopify](https://shopify.dev/docs/api/admin-graphql/latest) | GraphQL Admin APIs document products, inventory and orders; Shopify POS-specific behavior must be validated independently. | None. | GraphQL read scopes, POS-origin filters, pagination, synthetic examples. |
 | [Lightspeed Retail X-Series](https://x-series-api.lightspeedhq.com/docs/introduction) | HTTP API with OAuth and personal tokens; the latter have plan restrictions. | None. | A read-only capability matrix, rate-limit handling and sanitized fixtures. |
@@ -33,7 +33,7 @@ This table describes the connector code currently present in this repository. **
 | Canonical sale emission | Supported from receipt input | `canonical_sale()` emits canonical v0.1 `sale`; synthetic-tested. |
 | Canonical activity emission | Unsupported | No activity mapper exists; shifts/receipts/sessions are not inferred into activity. |
 | Write operations | Unsupported | The connector exposes no create/update/delete operation. |
-| Bounded retries | Not implemented | Provider/network errors fail closed; no automatic retry loop exists. |
+| Bounded retries | Supported for GET only | Finite 1..5-attempt budget (default 3); connection failures, HTTP 429 and provider 5xx are retryable. 401/402/403 and other permanent client errors fail immediately. `Retry-After` accepts only finite 0..5-second deltas. Synthetic-tested; not live-certified. |
 | Incremental checkpoints | Not implemented | Pagination cursors are transport paging state, not persisted sync checkpoints. |
 | Live OpenRetailSchema connector certification | Not tested | Authorized live connector run remains a P2 requirement. |
 | OAuth certification | Not tested | OAuth is vendor-documented, but this connector has not independently exercised it. |
