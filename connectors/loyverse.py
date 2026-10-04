@@ -111,6 +111,46 @@ class LoyverseClient:
                     self._sleep(delay)
         raise LoyverseError("retry_exhausted")
 
+    @staticmethod
+    def _checkpoint_instant(value: str) -> datetime:
+        """Parse an explicit-offset source update marker without inventing a fallback."""
+        if not isinstance(value, str) or not value.strip():
+            raise LoyverseError("invalid_checkpoint")
+        try:
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        except ValueError:
+            raise LoyverseError("invalid_checkpoint") from None
+        if parsed.tzinfo is None or parsed.utcoffset() is None:
+            raise LoyverseError("invalid_checkpoint")
+        return parsed
+
+    def read_incremental(self, resource: str, *, checkpoint: str | None = None, transform=None, limit: int = 250, max_pages: int = 100):
+        """Return processed rows plus a source-time checkpoint after complete traversal.
+
+        The checkpoint is caller-owned and intentionally distinct from pagination
+        cursors. It advances only after every row has a valid ``updated_at`` and
+        optional processing succeeds.
+        """
+        baseline = None
+        params = {}
+        if checkpoint is not None:
+            baseline = self._checkpoint_instant(checkpoint)
+            params["updated_at_min"] = checkpoint
+        processor = transform if transform is not None else (lambda row: row)
+        if not callable(processor):
+            raise ValueError("transform must be callable")
+        processed = []
+        newest_value = checkpoint
+        newest_instant = baseline
+        for row in self.iter_collection(resource, limit=limit, max_pages=max_pages, params=params):
+            update_value = row.get("updated_at")
+            update_instant = self._checkpoint_instant(update_value)
+            processed.append(processor(row))
+            if newest_instant is None or update_instant > newest_instant:
+                newest_instant = update_instant
+                newest_value = update_value
+        return processed, newest_value
+
     def merchant(self) -> dict:
         result = self._get("/v1.0/merchant")
         if not isinstance(result, dict):

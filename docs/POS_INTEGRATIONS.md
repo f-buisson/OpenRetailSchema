@@ -34,7 +34,7 @@ This table describes the connector code currently present in this repository. **
 | Canonical activity emission | Unsupported | No activity mapper exists; shifts/receipts/sessions are not inferred into activity. |
 | Write operations | Unsupported | The connector exposes no create/update/delete operation. |
 | Bounded retries | Supported for GET only | Finite 1..5-attempt budget (default 3); connection failures, HTTP 429 and provider 5xx are retryable. 401/402/403 and other permanent client errors fail immediately. `Retry-After` accepts only finite 0..5-second deltas. Synthetic-tested; not live-certified. |
-| Incremental checkpoints | Not implemented | Pagination cursors are transport paging state, not persisted sync checkpoints. |
+| Incremental checkpoints | Supported, caller-owned | `read_incremental()` accepts and returns an explicit-offset `updated_at` source marker, sends it as `updated_at_min`, and advances monotonically only after complete traversal and processing. Missing, null, malformed or offsetless update times are rejected rather than converted to zero/epoch. Pagination cursors remain ephemeral transport state. Synthetic-tested; no persistence or live certification is claimed. |
 | Live OpenRetailSchema connector certification | Not tested | Authorized live connector run remains a P2 requirement. |
 | OAuth certification | Not tested | OAuth is vendor-documented, but this connector has not independently exercised it. |
 
