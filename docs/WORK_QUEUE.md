@@ -60,11 +60,11 @@ The project must keep advancing while useful independent work exists.
 - Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
 - State: `BUILDING`
 - Base product HEAD: `181bc1a532507d5ff2a4f2758ec841300a95d751`.
-- Observed HEAD at start: `84e32ad38af9022cc1c65992f8a66cee72034012` (planner handoff only after the recorded product base).
-- Audit finding: the connector emits canonical `product` and `sale` only. Both already have schema-validation, deterministic identity, malformed-required-field, and missing/null-versus-zero monetary tests. No canonical `activity` mapper exists; shifts are exposed only as raw documented GET collection records, so activity must remain unsupported unless a semantically sufficient public mapping is established.
-- Scope: close only the remaining documentation/evidence gap for this normalization criterion. Reuse the existing canonical helpers and do not introduce a parallel mapping path.
-- Acceptance criteria: targeted product and sale canonical tests; full regression; explicit public boundary that activity is unsupported rather than inferred; no undocumented source mapping; synthetic evidence only.
-- Next action: document the activity/canonical-emission boundary and run or obtain reproducible targeted plus full-suite evidence on the resulting product HEAD. If green, propose only the Loyverse normalization roadmap checkbox and hand this Work ID to REVIEW.
+- Produced HEAD: `e0484bd9a9a5d5f62288693df9da9fc9ee1cc552`.
+- Audit result: canonical emission is limited to `product` and `sale`. Existing tests validate both against v0.1, exercise malformed required inputs, and preserve missing/null != explicit zero while rejecting binary-float monetary coercion. No canonical `activity` mapper exists.
+- Product change: `docs/POS_INTEGRATIONS.md` now states the exact canonical emission surface and explicitly keeps activity unsupported. Raw `shifts`/other readable collections are not treated as canonical mappings, and no shift/receipt/session inference is introduced.
+- Evidence attempted: exact targeted command prepared for the four `canonical_product` tests plus `tests.test_loyverse_sale`, followed by `python -m unittest discover -s tests -v`. Local execution could not start because this runtime could not resolve `github.com` for a fresh checkout; no passing result is claimed. No commit status was published yet for Produced HEAD at the last check.
+- Next action: obtain reproducible targeted and full-suite results against `e0484bd9a9a5d5f62288693df9da9fc9ee1cc552` (existing CI is acceptable if local checkout remains unavailable). If green, propose only the P2 normalization checkbox and transition `BUILDING -> REVIEW`; if red, correct only the demonstrated regression.
 
 ## Handoff discipline
 
