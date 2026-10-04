@@ -58,8 +58,8 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-PRODUCT-01`
 - Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
-- State: `READY`
-- Observed main HEAD: `9953fd0f3da72d7d74992822663b787ff45e0436`
+- State: `BUILDING`
+- Observed main HEAD: `801e2787880cc42bb06a4f21c64e38679e46bb4e` (READY handoff only; product base remains compatible)
 - Scope: add one canonical Loyverse product/variant normalization path using the already accepted `source_external_id()` and `canonical_money()` primitives; synthetic input only. Do not add a second transport, pagination path, money parser, identifier helper or vendor-data fallback.
 - Reuse classification: OpenRetailSchema already owns the primitive ID/currency/decimal/money semantics; external Loyverse work supplies behavioral/test input only. This lot composes those existing primitives into the repository's canonical product contract with repository-native code.
 - Acceptance criteria:
@@ -72,9 +72,9 @@ The project must keep advancing while useful independent work exists.
   - Existing Loyverse tests and the relevant canonical contract regression tests pass locally; no full GitHub Actions run is required unless local evidence is unavailable or a reviewer needs independent proof.
   - Public capability documentation is not advanced beyond implemented behavior; if this lot exposes a new public mapping entry point, its supported/unsupported boundary is documented in the same lot.
 - Required evidence: exact targeted test command/result, exact canonical validation/regression command/result, produced commit SHA, and confirmation that no real payload, token or private source code entered the repository.
-- Rework or blocker: `-`
+- Rework or blocker: local checkout execution is unavailable in this run; implement and use existing CI only if needed for reproducible execution evidence.
 - Debt state: 0 open PRs at planning time; stale PRs #8-#12 were closed unmerged by the accepted consolidation lot. No critical TODO/FIXME was found in the default-branch code search. This lot reuses the single existing Loyverse normalization primitives instead of creating parallel helpers.
-- Next action: Builder moves `READY -> BUILDING` from the latest compatible `main`, implements only this bounded synthetic product normalization slice and records reproducible evidence before REVIEW.
+- Next action: implement the bounded product normalization and targeted schema-validation tests, then obtain reproducible execution evidence before REVIEW.
 
 ## Handoff discipline
 
