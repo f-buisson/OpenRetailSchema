@@ -4,13 +4,13 @@
 
 ## Status and boundaries
 
-The current state consists of **reference contracts, an offline validator, and an experimental read-only Loyverse transport**. It is not a running synchronization service, a canonical Loyverse normalizer, or a verified OpenRetailSchema POS integration. The Loyverse client has synthetic-response tests; independent live certification remains pending. Implementation claims must be backed by local tests, and vendor compatibility must be demonstrated with authorized test credentials outside the public repository.
+The current state consists of **reference contracts, an offline validator, and an experimental read-only Loyverse transport with synthetic-tested product and sale normalization**. It is not a running synchronization service or a verified live OpenRetailSchema POS integration. The Loyverse client and its current canonical product/sale mappings have synthetic tests; independent live connector certification remains pending. Implementation claims must be backed by repository tests, and vendor compatibility must be demonstrated with authorized test credentials outside the public repository.
 
 ## Data flow
 
-1. **Connector:** retrieves or receives data using documented provider interfaces and declares individual supported capabilities. The initial Loyverse GET transport is experimental and yields raw dictionaries; it does not currently output canonical records.
+1. **Connector:** retrieves data using documented provider interfaces and declares individual supported capabilities. The initial Loyverse transport is GET-only and yields raw dictionaries for its allowlisted resources. Its current normalization surface is deliberately narrower than its raw read surface: variant input can map to canonical `product` records and receipt input can map to canonical `sale` records. Other readable resources are not implicitly canonical entities, and no canonical Loyverse activity mapper exists.
 2. **Raw store (planned):** retains a source payload securely, with strict access controls and retention rules. Raw payloads must never be committed here.
-3. **Normalizer (planned):** maps supported source fields into canonical records; unknowns remain unknown.
+3. **Normalizer:** maps only supported source fields into canonical records; unknowns remain unknown. Generic canonical contracts and CSV normalization exist, while the experimental Loyverse path currently implements only the product and sale mappings described above. Additional Loyverse mappings remain unsupported until their source semantics are sufficient and tested.
 4. **Validator (available):** validates canonical JSON records using the versioned schema.
 5. **Consumer:** reads records with explicit source provenance and version metadata.
 
