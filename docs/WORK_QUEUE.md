@@ -58,22 +58,20 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-PRODUCT-01`
 - Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
-- State: `REVIEW`
-- Observed main HEAD: `ee53a9966ca0a4f953f6bf27a9e9c3d05ce65c38`
-- Produced HEAD: `974c769bd4ada236fb5e9dddaeb68bb001c40794` (product normalization plus targeted tests)
-- Scope: add one canonical Loyverse product/variant normalization path using the already accepted `source_external_id()` and `canonical_money()` primitives; synthetic input only. Do not add a second transport, pagination path, money parser, identifier helper or vendor-data fallback.
-- Implemented:
-  - `canonical_product()` composes the accepted opaque-id and money primitives into a deterministic `loyverse:variant:<external_id>` canonical product without transport or parent-item inference.
-  - Required source id/name fail closed with stable sanitized codes; malformed non-null SKU/barcode fail closed rather than being coerced.
-  - Price is omitted for absent/null/unsupported values and explicit numeric zero is preserved through `canonical_money()`.
-  - Fabricated tests cover deterministic/schema-valid output, missing-vs-zero price, invalid required fields and malformed optional fields; schema validation uses the repository v0.1 Draft 2020-12 schema directly.
-- Evidence available:
-  - Existing Tests run `37167760956` completed successfully on `ee53a9966ca0a4f953f6bf27a9e9c3d05ce65c38`.
-  - Its targeted step executed the four `canonical_product` tests successfully, followed by a successful full `python -m unittest discover -s tests -v` regression step.
-  - Comparing Produced HEAD to the evidence HEAD shows only `.github/workflows/tests.yml` and this coordination file changed; no product or test implementation changed after the Produced HEAD.
-  - No real payload, credential, customer data or external/private source code is used by the product-normalization tests; their records are fabricated literals.
-- Rework or blocker: none identified in the bounded lot.
-- Next action: reviewer must decide `REVIEW -> ACCEPTED`, `REVIEW -> REWORK` or `REVIEW -> DEFERRED` from the recorded evidence. If accepted, the Planner should immediately open the next independent incomplete roadmap lot.
+- State: `ACCEPTED`
+- Observed main HEAD before verdict: `4e546e9d99544674a40c664298e2908e3da3775d` (review handoff only after evidence HEAD)
+- Produced HEAD: `974c769bd4ada236fb5e9dddaeb68bb001c40794`
+- Scope certified: one canonical Loyverse product/variant normalization path using the accepted `source_external_id()` and `canonical_money()` primitives with synthetic input only.
+- Acceptance evidence:
+  - `canonical_product()` emits deterministic schema-valid product records and preserves source provenance.
+  - Required identity/name and malformed non-null SKU/barcode fail closed with stable sanitized codes.
+  - Absent/null/unsupported price remains absent while explicit numeric zero remains zero; no missing value is converted to zero.
+  - Existing Tests run `37167760956` succeeded on evidence HEAD `ee53a9966ca0a4f953f6bf27a9e9c3d05ce65c38`; its targeted four-test product-normalization step and full regression step both succeeded.
+  - Produced HEAD to evidence HEAD changed only `.github/workflows/tests.yml` and `docs/WORK_QUEUE.md`; no product or product-test implementation changed concurrently.
+  - Tests use fabricated literals only; no credential, real payload, customer data or external/private source code is part of this lot.
+- Limits: this verdict certifies only the bounded product/variant normalization tranche. It does not complete the global P2 normalization criterion, claim a live connector test, OAuth support or unsupported-field coverage beyond this scope.
+- Rework or blocker: none for this lot.
+- Next action: Planner should immediately transition `ACCEPTED -> READY` with the next independent bounded incomplete roadmap lot. Persistent-storage idempotency and unavailable live/vendor evidence must not hold the queue.
 
 ## Handoff discipline
 
