@@ -56,17 +56,21 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `P2-LOYVERSE-CAPABILITIES-01`
-- Roadmap phase: P2 — document explicit connector capabilities and unsupported fields/features
-- State: `ACCEPTED`
-- Base product HEAD: `47a77543cbd05897b459b03a16e7dbc635b326ff`.
-- Produced HEAD: `fea2e8f3a368d77f27763820a82fdbcc3b2b5f9e`.
-- Reviewed coordination HEAD: `aa5519e412b12792399b8fe7605de6811bb0bb0e`; its only change after the Produced HEAD is this handoff file.
-- Acceptance evidence: `docs/POS_INTEGRATIONS.md` explicitly declares GET-only merchant/raw collection reads, bounded pagination, canonical product + sale only, unsupported canonical activity/writes, unimplemented retries/checkpoints, and distinct untested live/OAuth certification. `docs/ARCHITECTURE.md` matches the same boundary.
-- Code consistency: exact `connectors/loyverse.py` exposes the documented allowlist, GET-only transport, bounded `iter_collection()`, `canonical_product()` and `canonical_sale()`, with no activity mapper, write operation, retry loop or persistent checkpoint.
-- Review scope: the product diff from the recorded base to the Produced HEAD changes documentation and coordination only. No executable code changed, so no new CI run was required for this acceptance.
-- Verdict: `REVIEW -> ACCEPTED`. The capability declaration is reproducibly reviewable from the exact repository state and does not overclaim live or OAuth evidence.
-- Planner handoff: immediately open the next independent incomplete P2 criterion as a bounded `READY` lot. Do not wait for live credentials; retries, checkpoints and synthetic end-to-end work remain independently actionable.
+- Work ID: `P2-LOYVERSE-RETRY-01`
+- Roadmap phase: P2 — implement bounded retries/error classification without unsafe retry of non-idempotent operations
+- State: `READY`
+- Base product HEAD: `c7c623503fc1e33ef682116fcaedb9a3b0774341`.
+- Reuse classification: implemented/evidenced in the maintainer's other retail projects, not yet ported to OpenRetailSchema. Reuse the established 401/402/403/429/provider-failure and Retry-After edge cases as design/test input only; do not copy private source or treat external evidence as connector certification.
+- Scope: extend the single existing Loyverse GET transport path with one bounded retry policy. Do not create a parallel transport/client. Keep all currently exposed operations read-only. Retry only transient failures that are safe for GET; authentication/authorization/plan errors and other permanent client failures must fail immediately. Preserve sanitized errors and never expose token, query secrets or provider response bodies.
+- Acceptance criteria:
+  1. Synthetic targeted tests prove a transient GET failure can recover within a finite configured/default attempt bound and that exhaustion returns a stable sanitized `LoyverseError` classification.
+  2. Synthetic negative tests prove 401, 402 and 403 are not retried; existing explicit classifications remain intact. 429 handling is bounded and honors a valid bounded `Retry-After` signal if the implementation exposes response metadata; malformed/excessive delay input must not create an unbounded wait.
+  3. No non-idempotent/write retry path is introduced. The connector remains GET-only and uses one canonical transport/retry implementation.
+  4. Existing pagination, canonical product/sale, missing-versus-zero and public contract tests remain green. Retry behavior must not invent records, checkpoints, amounts or missing values.
+  5. Public capability/architecture documentation is updated in the same lot if retry support changes an advertised capability; documentation must distinguish synthetic-tested behavior from live certification.
+- Required evidence: targeted retry/error tests including recovery, exhaustion and permanent-error no-retry cases; then the local regression suite. Do not launch heavy CI unless local execution cannot provide the required proof or a repository gate specifically requires it.
+- Next executable action: Builder refreshes `main`, transitions this Work ID `READY -> BUILDING`, inspects the existing transport/tests first, then implements the smallest retry change satisfying the criteria without adding a second client or transport abstraction.
+- Debt check: 0 open PRs at planning time; no TODO/FIXME search hits; no existing retry implementation found on `main`; pagination and canonical mapping already exist and are explicitly out of scope. This lot does not add a competing path.
 
 ## Handoff discipline
 
