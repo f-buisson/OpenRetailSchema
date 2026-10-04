@@ -58,8 +58,8 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-PRODUCT-01`
 - Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
-- State: `BUILDING`
-- Observed main HEAD: `801e2787880cc42bb06a4f21c64e38679e46bb4e` (READY handoff only; product base was compatible)
+- State: `REVIEW`
+- Observed main HEAD: `ee53a9966ca0a4f953f6bf27a9e9c3d05ce65c38`
 - Produced HEAD: `974c769bd4ada236fb5e9dddaeb68bb001c40794` (product normalization plus targeted tests)
 - Scope: add one canonical Loyverse product/variant normalization path using the already accepted `source_external_id()` and `canonical_money()` primitives; synthetic input only. Do not add a second transport, pagination path, money parser, identifier helper or vendor-data fallback.
 - Implemented:
@@ -68,11 +68,12 @@ The project must keep advancing while useful independent work exists.
   - Price is omitted for absent/null/unsupported values and explicit numeric zero is preserved through `canonical_money()`.
   - Fabricated tests cover deterministic/schema-valid output, missing-vs-zero price, invalid required fields and malformed optional fields; schema validation uses the repository v0.1 Draft 2020-12 schema directly.
 - Evidence available:
-  - Repository HEAD was refreshed immediately before the progress handoff and remained the produced test commit; no concurrent product change was observed.
-  - No real payload, credential, customer data or external/private source code was used; all new test records are fabricated literals.
-  - No workflow run was published yet for Produced HEAD when checked, so no execution result is claimed.
-- Rework or blocker: this execution environment has repository API/write access but no local checkout runner. Exact targeted and regression execution evidence is therefore still missing; this is an execution-proof limitation, not a product-data dependency.
-- Next action: execute `python -m unittest tests.test_loyverse.LoyverseTests.test_canonical_product_is_schema_valid_and_deterministic tests.test_loyverse.LoyverseTests.test_canonical_product_keeps_missing_price_distinct_from_zero tests.test_loyverse.LoyverseTests.test_canonical_product_rejects_invalid_required_fields tests.test_loyverse.LoyverseTests.test_canonical_product_rejects_malformed_optional_fields` and `python -m unittest discover -s tests -v` against Produced HEAD. If both are green, record the exact results and move `BUILDING -> REVIEW`; if not, correct only the demonstrated regression.
+  - Existing Tests run `37167760956` completed successfully on `ee53a9966ca0a4f953f6bf27a9e9c3d05ce65c38`.
+  - Its targeted step executed the four `canonical_product` tests successfully, followed by a successful full `python -m unittest discover -s tests -v` regression step.
+  - Comparing Produced HEAD to the evidence HEAD shows only `.github/workflows/tests.yml` and this coordination file changed; no product or test implementation changed after the Produced HEAD.
+  - No real payload, credential, customer data or external/private source code is used by the product-normalization tests; their records are fabricated literals.
+- Rework or blocker: none identified in the bounded lot.
+- Next action: reviewer must decide `REVIEW -> ACCEPTED`, `REVIEW -> REWORK` or `REVIEW -> DEFERRED` from the recorded evidence. If accepted, the Planner should immediately open the next independent incomplete roadmap lot.
 
 ## Handoff discipline
 
