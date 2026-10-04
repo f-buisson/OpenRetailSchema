@@ -58,15 +58,15 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-SALE-01`
 - Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
-- State: `BUILDING`
-- Observed main HEAD: `99f537f72c64d6db24eb0779fd472b4aa125b47f` (coordination-only READY handoff after product HEAD `180ad60cb9a1ac27374372304de5e420c6c9d414`)
-- Produced HEAD: `e0dba9fec38f31a52c6b8ce163d430451dc94685` (implementation plus synthetic tests; later HEAD `53353f76257c2f0372121bd0a1d6609709855f78` changes only the existing test workflow to request exact targeted evidence).
+- State: `REVIEW`
+- Observed main HEAD: `de571c1cf6d2c04c14117249710bf961e851c944` (the commits after Produced HEAD only change the existing test workflow and this coordination file; no later product file changed).
+- Produced HEAD: `e0dba9fec38f31a52c6b8ce163d430451dc94685`.
 - Implemented: `canonical_sale()` maps documented receipt identity, `receipt_date`, store, SALE/REFUND direction, opaque line/variant identity, quantity, line `gross_total_money`, and receipt `total_tax`. It deliberately omits vendor `total_money` because public Loyverse documentation defines that value as paid/returned money including discounts, taxes, surcharges and tips, which is not safely equivalent to canonical `gross_total`.
 - Sign rule: public Loyverse documentation defines `receipt_type` as SALE/REFUND and describes refund `total_money` as money returned; repository compatibility rules require preserving source signs rather than inventing negation. Synthetic refund coverage therefore keeps positive quantity/line money positive and carries direction in `sale_kind`.
-- Synthetic evidence added: schema validation/determinism, refund sign boundary, missing-vs-zero line money plus binary-float rejection, and fail-closed receipt/store/time/kind/line validation with stable codes. Fixtures are fabricated literals only.
-- Evidence status: local fresh-checkout execution was attempted but network resolution prevented cloning GitHub, so no local pass is claimed. Existing CI was minimally retargeted to run exact `python -m unittest tests.test_loyverse_sale -v` followed by `python -m unittest discover -s tests -v`. Run `37171006683` on evidence HEAD `53353f76257c2f0372121bd0a1d6609709855f78` was queued at the last check; no green result is claimed yet.
+- Synthetic evidence: schema validation/determinism, refund sign boundary, missing-vs-zero line money plus binary-float rejection, and fail-closed receipt/store/time/kind/line validation with stable codes. Fixtures are fabricated literals only.
+- Reproducible evidence: GitHub Actions run `37171006683` on evidence HEAD `53353f76257c2f0372121bd0a1d6609709855f78` completed successfully. The job passed exact targeted command `python -m unittest tests.test_loyverse_sale -v` and then full regression `python -m unittest discover -s tests -v`. Evidence HEAD differs from Produced HEAD only by the existing test workflow; product code and tests are unchanged.
 - Scope limits: no transport, pagination, retry, checkpoint, OAuth, persistence, real payload, token, customer/employee data or private source code was added. External authorized receipt/refund observations remain external evidence only; all repository tests are synthetic.
-- Next action: inspect run `37171006683`. If both the targeted sale-normalization command and full regression are green, record exact results and transition `BUILDING -> REVIEW`; if red, correct only the demonstrated regression and rerun the bounded evidence.
+- Reviewer action: inspect Produced HEAD, canonical contracts and the exact green evidence; issue `ACCEPTED`, `REWORK` or `DEFERRED` without creating new scope.
 
 ## Handoff discipline
 
