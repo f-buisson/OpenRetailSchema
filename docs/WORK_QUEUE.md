@@ -58,8 +58,8 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-SALE-01`
 - Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
-- State: `READY`
-- Observed main HEAD: `180ad60cb9a1ac27374372304de5e420c6c9d414`
+- State: `BUILDING`
+- Observed main HEAD: `99f537f72c64d6db24eb0779fd472b4aa125b47f` (coordination-only READY handoff after product HEAD `180ad60cb9a1ac27374372304de5e420c6c9d414`)
 - Reuse classification: receipt/refund behavior is externally evidenced in the maintainer's other retail work but is not yet normalized in OpenRetailSchema. Use those established semantics and synthetic test ideas only; do not copy private/non-Apache source or claim external evidence as repository certification.
 - Scope: add one bounded canonical Loyverse receipt-to-sale normalization path using existing canonical primitives where applicable. Use fabricated receipt dictionaries only. Do not add transport, pagination, retry, checkpoint, OAuth or persistence behavior in this lot.
 - Acceptance criteria:
@@ -73,7 +73,7 @@ The project must keep advancing while useful independent work exists.
   - No token, real payload, customer/employee data, private source code or confidential artifact enters the repository.
 - Required evidence: produced commit SHA; exact targeted-test command/result; exact full-regression command/result; schema-validation proof from the repository validator/test path; concise statement of which receipt semantics came from public documentation versus external authorized evidence versus synthetic fixtures.
 - Debt check: 0 open PRs at planning time; no competing receipt normalizer was found on `main`; the accepted product normalizer already owns product mapping and must not be duplicated. P1 persistent-storage idempotency remains intentionally incomplete until storage exists. No critical TODO/FIXME or branch overlap was identified that should precede this bounded lot.
-- Next action: Builder should refresh `main`, confirm this coordination-only handoff is the only change after the observed HEAD, transition `READY -> BUILDING`, then implement only this bounded receipt normalization and its tests.
+- Next action: implement the bounded receipt normalization and synthetic tests, then record reproducible evidence before `BUILDING -> REVIEW`.
 
 ## Handoff discipline
 
