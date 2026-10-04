@@ -58,15 +58,15 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-CAPABILITIES-01`
 - Roadmap phase: P2 — document explicit connector capabilities and unsupported fields/features
-- State: `REVIEW`
+- State: `ACCEPTED`
 - Base product HEAD: `47a77543cbd05897b459b03a16e7dbc635b326ff`.
-- Observed start HEAD: `4569fe83336ccbb2372cc0bbf5e5c206a247c8f3` (planner handoff only after the recorded product base).
 - Produced HEAD: `fea2e8f3a368d77f27763820a82fdbcc3b2b5f9e`.
-- Evidence: `docs/POS_INTEGRATIONS.md` declares the current Loyverse capability boundary: GET-only merchant and allowlisted raw collections, bounded pagination, canonical product + sale only, canonical activity and writes unsupported, retries/checkpoints unimplemented, and live connector/OAuth certification untested. `docs/ARCHITECTURE.md` now matches that boundary and no longer says the transport cannot output canonical records.
-- Consistency check: compared the documentation against exact `connectors/loyverse.py` on main: `_COLLECTIONS` contains items/variants/inventory/taxes/stores/receipts/employees/pos_devices/shifts; `merchant()` is GET-only through the transport; `iter_collection()` provides bounded cursor pagination; `canonical_product()` and `canonical_sale()` are the only canonical Loyverse mappers. No activity mapper, write operation, retry loop or persistent checkpoint exists.
-- Test evidence: no test execution is claimed for this documentation-only completion pass. No executable product code changed.
-- Scope guard satisfied: no P3 capability manifest, parallel transport/mapping path, secret, real payload or unsupported inferred field was introduced.
-- Review request: verify the documentation diff and capability/code consistency, then decide ACCEPTED or REWORK. The roadmap checkbox remains unchanged for the reviewer to accept with reproducible evidence.
+- Reviewed coordination HEAD: `aa5519e412b12792399b8fe7605de6811bb0bb0e`; its only change after the Produced HEAD is this handoff file.
+- Acceptance evidence: `docs/POS_INTEGRATIONS.md` explicitly declares GET-only merchant/raw collection reads, bounded pagination, canonical product + sale only, unsupported canonical activity/writes, unimplemented retries/checkpoints, and distinct untested live/OAuth certification. `docs/ARCHITECTURE.md` matches the same boundary.
+- Code consistency: exact `connectors/loyverse.py` exposes the documented allowlist, GET-only transport, bounded `iter_collection()`, `canonical_product()` and `canonical_sale()`, with no activity mapper, write operation, retry loop or persistent checkpoint.
+- Review scope: the product diff from the recorded base to the Produced HEAD changes documentation and coordination only. No executable code changed, so no new CI run was required for this acceptance.
+- Verdict: `REVIEW -> ACCEPTED`. The capability declaration is reproducibly reviewable from the exact repository state and does not overclaim live or OAuth evidence.
+- Planner handoff: immediately open the next independent incomplete P2 criterion as a bounded `READY` lot. Do not wait for live credentials; retries, checkpoints and synthetic end-to-end work remain independently actionable.
 
 ## Handoff discipline
 
