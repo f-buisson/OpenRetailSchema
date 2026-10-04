@@ -61,12 +61,12 @@ def _transport(path: str, token: str) -> dict:
         try:
             # Preserve monetary precision until the normalizer decides units.
             value = json.loads(payload.decode("utf-8"), parse_float=Decimal)
-        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        except (UnicodeDecodeError, json.JSONDecodeError):
             raise LoyverseError("invalid_json") from None
         if not isinstance(value, dict):
             raise LoyverseError("unexpected_payload")
         return value
-    except (OSError, TimeoutError) as exc:
+    except (OSError, TimeoutError):
         raise LoyverseError("connection_failure") from None
     finally:
         conn.close()
@@ -193,3 +193,41 @@ def canonical_money(record: dict, field: str, merchant: dict) -> dict | None:
     if amount is None or currency is None:
         return None
     return {"amount": format(amount, "f"), "currency": currency}
+
+
+def canonical_product(variant: dict, merchant: dict) -> dict:
+    """Map one fabricated-compatible Loyverse variant to a canonical product.
+
+    This boundary is intentionally narrow: it requires the variant's own opaque
+    source id and name, accepts only non-empty string SKU/barcode values, and
+    omits an unknown price instead of inventing zero. It does not fetch, join or
+    infer parent item data.
+    """
+    external_id = source_external_id(variant)
+    if external_id is None:
+        raise LoyverseError("invalid_product_identity")
+    name = variant.get("name") if isinstance(variant, dict) else None
+    if not isinstance(name, str) or not name.strip():
+        raise LoyverseError("invalid_product_name")
+
+    optional = {}
+    for field in ("sku", "barcode"):
+        if field not in variant or variant[field] is None:
+            continue
+        value = variant[field]
+        if not isinstance(value, str) or not value.strip():
+            raise LoyverseError("invalid_product_" + field)
+        optional[field] = value
+
+    record = {
+        "schema_version": "0.1.0",
+        "entity_type": "product",
+        "id": "loyverse:variant:" + external_id,
+        "source": {"provider": "loyverse", "external_id": external_id},
+        "name": name,
+        **optional,
+    }
+    price = canonical_money(variant, "price", merchant)
+    if price is not None:
+        record["sale_price"] = price
+    return record
