@@ -58,16 +58,17 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-RETRY-01`
 - Roadmap phase: P2 — implement bounded retries/error classification without unsafe retry of non-idempotent operations
-- State: `BUILDING`
+- State: `REVIEW`
 - Base product HEAD: `c7c623503fc1e33ef682116fcaedb9a3b0774341`.
 - Observed start HEAD: `895ab27d8bb2eb1cab27f5485cff6a3f917d75ad`; its only change after the compatible product base was the Planner handoff in this file.
-- Produced HEAD so far: `71caf91df4c44db243bb5d1216d13e668875dbe5`.
-- Implemented: the existing GET path now has a finite 1..5-attempt policy (default 3); only connection failures, 429, and classified 5xx provider errors are retryable. 401/402/403 and other permanent failures remain immediate. `merchant()` and paginated collection reads share the same `_get()` path; no write operation or second transport was introduced. 429 can carry a short `Retry-After` delta capped at 5 seconds.
-- Synthetic tests added: transient recovery, transient exhaustion preserving sanitized classification, 401/402/403 single-attempt behavior, bounded 429 delay, retry-attempt validation, and malformed/excessive Retry-After inputs.
-- Evidence status: execution is not yet claimed. A fresh local checkout was attempted after the commits but the environment could not resolve `github.com`, so no targeted or regression result is recorded.
-- Known pre-review correction: harden `_bounded_retry_after()` so non-finite numeric strings such as `nan`/`inf` are rejected before sleeping; the new synthetic test intentionally includes these cases. Then update the public capability documentation from “Not implemented” to synthetic-tested bounded GET retries.
-- Acceptance criteria still pending: execute `python -m unittest tests.test_loyverse_retry -v`, then the full local suite from the exact corrected HEAD. Only after both are green should the lot move `BUILDING -> REVIEW`.
-- Next executable action: make the finite-delay correction, align `docs/POS_INTEGRATIONS.md`/architecture if needed, run targeted + full regression when execution access is available, and record the exact Produced HEAD and evidence.
+- Produced HEAD: `01a3544b8af39f91146a51edc361a00d8cb8e0a4`.
+- Implemented: the single existing GET path has a finite 1..5-attempt policy (default 3). Only connection failures, HTTP 429, and classified provider 5xx errors are retryable. 401/402/403 and other permanent failures remain immediate. `merchant()` and paginated collection reads share `_get()`; no write operation or second transport exists.
+- Retry-After hardening: only finite numeric deltas in the inclusive 0..5-second range are accepted. `nan`, `inf`, malformed, negative and excessive values are ignored before any sleep.
+- Synthetic coverage: transient recovery, exhaustion preserving sanitized classification, 401/402/403 single-attempt behavior, bounded 429 delay, attempt validation, and malformed/non-finite/excessive Retry-After inputs.
+- Documentation: `docs/POS_INTEGRATIONS.md` now advertises bounded retries as GET-only, synthetic-tested and not live-certified; checkpoint and live/OAuth boundaries remain explicit.
+- Evidence: GitHub Actions run `37188662229` on exact Produced HEAD `01a3544b8af39f91146a51edc361a00d8cb8e0a4` completed successfully. The workflow checked out that HEAD, installed the declared dev requirements, passed its targeted Loyverse sale step, then passed `python -m unittest discover -s tests -v`; the discovery suite includes `tests/test_loyverse_retry.py`. The immediately preceding run `37188648300` on functional correction HEAD `9250168498ae5f81e6e310672f995a0d80d0b5c7` also passed the full discovery suite.
+- Evidence boundary: no live Loyverse request was made and no local fresh-checkout result is claimed. The repository CI provides reproducible fresh-checkout regression evidence for the exact Produced HEAD; live certification remains a separate P2 criterion.
+- Review focus: verify the finite retry classification/delay policy, confirm no unsafe/non-idempotent retry path was introduced, and decide whether the existing full discovery proof is sufficient for this lot or whether a dedicated retry-only workflow step is required before acceptance.
 - Debt check: pagination and canonical mapping remain unchanged; no competing client or write retry path was added.
 
 ## Handoff discipline
