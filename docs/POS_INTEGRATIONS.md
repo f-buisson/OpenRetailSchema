@@ -20,6 +20,24 @@ Last reviewed: **2026-10-04**.
 
 These references describe vendor platforms, not partnerships or endorsements. No platform except Loyverse has product-test evidence recorded here. Do not merge vendor SDKs or text unless their redistribution terms permit it.
 
+## Loyverse capability declaration
+
+This table describes the connector code currently present in this repository. **Synthetic-tested** means fabricated responses exercise repository behavior; it does not mean the OpenRetailSchema connector has been run against a live Loyverse account.
+
+| Capability | Current support | Evidence / boundary |
+| --- | --- | --- |
+| Merchant read | Supported, GET-only | `merchant()` returns the raw merchant object; synthetic transport behavior only. |
+| Raw collection reads | Supported, GET-only for `items`, `variants`, `inventory`, `taxes`, `stores`, `receipts`, `employees`, `pos_devices`, and `shifts` | Allowlisted by `_COLLECTIONS`; raw availability is not canonical emission. |
+| Pagination | Supported | Cursor pagination has bounded page count, cursor validation and synthetic tests. |
+| Canonical product emission | Supported from variant input | `canonical_product()` emits canonical v0.1 `product`; synthetic-tested. |
+| Canonical sale emission | Supported from receipt input | `canonical_sale()` emits canonical v0.1 `sale`; synthetic-tested. |
+| Canonical activity emission | Unsupported | No activity mapper exists; shifts/receipts/sessions are not inferred into activity. |
+| Write operations | Unsupported | The connector exposes no create/update/delete operation. |
+| Bounded retries | Not implemented | Provider/network errors fail closed; no automatic retry loop exists. |
+| Incremental checkpoints | Not implemented | Pagination cursors are transport paging state, not persisted sync checkpoints. |
+| Live OpenRetailSchema connector certification | Not tested | Authorized live connector run remains a P2 requirement. |
+| OAuth certification | Not tested | OAuth is vendor-documented, but this connector has not independently exercised it. |
+
 ## Loyverse canonical mapping boundary
 
 The current connector emits only two canonical v0.1 entity types: **product** from variant data and **sale** from receipt data. Both paths are covered by fabricated schema-validation tests and fail closed when required source identity or other required mapping inputs are malformed. Optional monetary values remain absent when the source value or currency cannot be represented safely; explicit numeric zero remains zero.
