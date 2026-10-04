@@ -58,8 +58,9 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-CHECKPOINT-01`
 - Roadmap phase: P2 — implement incremental checkpoints without converting missing values to zero
-- State: `READY`
+- State: `REVIEW`
 - Base product HEAD: `5867ee4438ad74d26652318df26bd3de3f9f4e7b`.
+- Builder base: `f3642e2f4f13a77773b9e7ee51a9d03544c16f19`; intervening changes were documentation/planning only and compatible with this lot.
 - Reuse classification: implemented elsewhere, not yet ported. Alertarif provides external evidence for provider-update-time incremental reads, repeated imports without duplicates and outage catch-up; use those semantics and edge cases as design/test input only. Do not copy private/non-Apache source and do not relabel external evidence as OpenRetailSchema certification.
 - Scope: add one canonical incremental-checkpoint path to the existing read-only Loyverse connector. A checkpoint must represent source progress explicitly, remain distinct from pagination cursors, be caller-supplied/returned rather than silently persisted, and advance only from valid source update information after successful processing. Do not introduce a second transport, storage layer, write path or speculative generic P3 abstraction.
 - Acceptance: synthetic tests prove an initial sync without a checkpoint, resume from a valid checkpoint, deterministic monotonic advancement, repeated/resumed reads without inventing duplicate progress, and no checkpoint advancement when traversal/normalization fails.
@@ -67,8 +68,10 @@ The project must keep advancing while useful independent work exists.
 - Acceptance: pagination cursors remain ephemeral transport state and are never persisted/reused as incremental checkpoints. Existing pagination, retry, product and sale contracts remain regression-safe.
 - Acceptance: document the exact checkpoint semantics and evidence level in `docs/POS_INTEGRATIONS.md` (and architecture documentation only if the public architecture contract changes). Do not claim live certification, OAuth behavior or persistent-storage idempotency.
 - Evidence required: targeted checkpoint tests plus the complete local regression suite on the exact Produced HEAD. CI is optional and should be used only if local execution cannot provide reproducible proof or a fresh-checkout proof is deliberately needed.
-- Debt check: 0 open PRs at planning time; no existing checkpoint implementation was found on `main`; pagination cursors are explicitly documented as non-checkpoints. ROADMAP drift for the already accepted capabilities/retry lots was corrected before opening this scope, so this lot does not duplicate completed work.
-- Next action: Builder transitions this Work ID `READY -> BUILDING`, inspects the documented Loyverse update-time fields already evidenced by reuse notes before choosing the narrow source marker, then implements the smallest connector-native checkpoint API and tests.
+- Produced HEAD: `1ec6aa9303ec347d11b3fc71404ef0f24d105949`.
+- Evidence produced: `python -m unittest tests.test_loyverse_checkpoint -v` passed 6/6; after installing the repository dev requirements plus Windows timezone data required by the existing timezone tests, `python -m unittest discover -s tests -v` passed 71/71 on the Produced HEAD. `git diff --check` passed before commit.
+- Implemented behavior: caller-owned explicit-offset `updated_at` checkpoints use `updated_at_min`, advance monotonically only after complete traversal/processing, reject missing/null/malformed/offsetless markers, and remain distinct from ephemeral pagination cursors. No persistence, live certification, OAuth claim, second transport or write path was added.
+- Next action: Reviewer verifies the Produced HEAD and evidence, then decides ACCEPTED or REWORK.
 
 ## Handoff discipline
 
