@@ -14,26 +14,13 @@ from datetime import datetime
 from decimal import Decimal
 from urllib.parse import urlencode
 
-
-# Fixed host and direct HTTPS requests prevent cross-origin credential redirects.
 _LOYVERSE_HOST = "api.loyverse.com"
-_COLLECTIONS = {
-    "items": "items",
-    "variants": "variants",
-    "inventory": "inventory_levels",
-    "taxes": "taxes",
-    "stores": "stores",
-    "receipts": "receipts",
-    "employees": "employees",
-    "pos_devices": "pos_devices",
-    "shifts": "shifts",
-}
+_COLLECTIONS = {"items": "items", "variants": "variants", "inventory": "inventory_levels", "taxes": "taxes", "stores": "stores", "receipts": "receipts", "employees": "employees", "pos_devices": "pos_devices", "shifts": "shifts"}
 _MAX_RESPONSE_BYTES = 5 * 1024 * 1024
 
 
 class LoyverseError(Exception):
     """Safe-to-display error without token, URL query, or vendor response body."""
-
     def __init__(self, code: str, status: int | None = None):
         super().__init__(code)
         self.code = code
@@ -44,15 +31,7 @@ def _transport(path: str, token: str) -> dict:
     """Read an official Loyverse endpoint; do not follow redirects."""
     conn = http.client.HTTPSConnection(_LOYVERSE_HOST, timeout=20)
     try:
-        conn.request(
-            "GET",
-            path,
-            headers={
-                "Authorization": "Bearer " + token,
-                "Accept": "application/json",
-                "User-Agent": "OpenRetailSchema/0.1",
-            },
-        )
+        conn.request("GET", path, headers={"Authorization": "Bearer " + token, "Accept": "application/json", "User-Agent": "OpenRetailSchema/0.1"})
         response = conn.getresponse()
         if not (200 <= response.status < 300):
             raise _http_error(response.status)
@@ -73,20 +52,12 @@ def _transport(path: str, token: str) -> dict:
 
 
 def _http_error(status: int) -> LoyverseError:
-    error_codes = {
-        400: "bad_request",
-        401: "unauthorized",
-        402: "plan_restricted_history",
-        403: "forbidden",
-        404: "not_found",
-        429: "rate_limited",
-    }
+    error_codes = {400: "bad_request", 401: "unauthorized", 402: "plan_restricted_history", 403: "forbidden", 404: "not_found", 429: "rate_limited"}
     return LoyverseError(error_codes.get(status, "provider_http_error"), status=status)
 
 
 class LoyverseClient:
     """Read-only transport with explicit page limits and injectable test I/O."""
-
     def __init__(self, token: str, *, transport=None):
         if not isinstance(token, str) or not token.strip() or "\n" in token or "\r" in token:
             raise ValueError("A non-empty token without newlines is required")
@@ -103,8 +74,7 @@ class LoyverseClient:
             raise LoyverseError("unexpected_payload")
         return result
 
-    def iter_collection(self, resource: str, *, limit: int = 250,
-                        max_pages: int = 100, params: dict | None = None):
+    def iter_collection(self, resource: str, *, limit: int = 250, max_pages: int = 100, params: dict | None = None):
         """Yield raw records; do not retry or infer records after provider errors."""
         if resource not in _COLLECTIONS:
             raise ValueError("Unsupported resource")
@@ -112,9 +82,7 @@ class LoyverseClient:
             raise ValueError("limit must be between 1 and 250")
         if type(max_pages) is not int or max_pages < 1:
             raise ValueError("max_pages must be a positive integer")
-        if params is not None and (
-            not isinstance(params, dict) or "cursor" in params or "limit" in params
-        ):
+        if params is not None and (not isinstance(params, dict) or "cursor" in params or "limit" in params):
             raise ValueError("params must not override pagination")
         arguments = dict(params or {})
         cursor = None
@@ -193,7 +161,6 @@ def canonical_product(variant: dict, merchant: dict) -> dict:
     name = variant.get("name") if isinstance(variant, dict) else None
     if not isinstance(name, str) or not name.strip():
         raise LoyverseError("invalid_product_name")
-
     optional = {}
     for field in ("sku", "barcode"):
         if field not in variant or variant[field] is None:
@@ -202,15 +169,7 @@ def canonical_product(variant: dict, merchant: dict) -> dict:
         if not isinstance(value, str) or not value.strip():
             raise LoyverseError("invalid_product_" + field)
         optional[field] = value
-
-    record = {
-        "schema_version": "0.1.0",
-        "entity_type": "product",
-        "id": "loyverse:variant:" + external_id,
-        "source": {"provider": "loyverse", "external_id": external_id},
-        "name": name,
-        **optional,
-    }
+    record = {"schema_version": "0.1.0", "entity_type": "product", "id": "loyverse:variant:" + external_id, "source": {"provider": "loyverse", "external_id": external_id}, "name": name, **optional}
     price = canonical_money(variant, "price", merchant)
     if price is not None:
         record["sale_price"] = price
@@ -241,7 +200,9 @@ def canonical_sale(receipt: dict, merchant: dict) -> dict:
     Loyverse documents ``SALE``/``REFUND`` explicitly and reports refund money
     as the amount returned to the customer. Values and signs are preserved; the
     transaction direction is represented by ``sale_kind`` rather than invented
-    negation. Only opaque variant references are mapped as products.
+    negation. ``total_money`` is deliberately not mapped to canonical
+    ``gross_total`` because the vendor defines it as the paid/returned amount
+    after discounts, taxes, surcharges and tips, which is not the same semantic.
     """
     receipt_number = _opaque_string(receipt, "receipt_number")
     if receipt_number is None:
@@ -252,12 +213,10 @@ def canonical_sale(receipt: dict, merchant: dict) -> dict:
     occurred_at = _event_timestamp(receipt, "receipt_date")
     if occurred_at is None:
         raise LoyverseError("invalid_sale_time")
-
     receipt_type = receipt.get("receipt_type") if isinstance(receipt, dict) else None
     kinds = {"SALE": "sale", "REFUND": "refund"}
     if receipt_type not in kinds:
         raise LoyverseError("invalid_sale_kind")
-
     source_lines = receipt.get("line_items") if isinstance(receipt, dict) else None
     if not isinstance(source_lines, list) or not source_lines:
         raise LoyverseError("invalid_sale_lines")
@@ -268,29 +227,12 @@ def canonical_sale(receipt: dict, merchant: dict) -> dict:
         quantity = source_decimal(line, "quantity")
         if line_id is None or variant_id is None or quantity is None:
             raise LoyverseError("invalid_sale_line")
-        canonical_line = {
-            "id": "loyverse:line:" + line_id,
-            "source_product_id": variant_id,
-            "quantity": format(quantity, "f"),
-        }
+        canonical_line = {"id": "loyverse:line:" + line_id, "source_product_id": variant_id, "quantity": format(quantity, "f")}
         gross = canonical_money(line, "gross_total_money", merchant)
         if gross is not None:
             canonical_line["gross_total"] = gross
         lines.append(canonical_line)
-
-    record = {
-        "schema_version": "0.1.0",
-        "entity_type": "sale",
-        "id": "loyverse:receipt:" + receipt_number,
-        "source": {"provider": "loyverse", "external_id": receipt_number},
-        "store_id": store_id,
-        "occurred_at": occurred_at,
-        "sale_kind": kinds[receipt_type],
-        "lines": lines,
-    }
-    total = canonical_money(receipt, "total_money", merchant)
-    if total is not None:
-        record["gross_total"] = total
+    record = {"schema_version": "0.1.0", "entity_type": "sale", "id": "loyverse:receipt:" + receipt_number, "source": {"provider": "loyverse", "external_id": receipt_number}, "store_id": store_id, "occurred_at": occurred_at, "sale_kind": kinds[receipt_type], "lines": lines}
     tax = canonical_money(receipt, "total_tax", merchant)
     if tax is not None:
         record["tax_total"] = tax
