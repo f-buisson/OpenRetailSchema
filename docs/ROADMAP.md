@@ -68,7 +68,7 @@ Goal: turn the experimental reader into the first evidence-backed reference POS 
 - [x] Audit and normalize `connectors/loyverse.py` against the canonical contracts.
 - [ ] Document explicit connector capabilities and unsupported fields/features.
 - [x] Implement and test pagination.
-- [ ] Implement bounded retries/error classification without unsafe retry of non-idempotent operations.
+- [x] Implement bounded retries/error classification without unsafe retry of non-idempotent operations.
 - [ ] Implement incremental checkpoints without converting missing values to zero.
 - [ ] Exercise sanitized/synthetic end-to-end mappings.
 - [ ] Run the full suite from a fresh checkout.
