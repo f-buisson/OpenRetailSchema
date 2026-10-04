@@ -4,6 +4,8 @@
 
 The roadmap defines **acceptance criteria and execution order**, not completion dates. Work should progress in small, reviewable lots. A feature is only marked delivered after reproducible evidence exists in this repository.
 
+OpenRetailSchema is infrastructure for downstream products, not a reason to delay their release. Until the first retail products are commercially stable, the project prioritizes work that removes duplicated POS engineering, produces a usable public release, or directly strengthens the Loyverse -> future Square connector path.
+
 ## Status vocabulary
 
 - **Documented** — supported by current public vendor documentation.
@@ -11,12 +13,15 @@ The roadmap defines **acceptance criteria and execution order**, not completion 
 - **Externally tested** — observed in an authorized test outside this repository; this is evidence, not connector certification.
 - **Live-tested** — exercised by the OpenRetailSchema connector against an authorized test account.
 - **Release-ready** — local regression tests pass from a fresh checkout and documentation matches the tested behavior.
+- **Deferred** — incomplete by design because a concrete dependency does not exist yet; it must not be reported as delivered.
 
 External evidence must never be presented as OpenRetailSchema connector certification.
 
 ## Execution order
 
-Work on the first incomplete acceptance criterion in the highest-priority phase unless a blocker is documented. Independent research and documentation may continue in parallel, but must not displace contract and regression-test work.
+Use **WIP = 1** for implementation lots. Work on the first incomplete, independent acceptance criterion in the highest-priority phase, unless a smaller release blocker below it prevents immediate adoption. A documented external dependency may be deferred without freezing unrelated work.
+
+Do not invent infrastructure merely to close a checkbox. In particular, storage-only behavior does not justify introducing persistent storage before a real consumer requires it.
 
 ### P0 — Canonical contract hardening — v0.1 foundation
 
@@ -52,13 +57,28 @@ Goal: provide a vendor-neutral fallback path that does not guess missing busines
 - [x] Execute the CSV regression tests from a fresh checkout of the exact public repository.
 - [x] Define sales/activity date, timezone and UTC-offset mapping.
 - [x] Add sales/activity CSV fixtures covering refunds, missing values and DST boundaries.
-- [ ] Define repeated-import/idempotency behavior and test it against persistent storage only when storage is introduced.
+- [ ] **Deferred until persistent storage exists:** define repeated-import/idempotency behavior and test it against the actual storage implementation.
+
+The deferred storage criterion **does not block v0.1**. It becomes active only when the repository gains a real persistent store or a downstream consumer demonstrates a concrete persistence contract that belongs here.
 
 **Exit gate:** product import is release-ready and the next CSV record types have explicit, non-guessing contracts.
 
+### P1.5 — Publish v0.1
+
+Goal: stop keeping a usable foundation permanently in “pre-release” state while unrelated connector work continues.
+
+- [ ] Run the complete local regression suite from a fresh checkout of the exact release HEAD.
+- [ ] Verify README installation/validation/import examples from that checkout.
+- [ ] Verify release contents contain no secrets, private fixtures, customer data or proprietary source.
+- [ ] Confirm `docs/COMPATIBILITY.md`, `docs/ARCHITECTURE.md` and CSV documentation match the release behavior.
+- [ ] Prepare concise release notes with explicit experimental boundaries.
+- [ ] Tag and publish **v0.1.0**.
+
+**Exit gate:** an independent developer can clone/tag v0.1.0, validate canonical data and exercise the documented CSV path without project-specific knowledge.
+
 ### P2 — Loyverse reference connector
 
-Goal: turn the experimental reader into the first evidence-backed reference POS connector.
+Goal: turn the experimental reader into the first evidence-backed reference POS connector and remove duplicated Loyverse engineering from downstream retail products.
 
 **Reuse first:** before opening a new Loyverse lot, read [the cross-project reuse audit](LOYVERSE_REUSE.md). Existing behavior and evidence from the maintainer's other retail projects should be reused as design/test input rather than rediscovered. Private or non-Apache source code must not be copied into this repository without compatible provenance.
 
@@ -90,45 +110,61 @@ Goal: make additional POS integrations predictable without forcing every consume
 
 **Exit gate:** a third-party developer can implement a connector from public documentation and run the same conformance tests.
 
-### P4 — POS evidence and additional adapters
+### P4 — Square next, then evidence-backed adapters
 
-Goal: expand only where official documentation and testable access justify implementation.
+Goal: expand only where official documentation and testable access justify implementation, with **Square as the next commercial priority after the Loyverse reference path is stable**.
 
 - [x] Maintain `docs/POS_INTEGRATIONS.md` as the evidence registry.
 - [x] Keep the community POS documentation/synthetic-mapping request open.
-- [ ] Periodically verify official public documentation for Square, Shopify, Lightspeed, Clover, Odoo, Epos Now and other relevant systems.
+- [ ] Re-check current official Square documentation, scopes, pagination, webhooks/rate limits and access requirements before implementation.
+- [ ] Select the minimum Square read-only surface needed by downstream retail products.
+- [ ] Reuse the P3 conformance contract rather than creating Square-specific abstractions.
+- [ ] Periodically verify official public documentation for Shopify, Lightspeed, Clover, Odoo, Epos Now and other relevant systems.
 - [ ] Record capabilities, scopes, pagination, quotas/rate limits and plan restrictions only when supported by current official sources.
 - [ ] Invite third-party contributions of official links, synthetic fixtures and fabricated CSV examples — never secrets, confidential documentation or real customer exports.
-- [ ] Select the next adapter only after evidence quality, access and maintenance cost are sufficient.
-- [ ] StoreLine remains blocked until the exact NCR Voyix/StoreLine interface and authorization are established; documented CSV remains an acceptable interim path.
+- [ ] Select later adapters only after evidence quality, access and maintenance cost are sufficient.
+- [ ] StoreLine remains deferred until the exact NCR Voyix/StoreLine interface and authorization are established; documented CSV remains an acceptable interim path.
 
 **Exit gate:** every advertised adapter has a capability declaration and evidence level; unsupported or untested behavior is explicit.
 
-### P5 — Adoption and stable release
+### P5 — Adoption and stable evolution
 
-Goal: make the project safe and useful for independent consumers.
+Goal: make the project safe and useful for independent consumers without creating speculative infrastructure.
 
 - [ ] Complete useful French translations while keeping English canonical.
 - [ ] Review contribution provenance and Apache-2.0 compatibility for accepted contributions.
 - [ ] Publish migration guarantees and a versioning policy suitable for 1.0 planning.
 - [ ] Add an SDK only when repeated consumer code demonstrates a stable need.
 - [ ] Add a service API only when a real deployment use case justifies operational complexity.
-- [ ] Prepare and tag v0.1 only after P0 and the product-CSV release gate pass.
+- [ ] Define the 1.0 gate only after v0.1 adoption and at least one live-tested reference connector provide evidence for stable contracts.
+
+## Commercialization-support rule
+
+When two useful tasks are available, prefer the one that does one of the following:
+
+1. removes duplicated connector work from Alertarif, PlanCaisse or PlanFlux;
+2. closes a reproducible blocker to v0.1;
+3. advances the Loyverse reference connector toward live-tested status;
+4. strengthens the generic connector contract needed by the next Square adapter;
+5. fixes a correctness, security or provenance defect.
+
+Do **not** spend a cycle on speculative SDKs, service hosting, cosmetic documentation expansion or another POS adapter while one of those five classes of work is available.
 
 ## Hourly maintenance rule
 
 Each maintenance pass should:
 
 1. Re-read repository HEAD, recent commits, open issues/PRs and the relevant roadmap phase. For Loyverse P2/P3 work, also read `docs/LOYVERSE_REUSE.md` before defining a new lot.
-2. Prefer one small verifiable change over broad cosmetic edits.
-3. Run available local tests when execution access permits; never claim an unexecuted test passed.
-4. Update this roadmap only for real state changes.
-5. Keep `docs/POS_INTEGRATIONS.md`, useful French documentation and the community POS issue aligned when integration evidence changes.
-6. Never publish secrets, tokens, private customer data, proprietary code or confidential artifacts.
-7. Use GitHub Actions/CI moderately and only when it provides useful evidence or unblocks a roadmap step; prefer targeted existing jobs and avoid repetitive or heavy runs.
-8. Never force-push. Commit metadata must contain no co-author trailer or prohibited attribution.
-9. If blocked by access, authorization or a required human test, document the exact blocker and continue independent work.
-10. At the 20:00 Europe/Paris pass, report only real changes, commits, evidence, tests actually executed, limits, risks, external contributions, next priorities and required human actions.
+2. Preserve WIP = 1 for implementation work and finish/review the active lot before opening another.
+3. Prefer one small verifiable change over broad cosmetic edits.
+4. Run available local tests when execution access permits; never claim an unexecuted test passed.
+5. Update this roadmap only for real state changes.
+6. Keep `docs/POS_INTEGRATIONS.md`, useful French documentation and the community POS issue aligned when integration evidence changes.
+7. Never publish secrets, tokens, private customer data, proprietary code or confidential artifacts.
+8. Use GitHub Actions/CI moderately and only when it provides useful evidence or unblocks a roadmap/release step; prefer targeted existing jobs and avoid repetitive or heavy runs.
+9. Never force-push. Commit metadata must contain no co-author trailer or prohibited attribution.
+10. If blocked by access, authorization or a required human test, document the exact blocker and continue independent work.
+11. At the 20:00 Europe/Paris pass, report only real changes, commits, evidence, tests actually executed, limits, risks, external contributions, next priorities and required human actions.
 
 ## Non-goals for the first release
 
