@@ -56,22 +56,24 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `P2-LOYVERSE-PRODUCT-01`
+- Work ID: `P2-LOYVERSE-SALE-01`
 - Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
-- State: `ACCEPTED`
-- Observed main HEAD before verdict: `4e546e9d99544674a40c664298e2908e3da3775d` (review handoff only after evidence HEAD)
-- Produced HEAD: `974c769bd4ada236fb5e9dddaeb68bb001c40794`
-- Scope certified: one canonical Loyverse product/variant normalization path using the accepted `source_external_id()` and `canonical_money()` primitives with synthetic input only.
-- Acceptance evidence:
-  - `canonical_product()` emits deterministic schema-valid product records and preserves source provenance.
-  - Required identity/name and malformed non-null SKU/barcode fail closed with stable sanitized codes.
-  - Absent/null/unsupported price remains absent while explicit numeric zero remains zero; no missing value is converted to zero.
-  - Existing Tests run `37167760956` succeeded on evidence HEAD `ee53a9966ca0a4f953f6bf27a9e9c3d05ce65c38`; its targeted four-test product-normalization step and full regression step both succeeded.
-  - Produced HEAD to evidence HEAD changed only `.github/workflows/tests.yml` and `docs/WORK_QUEUE.md`; no product or product-test implementation changed concurrently.
-  - Tests use fabricated literals only; no credential, real payload, customer data or external/private source code is part of this lot.
-- Limits: this verdict certifies only the bounded product/variant normalization tranche. It does not complete the global P2 normalization criterion, claim a live connector test, OAuth support or unsupported-field coverage beyond this scope.
-- Rework or blocker: none for this lot.
-- Next action: Planner should immediately transition `ACCEPTED -> READY` with the next independent bounded incomplete roadmap lot. Persistent-storage idempotency and unavailable live/vendor evidence must not hold the queue.
+- State: `READY`
+- Observed main HEAD: `180ad60cb9a1ac27374372304de5e420c6c9d414`
+- Reuse classification: receipt/refund behavior is externally evidenced in the maintainer's other retail work but is not yet normalized in OpenRetailSchema. Use those established semantics and synthetic test ideas only; do not copy private/non-Apache source or claim external evidence as repository certification.
+- Scope: add one bounded canonical Loyverse receipt-to-sale normalization path using existing canonical primitives where applicable. Use fabricated receipt dictionaries only. Do not add transport, pagination, retry, checkpoint, OAuth or persistence behavior in this lot.
+- Acceptance criteria:
+  - A single canonical sale normalizer maps a fabricated, documented-compatible receipt shape to a v0.1 `sale` record with deterministic Loyverse provenance and validates against `schemas/v0.1/record.schema.json`.
+  - Required receipt identity, store identity, event timestamp and at least one valid line fail closed with stable sanitized error codes when absent or malformed; no identifier or timestamp is invented.
+  - Sale versus refund classification and quantity/amount signs follow only semantics supported by current public Loyverse documentation plus the already-recorded external receipt/refund evidence; ambiguous vendor fields are omitted or rejected rather than guessed.
+  - Monetary fields reuse the existing decimal/currency path; absent/null monetary values remain absent and explicit numeric zero remains zero. Binary floats, booleans and unsupported source values are not silently coerced.
+  - Line provenance/product references remain opaque and deterministic; missing product identity is not replaced with a fabricated product.
+  - Targeted synthetic tests cover a schema-valid sale, a refund/sign boundary, missing-versus-zero money, and at least one malformed required identity/time/line case.
+  - The affected public canonical contract has no regression: run the targeted tests and the existing local full regression suite, recording exact commands and results. CI is not required unless local evidence is unavailable or insufficient.
+  - No token, real payload, customer/employee data, private source code or confidential artifact enters the repository.
+- Required evidence: produced commit SHA; exact targeted-test command/result; exact full-regression command/result; schema-validation proof from the repository validator/test path; concise statement of which receipt semantics came from public documentation versus external authorized evidence versus synthetic fixtures.
+- Debt check: 0 open PRs at planning time; no competing receipt normalizer was found on `main`; the accepted product normalizer already owns product mapping and must not be duplicated. P1 persistent-storage idempotency remains intentionally incomplete until storage exists. No critical TODO/FIXME or branch overlap was identified that should precede this bounded lot.
+- Next action: Builder should refresh `main`, confirm this coordination-only handoff is the only change after the observed HEAD, transition `READY -> BUILDING`, then implement only this bounded receipt normalization and its tests.
 
 ## Handoff discipline
 
