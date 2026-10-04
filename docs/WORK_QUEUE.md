@@ -2,7 +2,7 @@
 
 This file coordinates small reviewable lots between planning, implementation and review.
 
-The repository state is authoritative. Always refresh `main`, `docs/ROADMAP.md` and this file before changing anything.
+This repository state is authoritative. Always refresh `main`, `docs/ROADMAP.md` and this file before changing anything.
 
 ## State machine
 
@@ -58,8 +58,9 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-RETRY-01`
 - Roadmap phase: P2 — implement bounded retries/error classification without unsafe retry of non-idempotent operations
-- State: `READY`
+- State: `BUILDING`
 - Base product HEAD: `c7c623503fc1e33ef682116fcaedb9a3b0774341`.
+- Observed start HEAD: `895ab27d8bb2eb1cab27f5485cff6a3f917d75ad`; its only change after the compatible product base is the Planner handoff in this file.
 - Reuse classification: implemented/evidenced in the maintainer's other retail projects, not yet ported to OpenRetailSchema. Reuse the established 401/402/403/429/provider-failure and Retry-After edge cases as design/test input only; do not copy private source or treat external evidence as connector certification.
 - Scope: extend the single existing Loyverse GET transport path with one bounded retry policy. Do not create a parallel transport/client. Keep all currently exposed operations read-only. Retry only transient failures that are safe for GET; authentication/authorization/plan errors and other permanent client failures must fail immediately. Preserve sanitized errors and never expose token, query secrets or provider response bodies.
 - Acceptance criteria:
@@ -69,7 +70,7 @@ The project must keep advancing while useful independent work exists.
   4. Existing pagination, canonical product/sale, missing-versus-zero and public contract tests remain green. Retry behavior must not invent records, checkpoints, amounts or missing values.
   5. Public capability/architecture documentation is updated in the same lot if retry support changes an advertised capability; documentation must distinguish synthetic-tested behavior from live certification.
 - Required evidence: targeted retry/error tests including recovery, exhaustion and permanent-error no-retry cases; then the local regression suite. Do not launch heavy CI unless local execution cannot provide the required proof or a repository gate specifically requires it.
-- Next executable action: Builder refreshes `main`, transitions this Work ID `READY -> BUILDING`, inspects the existing transport/tests first, then implements the smallest retry change satisfying the criteria without adding a second client or transport abstraction.
+- Next executable action: implement the retry policy in the existing client transport path, add targeted synthetic tests, update advertised capability documentation, then execute targeted and regression tests.
 - Debt check: 0 open PRs at planning time; no TODO/FIXME search hits; no existing retry implementation found on `main`; pagination and canonical mapping already exist and are explicitly out of scope. This lot does not add a competing path.
 
 ## Handoff discipline
