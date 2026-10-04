@@ -56,16 +56,21 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `P2-LOYVERSE-NORM-AUDIT-01`
-- Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
-- State: `ACCEPTED`
-- Base product HEAD: `181bc1a532507d5ff2a4f2758ec841300a95d751`.
-- Produced HEAD: `e0484bd9a9a5d5f62288693df9da9fc9ee1cc552`.
-- Audit result: canonical emission is limited to `product` and `sale`. Existing tests validate both against v0.1, exercise malformed required inputs, and preserve missing/null != explicit zero while rejecting binary-float monetary coercion. No canonical `activity` mapper exists.
-- Product change: `docs/POS_INTEGRATIONS.md` states the exact canonical emission surface and explicitly keeps activity unsupported. Raw `shifts`/other readable collections are not treated as canonical mappings, and no shift/receipt/session inference is introduced.
-- Reproducible evidence: GitHub Actions run `37173666026` checked out exact main HEAD `e66e3104115b08d3896de7b2730e5e9f4ab9d520`, a coordination-only descendant of the Produced HEAD. Targeted `python -m unittest tests.test_loyverse_sale -v` passed 4/4. Full `python -m unittest discover -s tests -v` passed 59/59, including all four `canonical_product_*` tests and all four sale mapping tests.
-- Reviewer verdict: `ACCEPTED`. The documented canonical boundary matches the implemented product/sale surface; activity remains explicitly unsupported rather than inferred. The checked P2 normalization criterion is supported by reproducible evidence.
-- Next action: Planner must immediately select the next independent incomplete roadmap criterion and transition `ACCEPTED -> READY`; no live-account dependency should stall other P2 work.
+- Work ID: `P2-LOYVERSE-CAPABILITIES-01`
+- Roadmap phase: P2 — document explicit connector capabilities and unsupported fields/features
+- State: `READY`
+- Base product HEAD: `47a77543cbd05897b459b03a16e7dbc635b326ff`.
+- Scope: make the public Loyverse capability declaration match the implementation already on `main`; correct the stale architecture statement that says the transport does not emit canonical records. Do not introduce the P3 versioned capability-manifest abstraction early and do not add a parallel transport/mapping path.
+- Acceptance criteria:
+  1. `docs/POS_INTEGRATIONS.md` has one explicit Loyverse capability matrix/declaration separating raw readable resources from canonical emission, and marks unsupported/unimplemented behavior without implying live certification.
+  2. The declaration matches `connectors/loyverse.py`: GET-only merchant plus the currently allowlisted collections; pagination is supported; canonical emission is product + sale only; activity and write operations are unsupported; retries, checkpoints and OAuth certification remain unimplemented/untested as applicable.
+  3. `docs/ARCHITECTURE.md` no longer contradicts accepted behavior: it describes the current product/sale canonical mapping boundary without claiming raw collections are canonical entities.
+  4. Evidence levels remain explicit: repository behavior is synthetic-tested; external personal-token observations remain external evidence; no live OpenRetailSchema or OAuth claim is introduced.
+  5. No secret, real payload, private code, vendor-confidential material or inferred unsupported field is added. No new helper/manifest/compatibility layer is created for documentation-only capability facts.
+  6. A targeted consistency check (manual diff against `_COLLECTIONS`, `merchant()`, `canonical_product()` and `canonical_sale()` is sufficient) is recorded, and the existing local regression suite is run if the environment permits; no heavy CI is required for documentation-only changes.
+- Required evidence: changed-file diff showing the capability declaration and architecture correction; explicit comparison to current connector symbols/resources; regression result if actually executed. Do not claim an unexecuted test.
+- Debt check: 0 open PRs. No duplicate capability implementation exists. Immediate debt found: `docs/ARCHITECTURE.md` still says the Loyverse transport does not output canonical records, contradicting the accepted product/sale mappers and current POS registry. This lot fixes that contradiction while completing the next P2 criterion and deliberately avoids creating the future P3 manifest early.
+- Next action: Builder transitions `READY -> BUILDING`, updates only the capability/architecture documentation needed to reflect current code, verifies it against exact `main`, and supplies the recorded evidence for review.
 
 ## Handoff discipline
 
