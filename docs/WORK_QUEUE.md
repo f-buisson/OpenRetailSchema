@@ -56,18 +56,19 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: `P2-LOYVERSE-RETRY-01`
-- Roadmap phase: P2 — implement bounded retries/error classification without unsafe retry of non-idempotent operations
-- State: `ACCEPTED`
-- Base product HEAD: `c7c623503fc1e33ef682116fcaedb9a3b0774341`.
-- Produced HEAD: `01a3544b8af39f91146a51edc361a00d8cb8e0a4`.
-- Accepted behavior: the only transport path is GET-only and uses a finite 1..5-attempt budget (default 3). Only connection failures, HTTP 429 and classified provider 5xx errors are retryable; 401/402/403 and other permanent failures remain immediate.
-- Retry-After boundary: only finite numeric deltas in the inclusive 0..5-second range are accepted; malformed, negative, excessive, `nan` and `inf` values are ignored before sleeping.
-- Safety: no write/non-idempotent transport exists, pagination and canonical mappings are unchanged, errors remain sanitized, and no secret or real payload was introduced by this lot.
-- Reproducible evidence: GitHub Actions run `37188662229` completed successfully on exact Produced HEAD `01a3544b8af39f91146a51edc361a00d8cb8e0a4`; checkout and dependency installation passed, followed by the existing targeted Loyverse sale test and the complete `python -m unittest discover -s tests -v` regression suite, which discovers `tests/test_loyverse_retry.py`.
-- Review verdict: `ACCEPTED`. The synthetic retry tests directly cover recovery, exhaustion, permanent-access single-attempt behavior, bounded 429 delay, retry-attempt validation, and malformed/non-finite/excessive Retry-After values. A second dedicated retry-only workflow step is not required because the exact Produced HEAD is already covered by reproducible full-suite CI and the retry test module is part of discovery.
-- Evidence boundary: synthetic/repository certification only. No live Loyverse request or OAuth behavior is claimed.
-- Planner handoff: transition `ACCEPTED -> READY` immediately on the next independent incomplete P2 criterion. Incremental checkpoints and sanitized/synthetic end-to-end mappings can proceed without waiting for live credentials; live connector and OAuth evidence remain separate criteria.
+- Work ID: `P2-LOYVERSE-CHECKPOINT-01`
+- Roadmap phase: P2 — implement incremental checkpoints without converting missing values to zero
+- State: `READY`
+- Base product HEAD: `5867ee4438ad74d26652318df26bd3de3f9f4e7b`.
+- Reuse classification: implemented elsewhere, not yet ported. Alertarif provides external evidence for provider-update-time incremental reads, repeated imports without duplicates and outage catch-up; use those semantics and edge cases as design/test input only. Do not copy private/non-Apache source and do not relabel external evidence as OpenRetailSchema certification.
+- Scope: add one canonical incremental-checkpoint path to the existing read-only Loyverse connector. A checkpoint must represent source progress explicitly, remain distinct from pagination cursors, be caller-supplied/returned rather than silently persisted, and advance only from valid source update information after successful processing. Do not introduce a second transport, storage layer, write path or speculative generic P3 abstraction.
+- Acceptance: synthetic tests prove an initial sync without a checkpoint, resume from a valid checkpoint, deterministic monotonic advancement, repeated/resumed reads without inventing duplicate progress, and no checkpoint advancement when traversal/normalization fails.
+- Acceptance: missing/null/invalid source update values remain unknown or rejected according to the narrow connector contract; they must never become numeric zero, epoch zero or a fabricated timestamp. Boundary tests must cover malformed timestamps and explicit UTC-offset handling where timestamps are used.
+- Acceptance: pagination cursors remain ephemeral transport state and are never persisted/reused as incremental checkpoints. Existing pagination, retry, product and sale contracts remain regression-safe.
+- Acceptance: document the exact checkpoint semantics and evidence level in `docs/POS_INTEGRATIONS.md` (and architecture documentation only if the public architecture contract changes). Do not claim live certification, OAuth behavior or persistent-storage idempotency.
+- Evidence required: targeted checkpoint tests plus the complete local regression suite on the exact Produced HEAD. CI is optional and should be used only if local execution cannot provide reproducible proof or a fresh-checkout proof is deliberately needed.
+- Debt check: 0 open PRs at planning time; no existing checkpoint implementation was found on `main`; pagination cursors are explicitly documented as non-checkpoints. ROADMAP drift for the already accepted capabilities/retry lots was corrected before opening this scope, so this lot does not duplicate completed work.
+- Next action: Builder transitions this Work ID `READY -> BUILDING`, inspects the documented Loyverse update-time fields already evidenced by reuse notes before choosing the narrow source marker, then implements the smallest connector-native checkpoint API and tests.
 
 ## Handoff discipline
 
