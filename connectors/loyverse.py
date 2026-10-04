@@ -10,6 +10,7 @@ from __future__ import annotations
 import http.client
 import json
 import os
+import time
 from datetime import datetime
 from decimal import Decimal
 from urllib.parse import urlencode
@@ -17,14 +18,29 @@ from urllib.parse import urlencode
 _LOYVERSE_HOST = "api.loyverse.com"
 _COLLECTIONS = {"items": "items", "variants": "variants", "inventory": "inventory_levels", "taxes": "taxes", "stores": "stores", "receipts": "receipts", "employees": "employees", "pos_devices": "pos_devices", "shifts": "shifts"}
 _MAX_RESPONSE_BYTES = 5 * 1024 * 1024
+_MAX_RETRY_AFTER_SECONDS = 5.0
 
 
 class LoyverseError(Exception):
     """Safe-to-display error without token, URL query, or vendor response body."""
-    def __init__(self, code: str, status: int | None = None):
+    def __init__(self, code: str, status: int | None = None, *, retry_after: float | None = None):
         super().__init__(code)
         self.code = code
         self.status = status
+        self.retry_after = retry_after
+
+
+def _bounded_retry_after(value: str | None) -> float | None:
+    """Accept only a finite, short Retry-After delta; ignore unsafe input."""
+    if value is None:
+        return None
+    try:
+        delay = float(value)
+    except (TypeError, ValueError):
+        return None
+    if delay < 0 or delay > _MAX_RETRY_AFTER_SECONDS:
+        return None
+    return delay
 
 
 def _transport(path: str, token: str) -> dict:
@@ -34,7 +50,10 @@ def _transport(path: str, token: str) -> dict:
         conn.request("GET", path, headers={"Authorization": "Bearer " + token, "Accept": "application/json", "User-Agent": "OpenRetailSchema/0.1"})
         response = conn.getresponse()
         if not (200 <= response.status < 300):
-            raise _http_error(response.status)
+            error = _http_error(response.status)
+            if response.status == 429:
+                error.retry_after = _bounded_retry_after(response.getheader("Retry-After"))
+            raise error
         payload = response.read(_MAX_RESPONSE_BYTES + 1)
         if len(payload) > _MAX_RESPONSE_BYTES:
             raise LoyverseError("response_too_large")
@@ -56,26 +75,49 @@ def _http_error(status: int) -> LoyverseError:
     return LoyverseError(error_codes.get(status, "provider_http_error"), status=status)
 
 
+def _retryable(error: LoyverseError) -> bool:
+    if error.code in {"connection_failure", "rate_limited"}:
+        return True
+    return error.code == "provider_http_error" and error.status is not None and 500 <= error.status < 600
+
+
 class LoyverseClient:
-    """Read-only transport with explicit page limits and injectable test I/O."""
-    def __init__(self, token: str, *, transport=None):
+    """Read-only transport with bounded GET retries and explicit page limits."""
+    def __init__(self, token: str, *, transport=None, max_attempts: int = 3, sleeper=None):
         if not isinstance(token, str) or not token.strip() or "\n" in token or "\r" in token:
             raise ValueError("A non-empty token without newlines is required")
+        if type(max_attempts) is not int or not 1 <= max_attempts <= 5:
+            raise ValueError("max_attempts must be between 1 and 5")
         self._token = token
         self._send = transport if transport is not None else _transport
+        self._max_attempts = max_attempts
+        self._sleep = sleeper if sleeper is not None else time.sleep
 
     @classmethod
     def from_environment(cls):
         return cls(os.environ.get("LOYVERSE_API_TOKEN", ""))
 
+    def _get(self, path: str) -> dict:
+        """Execute one logical GET with a finite retry budget."""
+        for attempt in range(1, self._max_attempts + 1):
+            try:
+                return self._send(path, self._token)
+            except LoyverseError as error:
+                if not _retryable(error) or attempt == self._max_attempts:
+                    raise
+                delay = error.retry_after if error.retry_after is not None else 0.0
+                if delay:
+                    self._sleep(delay)
+        raise LoyverseError("retry_exhausted")
+
     def merchant(self) -> dict:
-        result = self._send("/v1.0/merchant", self._token)
+        result = self._get("/v1.0/merchant")
         if not isinstance(result, dict):
             raise LoyverseError("unexpected_payload")
         return result
 
     def iter_collection(self, resource: str, *, limit: int = 250, max_pages: int = 100, params: dict | None = None):
-        """Yield raw records; do not retry or infer records after provider errors."""
+        """Yield raw records; each GET has a finite retry budget."""
         if resource not in _COLLECTIONS:
             raise ValueError("Unsupported resource")
         if type(limit) is not int or not 1 <= limit <= 250:
@@ -92,7 +134,7 @@ class LoyverseClient:
             if cursor is not None:
                 query["cursor"] = cursor
             path = "/v1.0/" + resource + "?" + urlencode(query)
-            response = self._send(path, self._token)
+            response = self._get(path)
             if not isinstance(response, dict) or not isinstance(response.get(_COLLECTIONS[resource]), list):
                 raise LoyverseError("unexpected_payload")
             for item in response[_COLLECTIONS[resource]]:
