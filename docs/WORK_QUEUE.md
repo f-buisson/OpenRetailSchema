@@ -58,18 +58,16 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-RETRY-01`
 - Roadmap phase: P2 — implement bounded retries/error classification without unsafe retry of non-idempotent operations
-- State: `REVIEW`
+- State: `ACCEPTED`
 - Base product HEAD: `c7c623503fc1e33ef682116fcaedb9a3b0774341`.
-- Observed start HEAD: `895ab27d8bb2eb1cab27f5485cff6a3f917d75ad`; its only change after the compatible product base was the Planner handoff in this file.
 - Produced HEAD: `01a3544b8af39f91146a51edc361a00d8cb8e0a4`.
-- Implemented: the single existing GET path has a finite 1..5-attempt policy (default 3). Only connection failures, HTTP 429, and classified provider 5xx errors are retryable. 401/402/403 and other permanent failures remain immediate. `merchant()` and paginated collection reads share `_get()`; no write operation or second transport exists.
-- Retry-After hardening: only finite numeric deltas in the inclusive 0..5-second range are accepted. `nan`, `inf`, malformed, negative and excessive values are ignored before any sleep.
-- Synthetic coverage: transient recovery, exhaustion preserving sanitized classification, 401/402/403 single-attempt behavior, bounded 429 delay, attempt validation, and malformed/non-finite/excessive Retry-After inputs.
-- Documentation: `docs/POS_INTEGRATIONS.md` now advertises bounded retries as GET-only, synthetic-tested and not live-certified; checkpoint and live/OAuth boundaries remain explicit.
-- Evidence: GitHub Actions run `37188662229` on exact Produced HEAD `01a3544b8af39f91146a51edc361a00d8cb8e0a4` completed successfully. The workflow checked out that HEAD, installed the declared dev requirements, passed its targeted Loyverse sale step, then passed `python -m unittest discover -s tests -v`; the discovery suite includes `tests/test_loyverse_retry.py`. The immediately preceding run `37188648300` on functional correction HEAD `9250168498ae5f81e6e310672f995a0d80d0b5c7` also passed the full discovery suite.
-- Evidence boundary: no live Loyverse request was made and no local fresh-checkout result is claimed. The repository CI provides reproducible fresh-checkout regression evidence for the exact Produced HEAD; live certification remains a separate P2 criterion.
-- Review focus: verify the finite retry classification/delay policy, confirm no unsafe/non-idempotent retry path was introduced, and decide whether the existing full discovery proof is sufficient for this lot or whether a dedicated retry-only workflow step is required before acceptance.
-- Debt check: pagination and canonical mapping remain unchanged; no competing client or write retry path was added.
+- Accepted behavior: the only transport path is GET-only and uses a finite 1..5-attempt budget (default 3). Only connection failures, HTTP 429 and classified provider 5xx errors are retryable; 401/402/403 and other permanent failures remain immediate.
+- Retry-After boundary: only finite numeric deltas in the inclusive 0..5-second range are accepted; malformed, negative, excessive, `nan` and `inf` values are ignored before sleeping.
+- Safety: no write/non-idempotent transport exists, pagination and canonical mappings are unchanged, errors remain sanitized, and no secret or real payload was introduced by this lot.
+- Reproducible evidence: GitHub Actions run `37188662229` completed successfully on exact Produced HEAD `01a3544b8af39f91146a51edc361a00d8cb8e0a4`; checkout and dependency installation passed, followed by the existing targeted Loyverse sale test and the complete `python -m unittest discover -s tests -v` regression suite, which discovers `tests/test_loyverse_retry.py`.
+- Review verdict: `ACCEPTED`. The synthetic retry tests directly cover recovery, exhaustion, permanent-access single-attempt behavior, bounded 429 delay, retry-attempt validation, and malformed/non-finite/excessive Retry-After values. A second dedicated retry-only workflow step is not required because the exact Produced HEAD is already covered by reproducible full-suite CI and the retry test module is part of discovery.
+- Evidence boundary: synthetic/repository certification only. No live Loyverse request or OAuth behavior is claimed.
+- Planner handoff: transition `ACCEPTED -> READY` immediately on the next independent incomplete P2 criterion. Incremental checkpoints and sanitized/synthetic end-to-end mappings can proceed without waiting for live credentials; live connector and OAuth evidence remain separate criteria.
 
 ## Handoff discipline
 
