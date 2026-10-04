@@ -13,6 +13,7 @@ import os
 import time
 from datetime import datetime
 from decimal import Decimal
+from math import isfinite
 from urllib.parse import urlencode
 
 _LOYVERSE_HOST = "api.loyverse.com"
@@ -38,7 +39,7 @@ def _bounded_retry_after(value: str | None) -> float | None:
         delay = float(value)
     except (TypeError, ValueError):
         return None
-    if delay < 0 or delay > _MAX_RETRY_AFTER_SECONDS:
+    if not isfinite(delay) or delay < 0 or delay > _MAX_RETRY_AFTER_SECONDS:
         return None
     return delay
 
