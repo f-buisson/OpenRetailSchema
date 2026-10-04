@@ -28,8 +28,9 @@ jobs:
       - run: python -m pip install -r requirements-dev.txt
       - run: >-
           python -m unittest
-          tests.test_loyverse.LoyverseTests.test_canonical_money_serializes_finite_values_exactly
-          tests.test_loyverse.LoyverseTests.test_canonical_money_preserves_unknown_amount
-          tests.test_loyverse.LoyverseTests.test_canonical_money_requires_valid_merchant_currency
+          tests.test_loyverse.LoyverseTests.test_canonical_product_is_schema_valid_and_deterministic
+          tests.test_loyverse.LoyverseTests.test_canonical_product_keeps_missing_price_distinct_from_zero
+          tests.test_loyverse.LoyverseTests.test_canonical_product_rejects_invalid_required_fields
+          tests.test_loyverse.LoyverseTests.test_canonical_product_rejects_malformed_optional_fields
           -v
       - run: python -m unittest discover -s tests -v
