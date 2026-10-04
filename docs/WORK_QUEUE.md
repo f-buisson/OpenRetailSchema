@@ -58,15 +58,14 @@ The project must keep advancing while useful independent work exists.
 
 - Work ID: `P2-LOYVERSE-SALE-01`
 - Roadmap phase: P2 — audit and normalize `connectors/loyverse.py` against canonical contracts
-- State: `REVIEW`
-- Observed main HEAD: `de571c1cf6d2c04c14117249710bf961e851c944` (the commits after Produced HEAD only change the existing test workflow and this coordination file; no later product file changed).
+- State: `ACCEPTED`
+- Observed main HEAD before verdict: `085bed86d22b443c4ad7be16b1d1341a2e2ec9b1` (coordination-only transition after evidence; no later product change).
 - Produced HEAD: `e0dba9fec38f31a52c6b8ce163d430451dc94685`.
-- Implemented: `canonical_sale()` maps documented receipt identity, `receipt_date`, store, SALE/REFUND direction, opaque line/variant identity, quantity, line `gross_total_money`, and receipt `total_tax`. It deliberately omits vendor `total_money` because public Loyverse documentation defines that value as paid/returned money including discounts, taxes, surcharges and tips, which is not safely equivalent to canonical `gross_total`.
-- Sign rule: public Loyverse documentation defines `receipt_type` as SALE/REFUND and describes refund `total_money` as money returned; repository compatibility rules require preserving source signs rather than inventing negation. Synthetic refund coverage therefore keeps positive quantity/line money positive and carries direction in `sale_kind`.
-- Synthetic evidence: schema validation/determinism, refund sign boundary, missing-vs-zero line money plus binary-float rejection, and fail-closed receipt/store/time/kind/line validation with stable codes. Fixtures are fabricated literals only.
-- Reproducible evidence: GitHub Actions run `37171006683` on evidence HEAD `53353f76257c2f0372121bd0a1d6609709855f78` completed successfully. The job passed exact targeted command `python -m unittest tests.test_loyverse_sale -v` and then full regression `python -m unittest discover -s tests -v`. Evidence HEAD differs from Produced HEAD only by the existing test workflow; product code and tests are unchanged.
-- Scope limits: no transport, pagination, retry, checkpoint, OAuth, persistence, real payload, token, customer/employee data or private source code was added. External authorized receipt/refund observations remain external evidence only; all repository tests are synthetic.
-- Reviewer action: inspect Produced HEAD, canonical contracts and the exact green evidence; issue `ACCEPTED`, `REWORK` or `DEFERRED` without creating new scope.
+- Accepted behavior: `canonical_sale()` maps documented receipt identity, explicit timestamp/store/direction, opaque line/variant identity, quantity, line gross money and receipt tax while deliberately omitting vendor `total_money` from canonical `gross_total` because their semantics are not equivalent. Refund direction is carried by `sale_kind`; source signs are preserved rather than invented.
+- Reproducible evidence: GitHub Actions run `37171006683` on evidence HEAD `53353f76257c2f0372121bd0a1d6609709855f78` completed successfully. Exact targeted command `python -m unittest tests.test_loyverse_sale -v` and full regression `python -m unittest discover -s tests -v` both passed. The evidence commit after Produced HEAD changes only the existing test workflow; later commits before review are coordination-only.
+- Review checks: missing monetary values remain absent rather than zero; binary floats fail closed; SALE/REFUND is explicit; timestamps require the canonical offset-aware boundary; malformed receipt/store/kind/line identity fails closed; fixtures are synthetic; no secret, real payload, PII, proprietary code, OAuth, persistence, retry or checkpoint behavior is introduced.
+- Roadmap effect: this bounded sale-normalization tranche is accepted, but the broader P2 criterion `Audit and normalize connectors/loyverse.py against the canonical contracts` remains incomplete until its remaining bounded normalization work is independently evidenced. No roadmap checkbox is changed by this verdict.
+- Next action: Planner must immediately select another independent incomplete roadmap criterion or bounded sub-lot and transition `ACCEPTED -> READY`; do not wait for persistent storage, StoreLine access, or live connector evidence.
 
 ## Handoff discipline
 
