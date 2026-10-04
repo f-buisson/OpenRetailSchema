@@ -65,7 +65,7 @@ Goal: turn the experimental reader into the first evidence-backed reference POS 
 - [x] Review official Loyverse API documentation.
 - [x] Record authorized external personal-token test findings separately from repository certification.
 - [x] Implement an experimental read-only transport with injected synthetic-response tests.
-- [ ] Audit and normalize `connectors/loyverse.py` against the canonical contracts.
+- [x] Audit and normalize `connectors/loyverse.py` against the canonical contracts.
 - [ ] Document explicit connector capabilities and unsupported fields/features.
 - [x] Implement and test pagination.
 - [ ] Implement bounded retries/error classification without unsafe retry of non-idempotent operations.
