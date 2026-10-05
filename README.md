@@ -38,6 +38,25 @@ OpenRetailSchema is an independent open-source project, designed to support any 
 
 See the [roadmap](docs/ROADMAP.md) for acceptance criteria. A POS is only listed as **supported** after real integration tests; naming a vendor above does not imply compatibility today.
 
+## Quick start
+
+From a fresh checkout with Python 3.10+:
+
+```bash
+python -m pip install -r requirements-dev.txt
+python scripts/validate.py examples/valid_product.json examples/valid_sale.json examples/valid_activity_metric.json
+python -m unittest discover -s tests -v
+```
+
+For the generic product CSV example, create a local ignored output directory and run:
+
+```bash
+mkdir local-data
+python scripts/import_csv.py --input examples/csv/products.csv --mapping examples/csv/products_mapping.json --output local-data/imported-products.jsonl
+```
+
+The CSV example is synthetic. The Loyverse connector remains experimental until an authorized live OpenRetailSchema run is recorded.
+
 ## Documentation
 
 - [French overview / Présentation en français](docs/fr/README.md)

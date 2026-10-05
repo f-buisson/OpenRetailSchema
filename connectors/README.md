@@ -1,23 +1,34 @@
-# Experimental Loyverse read-only transport
+# Experimental Loyverse read-only connector
 
-[Integration evidence](../../docs/POS_INTEGRATIONS.md) · [Home](../../README.md) · [Official API](https://developer.loyverse.com/docs/)
+[Integration evidence](../docs/POS_INTEGRATIONS.md) · [Home](../README.md) · [Official API](https://developer.loyverse.com/docs/)
 
-This experimental Python module is an independent OpenRetailSchema implementation of documented **GET** calls using the official HTTPS Loyverse v1.0 host. It is **not** a certified connector or an adapter that emits canonical records. Other F-Buisson software has successfully exercised a personal token against a real Loyverse account; that test is *separate* and does not certify this code.
+This module is an independent OpenRetailSchema implementation of documented **GET** calls against the official Loyverse v1.0 API. It is **experimental**: repository behavior is synthetic-tested, while an authorized live OpenRetailSchema connector run is still required before the project can claim live support.
 
-Capabilities now available: `merchant()` (raw merchant document) and `iter_collection()` for a fixed allowlist of catalog, store, inventory, tax, receipt, employee, device and shift resources. No write method, OAuth flow, background synchronization, token vault, mapping or persistent RAW storage is provided here.
+## Current capabilities
 
-### Offline validation
+- raw merchant read;
+- allowlisted collection reads for catalog, stores, inventory, taxes, receipts, employees, devices and shifts;
+- cursor pagination with bounded traversal and repeated-cursor protection;
+- canonical v0.1 product normalization from variant input;
+- canonical v0.1 sale normalization from receipt input, including refund direction;
+- finite retries for retryable GET failures, with bounded `Retry-After`;
+- caller-owned incremental checkpoints based on explicit-offset `updated_at` markers;
+- fail-closed handling for malformed identifiers, timestamps, money and unsupported values.
+
+The connector does **not** provide writes, persistent synchronization state, a token vault, canonical activity mapping, production OAuth handling or live certification.
+
+## Offline validation
 
 ```bash
 python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
 ```
 
-The tests inject a fake network transport and fabricated responses. No GitHub Actions are needed.
+Tests inject fabricated provider responses. They must never contain real account payloads, customer data or credentials.
 
-### Optional manual test (authorized account only)
+## Optional authorized manual test
 
-Do **not** commit real token values or captured JSON payloads. Export `LOYVERSE_API_TOKEN` through your operating system's secret-handling method, never paste it into a public issue. From a local Python shell:
+Do **not** commit token values or captured vendor JSON. Export `LOYVERSE_API_TOKEN` using the operating system's secret-handling method and use a disposable authorized test credential that can be revoked afterwards.
 
 ```python
 from connectors.loyverse import LoyverseClient, merchant_currency
@@ -25,13 +36,18 @@ from connectors.loyverse import LoyverseClient, merchant_currency
 client = LoyverseClient.from_environment()
 merchant = client.merchant()
 print("Currency available:", merchant_currency(merchant) is not None)
-# Avoid printing the full merchant document or any account identifiers.
 ```
 
-A personal token has broad access to the associated account. This client only makes read requests but cannot *reduce the token's own permissions*. Use a disposable authorized test token and revoke it after testing; OAuth is the intended multi-merchant deployment model.
+Avoid printing the full merchant document or account identifiers. A successful personal-token test remains separate from OAuth certification.
 
-HTTP 402 is reported as `plan_restricted_history` rather than prompting a user to replace a valid token. HTTP 429 is reported as `rate_limited`. This module does not silently retry, invent unavailable records, or use a hard-coded historical access window.
+## Evidence boundaries
 
-### Next steps
+A separate F-Buisson retail application has exercised a real Loyverse personal-token integration. Those observations inform this repository's contracts and tests, but they do **not** certify this connector. See [the evidence registry](../docs/POS_INTEGRATIONS.md).
 
-Separate source normalization from transport, preserve unknown prices/taxes/inventory, add synthetic fixtures, implement controlled retry/backoff and independent authorized live testing. A StoreLine interface must not be assumed.
+## Next steps
+
+1. exercise sanitized end-to-end product and sale mappings;
+2. rerun the complete suite from a fresh checkout of the exact release candidate;
+3. perform an authorized live OpenRetailSchema connector run and record only non-sensitive evidence;
+4. evaluate OAuth independently after the personal-token path is proven;
+5. use the resulting capability contract as the reference for future POS adapters.

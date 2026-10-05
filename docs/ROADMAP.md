@@ -67,12 +67,14 @@ The deferred storage criterion **does not block v0.1**. It becomes active only w
 
 Goal: stop keeping a usable foundation permanently in “pre-release” state while unrelated connector work continues.
 
-- [ ] Run the complete local regression suite from a fresh checkout of the exact release HEAD.
-- [ ] Verify README installation/validation/import examples from that checkout.
-- [ ] Verify release contents contain no secrets, private fixtures, customer data or proprietary source.
-- [ ] Confirm `docs/COMPATIBILITY.md`, `docs/ARCHITECTURE.md` and CSV documentation match the release behavior.
-- [ ] Prepare concise release notes with explicit experimental boundaries.
+- [x] Run the complete local regression suite from a fresh checkout of the exact release HEAD.
+- [x] Verify README installation/validation/import examples from that checkout.
+- [x] Verify release contents contain no secrets, private fixtures, customer data or proprietary source.
+- [x] Confirm `docs/COMPATIBILITY.md`, `docs/ARCHITECTURE.md` and CSV documentation match the release behavior.
+- [x] Prepare concise release notes with explicit experimental boundaries.
 - [ ] Tag and publish **v0.1.0**.
+
+**Release-candidate evidence (2026-10-05):** fresh checkout of `a6eb30b` on Python 3.13.14; 71/71 local tests passed; validator smoke passed for product, sale and activity fixtures; documented synthetic product CSV import produced 3 canonical products with 0 rejected rows; repository secret-pattern scan returned no tracked matches; no binary/private artifact types were tracked. Documentation was then aligned on the release-prep branch and must be re-tested before tagging.
 
 **Exit gate:** an independent developer can clone/tag v0.1.0, validate canonical data and exercise the documented CSV path without project-specific knowledge.
 
@@ -89,9 +91,9 @@ Goal: turn the experimental reader into the first evidence-backed reference POS 
 - [x] Document explicit connector capabilities and unsupported fields/features.
 - [x] Implement and test pagination.
 - [x] Implement bounded retries/error classification without unsafe retry of non-idempotent operations.
-- [ ] Implement incremental checkpoints without converting missing values to zero.
+- [x] Implement incremental checkpoints without converting missing values to zero.
 - [ ] Exercise sanitized/synthetic end-to-end mappings.
-- [ ] Run the full suite from a fresh checkout.
+- [x] Run the full suite from a fresh checkout.
 - [ ] Perform an authorized live OpenRetailSchema connector test; record only non-sensitive evidence.
 - [ ] Keep personal-token validation distinct from OAuth; do not claim OAuth until independently tested.
 
