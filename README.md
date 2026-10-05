@@ -30,7 +30,7 @@ OpenRetailSchema is an independent open-source project, designed to support any 
 
 | Stage | Focus | Status |
 | --- | --- | --- |
-| Foundation | Public specification, schemas, fixtures, local validation | In progress |
+| Foundation | Public specification, schemas, fixtures, local validation | **v0.1.0 published — experimental** |
 | Generic import | Local product CSV adapter with explicit mapping, canonical validation, atomic output and synthetic tests | Experimental; products only |
 | Loyverse | Experimental Python read-only client and synthetic tests; independently validate against an authorized live account and assess OAuth | Experimental |
 | StoreLine | Adapter only for an interface whose availability and authorization have been verified | Research |

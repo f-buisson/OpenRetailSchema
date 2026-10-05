@@ -72,9 +72,9 @@ Goal: stop keeping a usable foundation permanently in “pre-release” state wh
 - [x] Verify release contents contain no secrets, private fixtures, customer data or proprietary source.
 - [x] Confirm `docs/COMPATIBILITY.md`, `docs/ARCHITECTURE.md` and CSV documentation match the release behavior.
 - [x] Prepare concise release notes with explicit experimental boundaries.
-- [ ] Tag and publish **v0.1.0**.
+- [x] Tag and publish **v0.1.0** — release tag points to `f26b34395396448e3a458c3a3e3b062172fb1661`, certified locally with 71/71 tests plus validator/CSV/security smoke checks.
 
-**Release-candidate evidence (2026-10-05):** fresh checkout of `a6eb30b` on Python 3.13.14; 71/71 local tests passed; validator smoke passed for product, sale and activity fixtures; documented synthetic product CSV import produced 3 canonical products with 0 rejected rows; repository secret-pattern scan returned no tracked matches; no binary/private artifact types were tracked. Documentation was then aligned on the release-prep branch and must be re-tested before tagging.
+**Release evidence (2026-10-05):** the pre-release fresh checkout of `a6eb30b` passed 71/71 local tests and the validator/CSV/security checks. After documentation alignment and PR #14 merge, the exact tagged SHA `f26b34395396448e3a458c3a3e3b062172fb1661` was re-tested: 71/71 tests passed, validator smoke passed for product, sale and activity fixtures, the documented synthetic product CSV import produced 3 canonical products with 0 rejected rows, and the tracked secret-pattern scan returned no matches.
 
 **Exit gate:** an independent developer can clone/tag v0.1.0, validate canonical data and exercise the documented CSV path without project-specific knowledge.
 
