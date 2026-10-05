@@ -4,11 +4,11 @@
 
 **Capability and evidence status are separate.** An official API existing, an API being exercised in another application, and an OpenRetailSchema connector being released are three different claims.
 
-Last reviewed: **2026-10-04**.
+Last reviewed: **2026-10-05**.
 
 | Platform | Public interface evidenced | Independent OpenRetailSchema connector | Next contribution |
 | --- | --- | --- | --- |
-| [Loyverse](https://developer.loyverse.com/docs/) | REST v1.0, personal tokens and OAuth 2.0. Catalog, inventory, tax, merchant, store and receipt resources are documented. | Synthetic-tested read-only transport and canonical product/receipt normalization; not yet validated against a live account. | Authorized test-account connector run, checkpoint work, then OAuth evaluation. |
+| [Loyverse](https://developer.loyverse.com/docs/) | REST v1.0, personal tokens and OAuth 2.0. Catalog, inventory, tax, merchant, store and receipt resources are documented. | Synthetic-tested read-only transport, product/receipt normalization, bounded retries and caller-owned incremental checkpoints; not yet validated against a live account. | Sanitized end-to-end mapping run, authorized test-account connector run, then OAuth evaluation. |
 | [Square](https://developer.squareup.com/reference/square) | Orders, catalog, inventory and OAuth APIs documented. | None. | A documented read-only capability proposal and synthetic orders/catalog fixtures. |
 | [Shopify](https://shopify.dev/docs/api/admin-graphql/latest) | GraphQL Admin APIs document products, inventory and orders; Shopify POS-specific behavior must be validated independently. | None. | GraphQL read scopes, POS-origin filters, pagination, synthetic examples. |
 | [Lightspeed Retail X-Series](https://x-series-api.lightspeedhq.com/docs/introduction) | HTTP API with OAuth and personal tokens; the latter have plan restrictions. | None. | A read-only capability matrix, rate-limit handling and sanitized fixtures. |

@@ -2,7 +2,7 @@
 
 [Home](../README.md) · [Architecture](ARCHITECTURE.md) · [Roadmap](ROADMAP.md)
 
-OpenRetailSchema uses explicit semantic versions in every canonical record. The current contract is **0.1.0** and remains experimental until the first tagged release. This document defines how changes are classified so consumers can decide whether to accept a newer contract deliberately rather than by accident.
+OpenRetailSchema uses explicit semantic versions in every canonical record. The current contract is **0.1.0** and remains experimental throughout the pre-1.0 series; publishing a tag does not imply stable-API status. This document defines how changes are classified so consumers can decide whether to accept a newer contract deliberately rather than by accident.
 
 ## Compatibility rules
 
