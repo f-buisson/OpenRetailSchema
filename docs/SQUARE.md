@@ -79,6 +79,16 @@ The canonical sale mapper is intentionally narrower than the raw `sales.read` tr
 
 This last boundary is deliberate. Square `OrderReturn` provides return itemization but no return-event timestamp of its own, while canonical v0.1 refunds require `occurred_at`. The parent order's `updated_at` is not substituted because that would turn a generic last-modified timestamp into an invented refund occurrence time. A later refund lot must establish an authoritative event-time source and itemization link before `sale_kind: refund` is emitted.
 
+## Canonical refund boundary
+
+Square refund normalization combines two official read models instead of guessing from a generic order modification time. A completed PaymentRefund provides created_at and order_id; the linked refund Order provides OrderReturn.return_line_items, including source_line_item_uid, CatalogItemVariation identity and quantity. Only a one-to-one completed PaymentRefund-to-refund-order link is emitted. Multiple completed refunds linked to the same return order fail closed because item-level allocation would otherwise be invented. Monetary values remain absent until currency-exponent conversion is explicit.
+
+Authoritative references:
+
+- https://developer.squareup.com/reference/square/refunds-api/list-payment-refunds
+- https://developer.squareup.com/docs/refunds-api/retrieve-refunds
+- https://developer.squareup.com/reference/square/objects/OrderReturnLineItem
+
 ## Safety and evidence rules
 
 Tests use fabricated responses only. Provider error details are not echoed by the connector exception. Cursor type, page bounds, retry exhaustion, malformed product fields and orphan variations fail closed. PR #24 merged after the public test workflow passed on its exact head. A future live test must use an authorized Square sandbox or seller account and record only non-sensitive evidence.
