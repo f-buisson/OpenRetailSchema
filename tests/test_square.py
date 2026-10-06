@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import unittest
 
-from connectors.square import SquareConnector, SquareResponseError, canonical_square_products
+from connectors.square import SquareConnector, SquareResponseError, canonical_square_products, canonical_square_sales
 from tests.connector_conformance import exercise_read_connector
 
 
@@ -121,6 +121,62 @@ class SquareConnectorTests(unittest.TestCase):
                 {"type": "ITEM", "id": "i", "item_data": {"name": "Item"}},
                 {"type": "ITEM_VARIATION", "id": "v", "item_variation_data": {"item_id": "i", "sku": ""}},
             ])
+
+
+    def test_completed_sale_normalization_preserves_only_proven_semantics(self):
+        records = canonical_square_sales([
+            {"id": "open-order", "state": "OPEN"},
+            {
+                "id": "order-1",
+                "location_id": "location-1",
+                "state": "COMPLETED",
+                "closed_at": "2026-10-06T12:34:56Z",
+                "total_money": {"amount": 1099, "currency": "EUR"},
+                "line_items": [
+                    {
+                        "uid": "line-1",
+                        "catalog_object_id": "variation-1",
+                        "quantity": "2.500",
+                        "gross_sales_money": {"amount": 1099, "currency": "EUR"},
+                    }
+                ],
+            },
+        ])
+        self.assertEqual(records, [{
+            "schema_version": "0.1.0",
+            "entity_type": "sale",
+            "id": "square:order:order-1",
+            "source": {"provider": "square", "external_id": "order-1"},
+            "store_id": "location-1",
+            "occurred_at": "2026-10-06T12:34:56Z",
+            "sale_kind": "sale",
+            "lines": [{
+                "id": "square:line:order-1:line-1",
+                "source_product_id": "variation-1",
+                "quantity": "2.500",
+            }],
+        }])
+        self.assertNotIn("gross_total", records[0])
+        self.assertNotIn("net_total", records[0])
+        self.assertNotIn("tax_total", records[0])
+        self.assertNotIn("gross_total", records[0]["lines"][0])
+
+    def test_completed_sale_rejects_return_bearing_or_unmappable_orders(self):
+        base = {
+            "id": "order-1",
+            "location_id": "location-1",
+            "state": "COMPLETED",
+            "closed_at": "2026-10-06T12:34:56+00:00",
+            "line_items": [{"uid": "line-1", "catalog_object_id": "variation-1", "quantity": "1"}],
+        }
+        with self.assertRaisesRegex(SquareResponseError, "square_order_returns_not_normalized"):
+            canonical_square_sales([{**base, "returns": [{"uid": "return-1"}]}])
+        with self.assertRaisesRegex(SquareResponseError, "square_order_closed_at_required"):
+            canonical_square_sales([{**base, "closed_at": "2026-10-06T12:34:56"}])
+        with self.assertRaisesRegex(SquareResponseError, "square_order_line_product_required"):
+            canonical_square_sales([{**base, "line_items": [{"uid": "line-1", "quantity": "1"}]}])
+        with self.assertRaisesRegex(SquareResponseError, "square_order_line_quantity_required"):
+            canonical_square_sales([{**base, "line_items": [{"uid": "line-1", "catalog_object_id": "variation-1", "quantity": "NaN"}]}])
 
 
 if __name__ == "__main__":
