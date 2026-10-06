@@ -92,7 +92,7 @@ Goal: turn the experimental reader into the first evidence-backed reference POS 
 - [x] Implement and test pagination.
 - [x] Implement bounded retries/error classification without unsafe retry of non-idempotent operations.
 - [x] Implement incremental checkpoints without converting missing values to zero.
-- [ ] Exercise sanitized/synthetic end-to-end mappings.
+- [x] Exercise sanitized/synthetic end-to-end mappings — PR #15 covers paginated products, sales/refunds, schema validation, unknown-vs-zero semantics, checkpoint resume and failed traversal; local 74/74 tests and the PR CI passed before merge.
 - [x] Run the full suite from a fresh checkout.
 - [ ] Perform an authorized live OpenRetailSchema connector test; record only non-sensitive evidence.
 - [ ] Keep personal-token validation distinct from OAuth; do not claim OAuth until independently tested.
