@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-POS-DOC-LIGHTSPEED-01
+- Work ID: P4-POS-DOC-CLOVER-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
 - State: REVIEW
-- Base product HEAD: 0424d42bde6f0ca92882dc63dfdea7fb4343bd76.
-- Scope: continue the official-provider review with Lightspeed Retail X-Series without starting another adapter; capture only public access, scope, pagination, quota and plan-boundary facts that future connector work can safely depend on.
-- Acceptance: current API-version direction is explicit; OAuth and personal-token boundaries are distinct; minimum read scopes are recorded; pagination and rate-limit semantics are traceable to official sources; no live/provider evidence or connector support is claimed.
+- Base product HEAD: aee4ce5af7d2d49aba9d17d953e9f0c78fd99a65.
+- Scope: continue the official-provider review with Clover without starting another adapter; capture only public auth, permissions, pagination/completeness, rate-limit, timestamp and history-boundary facts that future connector work can safely depend on.
+- Acceptance: sandbox and production auth are distinct; least-privilege data permissions are explicit; top-level pagination and nested expansion limits are recorded; request/concurrency limits and 429 behavior are traceable; millisecond timestamps and order-query history boundaries cannot be mistaken for absence.
 - Evidence required: documentation diff review plus normal public PR checks on the exact branch HEAD.
-- Evidence produced: official Lightspeed X-Series introduction, authorization, scopes, pagination, rate-limit, product and sales references reviewed on 2026-10-06; no account, token, provider payload or connector execution used.
-- Next action: require normal PR checks, merge only if green, then continue the same P4 evidence cycle with Clover rather than implementing Lightspeed until authorized access and synthetic canonical mappings justify it.
+- Evidence produced: official Clover REST usage, OAuth, permissions, sandbox token, pagination, rate-limit, timestamp and order references reviewed on 2026-10-06; no account, token, merchant payload or connector execution used.
+- Next action: require normal PR checks, merge only if green, then continue the P4 evidence cycle with Odoo rather than implementing Clover until authorized sandbox access and synthetic canonical mappings justify it.
 
 ## Handoff discipline
 
