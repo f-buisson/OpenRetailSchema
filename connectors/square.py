@@ -158,17 +158,9 @@ def _required_nonempty_string(value: Any, code: str) -> str:
 
 
 def canonical_square_products(objects: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Map Square ITEM_VARIATION objects to canonical v0.1 products.
-
-    A variation is the sellable Square product identity. Its parent ITEM supplies
-    the canonical product name. Optional SKU/UPC values are copied only when
-    present and non-empty. Price is intentionally not mapped here: Square Money
-    uses integer minor units and converting that value requires currency exponent
-    semantics that are outside this lot. Omitting it preserves absent/unknown != 0.
-    """
+    """Map Square ITEM_VARIATION objects to canonical v0.1 products."""
     if not isinstance(objects, list):
         raise SquareResponseError("square_catalog_must_be_array")
-
     items: dict[str, dict[str, Any]] = {}
     variations: list[dict[str, Any]] = []
     for obj in objects:
@@ -183,7 +175,6 @@ def canonical_square_products(objects: list[dict[str, Any]]) -> list[dict[str, A
             items[item_id] = item_data
         elif object_type == "ITEM_VARIATION":
             variations.append(obj)
-
     records: list[dict[str, Any]] = []
     for variation in variations:
         external_id = _required_nonempty_string(variation.get("id"), "square_variation_id_required")
@@ -195,21 +186,15 @@ def canonical_square_products(objects: list[dict[str, Any]]) -> list[dict[str, A
         if parent is None:
             raise SquareResponseError("square_variation_parent_missing")
         name = _required_nonempty_string(parent.get("name"), "square_item_name_required")
-
         record: dict[str, Any] = {
-            "schema_version": "0.1.0",
-            "entity_type": "product",
+            "schema_version": "0.1.0", "entity_type": "product",
             "id": "square:variation:" + external_id,
-            "source": {"provider": "square", "external_id": external_id},
-            "name": name,
+            "source": {"provider": "square", "external_id": external_id}, "name": name,
         }
         for source_field, canonical_field in (("sku", "sku"), ("upc", "barcode")):
             value = data.get(source_field)
-            if value is None:
-                continue
-            record[canonical_field] = _required_nonempty_string(
-                value, "square_variation_" + source_field + "_invalid"
-            )
+            if value is not None:
+                record[canonical_field] = _required_nonempty_string(value, "square_variation_" + source_field + "_invalid")
         deleted = variation.get("is_deleted")
         if deleted is not None:
             if not isinstance(deleted, bool):
@@ -243,21 +228,9 @@ def _required_positive_quantity(value: Any, code: str) -> str:
 
 
 def canonical_square_sales(orders: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Map completed Square sale orders to canonical v0.1 sale records.
-
-    Only terminal COMPLETED orders without itemized returns are emitted. Square
-    line-item quantity and CatalogItemVariation identity map directly to fields
-    whose semantics are explicit in the canonical contract. Money is deliberately
-    omitted because Square Money uses integer minor units and this connector does
-    not yet own a currency-exponent conversion contract.
-
-    An order carrying `returns` fails closed. OrderReturn has itemization but no
-    event timestamp of its own, while the canonical refund record requires
-    `occurred_at`; using the parent order's `updated_at` would invent semantics.
-    """
+    """Map completed Square sale orders to canonical v0.1 sale records."""
     if not isinstance(orders, list):
         raise SquareResponseError("square_orders_must_be_array")
-
     records: list[dict[str, Any]] = []
     for order in orders:
         if not isinstance(order, dict):
@@ -269,39 +242,96 @@ def canonical_square_sales(orders: list[dict[str, Any]]) -> list[dict[str, Any]]
             if not isinstance(returns, list):
                 raise SquareResponseError("square_order_returns_must_be_array")
             raise SquareResponseError("square_order_returns_not_normalized")
-
         external_id = _required_nonempty_string(order.get("id"), "square_order_id_required")
         location_id = _required_nonempty_string(order.get("location_id"), "square_order_location_required")
         occurred_at = _required_timestamp(order.get("closed_at"), "square_order_closed_at_required")
         source_lines = order.get("line_items")
         if not isinstance(source_lines, list) or not source_lines:
             raise SquareResponseError("square_order_lines_required")
-
         lines: list[dict[str, Any]] = []
         for line in source_lines:
             if not isinstance(line, dict):
                 raise SquareResponseError("square_order_line_must_be_object")
             line_uid = _required_nonempty_string(line.get("uid"), "square_order_line_uid_required")
-            product_id = _required_nonempty_string(
-                line.get("catalog_object_id"), "square_order_line_product_required"
-            )
-            quantity = _required_positive_quantity(
-                line.get("quantity"), "square_order_line_quantity_required"
-            )
-            lines.append({
-                "id": "square:line:" + external_id + ":" + line_uid,
-                "source_product_id": product_id,
-                "quantity": quantity,
-            })
+            product_id = _required_nonempty_string(line.get("catalog_object_id"), "square_order_line_product_required")
+            quantity = _required_positive_quantity(line.get("quantity"), "square_order_line_quantity_required")
+            lines.append({"id": "square:line:" + external_id + ":" + line_uid,
+                          "source_product_id": product_id, "quantity": quantity})
+        records.append({"schema_version": "0.1.0", "entity_type": "sale",
+                        "id": "square:order:" + external_id,
+                        "source": {"provider": "square", "external_id": external_id},
+                        "store_id": location_id, "occurred_at": occurred_at,
+                        "sale_kind": "sale", "lines": lines})
+    return records
 
+
+def canonical_square_refunds(return_orders: list[dict[str, Any]], payment_refunds: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Map unambiguous completed Square refunds using PaymentRefund event time.
+
+    Square OrderReturn supplies itemization and links each returned line to the
+    original sale line. PaymentRefund supplies an authoritative `created_at` and
+    links to the refund order with `order_id`. To avoid inventing allocation, this
+    mapper accepts only refund orders linked to exactly one COMPLETED PaymentRefund.
+    Money remains absent until currency-exponent conversion is defined.
+    """
+    if not isinstance(return_orders, list) or not isinstance(payment_refunds, list):
+        raise SquareResponseError("square_refund_inputs_must_be_arrays")
+    refunds_by_order: dict[str, list[dict[str, Any]]] = {}
+    for refund in payment_refunds:
+        if not isinstance(refund, dict):
+            raise SquareResponseError("square_payment_refund_must_be_object")
+        if refund.get("status") != "COMPLETED":
+            continue
+        order_id = _required_nonempty_string(refund.get("order_id"), "square_payment_refund_order_id_required")
+        refunds_by_order.setdefault(order_id, []).append(refund)
+
+    records: list[dict[str, Any]] = []
+    for order in return_orders:
+        if not isinstance(order, dict):
+            raise SquareResponseError("square_refund_order_must_be_object")
+        returns = order.get("returns")
+        if returns in (None, []):
+            continue
+        if not isinstance(returns, list):
+            raise SquareResponseError("square_order_returns_must_be_array")
+        order_id = _required_nonempty_string(order.get("id"), "square_refund_order_id_required")
+        linked = refunds_by_order.get(order_id, [])
+        if len(linked) != 1:
+            raise SquareResponseError("square_refund_payment_link_ambiguous")
+        refund = linked[0]
+        refund_id = _required_nonempty_string(refund.get("id"), "square_payment_refund_id_required")
+        occurred_at = _required_timestamp(refund.get("created_at"), "square_payment_refund_created_at_required")
+        location_id = _required_nonempty_string(refund.get("location_id"), "square_payment_refund_location_required")
+        order_location = order.get("location_id")
+        if order_location is not None and order_location != location_id:
+            raise SquareResponseError("square_refund_location_mismatch")
+
+        lines: list[dict[str, Any]] = []
+        for returned in returns:
+            if not isinstance(returned, dict):
+                raise SquareResponseError("square_order_return_must_be_object")
+            source_order_id = _required_nonempty_string(returned.get("source_order_id"), "square_return_source_order_required")
+            source_lines = returned.get("return_line_items")
+            if not isinstance(source_lines, list) or not source_lines:
+                raise SquareResponseError("square_return_lines_required")
+            for line in source_lines:
+                if not isinstance(line, dict):
+                    raise SquareResponseError("square_return_line_must_be_object")
+                line_uid = _required_nonempty_string(line.get("uid"), "square_return_line_uid_required")
+                source_line_uid = _required_nonempty_string(line.get("source_line_item_uid"), "square_return_source_line_required")
+                product_id = _required_nonempty_string(line.get("catalog_object_id"), "square_return_product_required")
+                quantity = _required_positive_quantity(line.get("quantity"), "square_return_quantity_required")
+                lines.append({
+                    "id": "square:return-line:" + order_id + ":" + line_uid,
+                    "source_product_id": product_id,
+                    "quantity": quantity,
+                    "source_sale_line_id": "square:line:" + source_order_id + ":" + source_line_uid,
+                })
         records.append({
-            "schema_version": "0.1.0",
-            "entity_type": "sale",
-            "id": "square:order:" + external_id,
-            "source": {"provider": "square", "external_id": external_id},
-            "store_id": location_id,
-            "occurred_at": occurred_at,
-            "sale_kind": "sale",
-            "lines": lines,
+            "schema_version": "0.1.0", "entity_type": "sale",
+            "id": "square:refund:" + refund_id,
+            "source": {"provider": "square", "external_id": refund_id},
+            "store_id": location_id, "occurred_at": occurred_at,
+            "sale_kind": "refund", "lines": lines,
         })
     return records
