@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-PAGINATION-SAFETY-01
+- Work ID: P4-POS-DOC-REVIEW-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
 - State: REVIEW
-- Base product HEAD: a46432bb491dcc851dea80773b5e3ef6c06dff8b.
-- Scope: lock the existing Square GET/POST pagination page budget into regression tests so a repeated provider cursor cannot cause unbounded transport calls. Do not change provider semantics or claim live evidence.
-- Acceptance: repeated GET and POST cursors stop at the configured `max_pages`; `max_pages=1` performs exactly one transport call; cursor propagation remains explicit.
-- Evidence required: targeted pagination-safety tests plus the complete public PR CI on the exact branch HEAD.
-- Evidence produced: implementation inspection confirms both Square pagination paths are bounded by `max_pages`; dedicated synthetic regression tests cover GET, POST and the one-page edge case. No local test execution is claimed for this lot.
-- Next action: require public PR CI on the exact branch HEAD, repair any regression, and merge only after green proof.
+- Base product HEAD: 3f40f7b624e68af90cc884193d383a8096c2cfb7.
+- Scope: refresh the stale integration registry after the merged Square work and perform the next independent official-documentation review for Shopify without starting another adapter.
+- Acceptance: Square registry status matches repository reality; Shopify claims are traceable to current official sources; pagination, throttling, order-history entitlement and POS-origin uncertainty are explicit; no live or connector evidence is claimed.
+- Evidence required: documentation diff review plus normal public PR checks on the exact branch HEAD.
+- Evidence produced: official Shopify GraphQL Admin documentation reviewed on 2026-10-06; no account, token, provider payload or connector execution used.
+- Next action: require normal PR checks, merge only if green, then continue the P4 vendor evidence review with the next system rather than implementing Shopify until POS-origin semantics and authorized access justify it.
 
 ## Handoff discipline
 
