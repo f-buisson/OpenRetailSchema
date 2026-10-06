@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-SALE-NORMALIZATION-01
+- Work ID: P4-SQUARE-REFUND-NORMALIZATION-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
 - State: REVIEW
-- Base product HEAD: b9f6ad6843b2bee9bc4de81c0eef434bb78ec4ca.
-- Scope: normalize only Square orders whose semantics are sufficient for canonical v0.1 sales. Do not invent money conversion, refund timestamps or custom-product identity.
-- Acceptance: non-completed orders are not emitted; completed orders use `closed_at`; each line requires a Square line UID, CatalogItemVariation ID and positive decimal quantity; Square minor-unit money stays absent; return-bearing orders fail closed instead of being mislabeled as sales.
-- Evidence required: targeted Square tests plus complete public PR CI on the exact branch HEAD.
-- Evidence produced: implementation and synthetic positive/negative tests committed; official Square Order and OrderReturn semantics re-checked on 2026-10-06. The review established that `OrderReturn` lacks the event timestamp required for canonical refund `occurred_at`, so refund normalization remains a separate incomplete roadmap item.
-- Next action: require CI on the exact PR HEAD, repair any regression/schema mismatch, and merge only after green proof.
+- Base product HEAD: f63b00dc0db3ba5cedf503f77095bfba389df94b.
+- Scope: normalize only unambiguous completed Square refunds by combining PaymentRefund event time with OrderReturn itemization. Do not invent money conversion or allocation across multiple completed refunds.
+- Acceptance: PaymentRefund.created_at is the canonical occurrence time; PaymentRefund.order_id links to the refund order; each returned line requires source order/line identity, CatalogItemVariation ID and positive quantity; multiple completed refunds for one return order fail closed; money remains absent.
+- Evidence required: targeted Square refund tests, complete local regression suite, and public PR CI on the exact branch HEAD.
+- Evidence produced: official Square Refunds/Orders documentation re-checked on 2026-10-06; targeted Square tests passed 16/16 and complete local suite passed 111/111 on the branch after the schema-safe source-link fix.
+- Next action: open/review the PR, require CI on the exact PR HEAD, repair any regression, and merge only after green proof.
 
 ## Handoff discipline
 
