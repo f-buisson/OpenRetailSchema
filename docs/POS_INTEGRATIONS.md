@@ -4,13 +4,13 @@
 
 **Capability and evidence status are separate.** An official API existing, an API being exercised in another application, and an OpenRetailSchema connector being released are three different claims.
 
-Last reviewed: **2026-10-05**.
+Last reviewed: **2026-10-06**.
 
 | Platform | Public interface evidenced | Independent OpenRetailSchema connector | Next contribution |
 | --- | --- | --- | --- |
 | [Loyverse](https://developer.loyverse.com/docs/) | REST v1.0, personal tokens and OAuth 2.0. Catalog, inventory, tax, merchant, store and receipt resources are documented. | Synthetic-tested read-only transport, product/receipt normalization, bounded retries and caller-owned incremental checkpoints; not yet validated against a live account. | Sanitized end-to-end mapping run, authorized test-account connector run, then OAuth evaluation. |
-| [Square](https://developer.squareup.com/reference/square) | Orders, catalog, inventory and OAuth APIs documented. | None. | A documented read-only capability proposal and synthetic orders/catalog fixtures. |
-| [Shopify](https://shopify.dev/docs/api/admin-graphql/latest) | GraphQL Admin APIs document products, inventory and orders; Shopify POS-specific behavior must be validated independently. | None. | GraphQL read scopes, POS-origin filters, pagination, synthetic examples. |
+| [Square](https://developer.squareup.com/reference/square) | Orders, catalog, inventory and OAuth APIs documented. | Synthetic-tested read-only stores/products/sales/inventory adapter on the shared connector contract; product, completed-sale and unambiguous-refund normalization; no live/Sandbox certification. | Authorized Sandbox or seller-account connector run. |
+| [Shopify](https://shopify.dev/docs/api/admin-graphql/latest) | GraphQL Admin API documents products, inventory, locations and orders. New public apps must use GraphQL Admin rather than legacy REST. | None. | Prove a safe POS-origin/order mapping and required scopes before proposing an adapter; do not assume all Admin orders are POS sales. |
 | [Lightspeed Retail X-Series](https://x-series-api.lightspeedhq.com/docs/introduction) | HTTP API with OAuth and personal tokens; the latter have plan restrictions. | None. | A read-only capability matrix, rate-limit handling and sanitized fixtures. |
 | [Clover](https://docs.clover.com/dev/docs/making-rest-api-calls) | REST API documents inventory, orders and payments; test-merchant sandbox and OAuth are available. | None. | Synthetic inventory/order payloads, permissions and time-unit mapping. |
 | [Odoo](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html) | Odoo 19 documents the external JSON-2 API, subject to **Custom-plan access**; exact POS models vary by database. | None. | Validate accessible POS models and provide synthetic export mappings. |
@@ -19,6 +19,21 @@ Last reviewed: **2026-10-05**.
 | Other POS platforms | Open for proposals. | None. | [Open a POS connector request](https://github.com/f-buisson/OpenRetailSchema/issues/new/choose). |
 
 These references describe vendor platforms, not partnerships or endorsements. No platform except Loyverse has product-test evidence recorded here. Do not merge vendor SDKs or text unless their redistribution terms permit it.
+
+## Shopify evidence review — 2026-10-06
+
+This is a **documentation review only**. No Shopify account, token, payload or OpenRetailSchema connector was exercised.
+
+- New public apps must use the GraphQL Admin API; the REST Admin API is legacy. OpenRetailSchema should therefore avoid starting a new REST adapter.
+- GraphQL connections use cursor pagination and allow at most 250 resources per page. Shopify also documents bulk operations for larger datasets; this is a separate execution model and should not be hidden behind ordinary cursor semantics without an explicit contract.
+- GraphQL Admin throttling is query-cost based per app/store. The documented restore rate varies by plan (including 100 points/s for Standard and higher rates for higher plans), so a future connector must consume returned throttle/cost state rather than hard-code a request-per-second quota.
+- Locations are exposed as a paginated connection and are suitable evidence for a future store/location capability.
+- Orders require order-read access. By default only the most recent 60 days are available; older history requires additional all-orders access. That entitlement boundary must be represented explicitly rather than treated as an empty history.
+- The public Admin Order surface does **not by itself prove that every order is a Shopify POS transaction**. A future adapter must establish an official, stable POS-origin discriminator before mapping Admin orders to a POS sale stream.
+
+Official sources reviewed: [GraphQL pagination](https://shopify.dev/docs/api/usage/pagination-graphql), [GraphQL Admin rate limits](https://shopify.dev/docs/apps/build/apis/graphql-admin/rate-limits), [bulk operations](https://shopify.dev/docs/apps/build/apis/graphql-admin/bulk-operations/queries), [locations](https://shopify.dev/docs/api/admin-graphql/latest/queries/locations), [Order](https://shopify.dev/docs/api/admin-graphql/latest/objects/Order), and the [legacy REST notice](https://shopify.dev/docs/api/admin-rest/latest/resources/order).
+
+**Adapter decision:** deferred. Documentation quality is sufficient for further design work, but POS-origin semantics and authorized test access are not yet evidenced strongly enough to justify implementation. This avoids creating a generic Shopify-commerce connector while claiming POS interoperability.
 
 ## Loyverse capability declaration
 
