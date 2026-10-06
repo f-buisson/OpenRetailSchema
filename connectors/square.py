@@ -325,7 +325,7 @@ def canonical_square_refunds(return_orders: list[dict[str, Any]], payment_refund
                     "id": "square:return-line:" + order_id + ":" + line_uid,
                     "source_product_id": product_id,
                     "quantity": quantity,
-                    "source_sale_line_id": "square:line:" + source_order_id + ":" + source_line_uid,
+                    "extensions": {"square:source_sale_line_id": "square:line:" + source_order_id + ":" + source_line_uid},
                 })
         records.append({
             "schema_version": "0.1.0", "entity_type": "sale",
