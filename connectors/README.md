@@ -4,7 +4,13 @@
 
 This module is an independent OpenRetailSchema implementation of documented **GET** calls against the official Loyverse v1.0 API. It is **experimental**: repository behavior is synthetic-tested, while an authorized live OpenRetailSchema connector run is still required before the project can claim live support.
 
-## Current capabilities
+## Common connector contract
+
+`connectors.operations` defines the vendor-neutral read surface currently shared by adapters: `products.read`, `sales.read`, `stores.read` and `inventory.read`. Callers must require explicit `supported` capability before invoking one of these operations.
+
+An explicitly `unsupported` operation raises `UnsupportedOperationError` with code `connector_operation_unsupported`. An operation absent from the capability manifest remains unknown and raises `UndeclaredOperationError` with code `connector_operation_undeclared`. These states are intentionally different: absence never means zero capability or unsupported behavior. Names outside the common read contract fail closed instead of being inferred.
+
+## Current Loyverse capabilities
 
 - raw merchant read;
 - allowlisted collection reads for catalog, stores, inventory, taxes, receipts, employees, devices and shifts;
@@ -15,7 +21,7 @@ This module is an independent OpenRetailSchema implementation of documented **GE
 - caller-owned incremental checkpoints based on explicit-offset `updated_at` markers;
 - fail-closed handling for malformed identifiers, timestamps, money and unsupported values.
 
-The connector does **not** provide writes, persistent synchronization state, a token vault, canonical activity mapping, production OAuth handling or live certification.
+The Loyverse connector does **not** provide writes, persistent synchronization state, a token vault, canonical activity mapping, production OAuth handling or live certification.
 
 ## Offline validation
 
@@ -46,8 +52,7 @@ A separate F-Buisson retail application has exercised a real Loyverse personal-t
 
 ## Next steps
 
-1. exercise sanitized end-to-end product and sale mappings;
-2. rerun the complete suite from a fresh checkout of the exact release candidate;
-3. perform an authorized live OpenRetailSchema connector run and record only non-sensitive evidence;
-4. evaluate OAuth independently after the personal-token path is proven;
-5. use the resulting capability contract as the reference for future POS adapters.
+1. perform an authorized live OpenRetailSchema connector run and record only non-sensitive evidence;
+2. evaluate OAuth independently after the personal-token path is proven;
+3. complete the generic pagination/checkpoint/rate-limit/error and provenance contracts;
+4. use the resulting connector contract and conformance suite as the reference for future POS adapters.
