@@ -56,16 +56,15 @@ The project must keep advancing while useful independent work exists.
 
 ## Current handoff
 
-- Work ID: P3-LOYVERSE-REFERENCE-01
-- Roadmap phase: P3 — use normalized Loyverse as the first connector-contract reference implementation
+- Work ID: P3-CONFORMANCE-01
+- Roadmap phase: P3 — reusable connector conformance tests
 - State: REVIEW
-- Base product HEAD: ed4be0e38d0d2fe7f40370d8b58e8aa1131b939d.
-- Reuse classification: OpenRetailSchema-native composition. Reuses the existing Loyverse transport plus the generic capability/read-operation contracts; no private source is copied.
-- Scope: expose the four common read operations through one Loyverse capability manifest and one adapter, mapping only to existing paginated read resources. Do not invent canonical store/inventory entities, a second transport, persistence, OAuth claims or write operations.
-- Acceptance: manifest explicitly declares every common read operation; products/sales/stores/inventory route to the existing variant/receipt/store/inventory readers; pagination remains the existing implementation; unknown operations fail before transport; provider failures remain visible and sanitized.
-- Evidence required: targeted adapter tests plus complete local regression suite on the produced branch HEAD, followed by public PR CI before acceptance.
-- Evidence produced: targeted 	est_loyverse_contract.py passed 5/5 and the complete local suite passed 94/94 on the branch after implementation.
-- Next action: review the branch diff, open a PR, require CI on its exact HEAD, then merge only if the public proof is green.
+- Base product HEAD: e3085a2ea80d645eff754b558243130df39eb6f9.
+- Scope: provide one reusable synthetic harness for the common read contract and apply it to the Loyverse reference adapter. Do not duplicate provider transports, add persistence, or broaden the connector surface.
+- Acceptance: the harness validates the manifest, requires every common read to be declared, exercises every supported read, verifies explicit unsupported behavior, rejects unknown operations before transport, and is demonstrably reusable by a provider-specific synthetic factory.
+- Evidence required: targeted conformance/Loyverse tests plus complete regression suite on the branch, followed by public PR CI before acceptance.
+- Evidence produced: implementation and Loyverse application committed; execution evidence pending.
+- Next action: open the PR, require CI on its exact HEAD, repair any conformance/import defect found by the public test suite, and merge only after green proof.
 
 ## Handoff discipline
 

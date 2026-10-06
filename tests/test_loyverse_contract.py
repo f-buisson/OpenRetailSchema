@@ -2,6 +2,7 @@ import unittest
 
 from connectors.loyverse import LoyverseClient, LoyverseError
 from connectors.loyverse_contract import LoyverseConnector
+from tests.connector_conformance import exercise_read_connector
 
 
 class LoyverseContractTests(unittest.TestCase):
@@ -19,6 +20,23 @@ class LoyverseContractTests(unittest.TestCase):
 
         client = LoyverseClient("synthetic-token", transport=transport, max_attempts=1)
         return LoyverseConnector(client), calls
+
+    def conformance_factory(self, operation):
+        fixtures = {
+            "products.read": ("variants", [{"id": "product-conformance"}]),
+            "sales.read": ("receipts", [{"id": "sale-conformance"}]),
+            "stores.read": ("stores", [{"id": "store-conformance"}]),
+            "inventory.read": ("inventory_levels", [{"id": "inventory-conformance"}]),
+        }
+        if operation is None:
+            connector, calls = self.connector([])
+            return connector, None, calls
+        response_key, expected = fixtures[operation]
+        connector, calls = self.connector([{response_key: expected}])
+        return connector, expected, calls
+
+    def test_reusable_connector_conformance(self):
+        exercise_read_connector(self, self.conformance_factory)
 
     def test_manifest_declares_all_common_reads_explicitly_supported(self):
         connector, _ = self.connector([])
