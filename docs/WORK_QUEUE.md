@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-PRODUCT-NORMALIZATION-01
+- Work ID: P4-SQUARE-OFFICIAL-BOUNDARIES-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
-- State: REVIEW
-- Base product HEAD: d5dc24d943150d7153c203e5cfdba886b0ec1a28.
-- Scope: normalize Square Catalog ITEM/ITEM_VARIATION responses into canonical v0.1 product records without adding a second transport or inventing missing monetary semantics.
-- Acceptance: ITEM_VARIATION is the canonical source identity; parent ITEM supplies the product name; optional SKU/UPC/deleted state are copied only when explicitly valid; missing values remain absent; orphan variations and malformed optional values fail closed; Square minor-unit price is not guessed into canonical decimal money.
-- Evidence required: targeted Square tests plus complete public PR CI on the exact branch HEAD before acceptance.
-- Evidence produced: implementation and negative/edge synthetic tests committed; execution evidence pending.
-- Next action: require CI on the exact PR HEAD, repair any regression or schema mismatch found, and merge only after green proof.
+- State: READY
+- Base product HEAD: dfe5cfa24256dc6dd15ec03b1bd526e18ed7c71e.
+- Scope: complete the current official-evidence review for Square scopes, pagination, access requirements, webhook relevance, rate-limit guidance and any documented plan restrictions. Do not add persistence, write operations or speculative abstractions.
+- Acceptance: every statement added to `docs/SQUARE.md` is backed by current public Square documentation; unsupported or irrelevant surfaces are explicit; the roadmap criterion is checked only if its full wording is evidenced.
+- Evidence required: current official links and a documentation-only review against the merged Square read surface.
+- Evidence produced: none yet for this lot. PR #24 is accepted separately: exact head `ad79607bd04f3573cb5ab4aa368ac88d6e5df5a3` passed workflow run `37484603967` and merged as `dfe5cfa24256dc6dd15ec03b1bd526e18ed7c71e`.
+- Next action: review current official Square documentation and update only evidence/boundaries that can be proven without a live account.
 
 ## Handoff discipline
 
