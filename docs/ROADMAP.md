@@ -121,13 +121,15 @@ Goal: expand only where official documentation and testable access justify imple
 - [x] Maintain `docs/POS_INTEGRATIONS.md` as the evidence registry.
 - [x] Keep the community POS documentation/synthetic-mapping request open.
 - [ ] Re-check current official Square documentation, scopes, pagination, webhooks/rate limits and access requirements before implementation.
-- [ ] Select the minimum Square read-only surface needed by downstream retail products.
-- [ ] Reuse the P3 conformance contract rather than creating Square-specific abstractions.
+- [x] Select the minimum Square read-only surface needed by downstream retail products — `stores.read`, `products.read`, `sales.read` and `inventory.read` are the bounded synthetic surface.
+- [x] Reuse the P3 conformance contract rather than creating Square-specific abstractions — the Square adapter is exercised by the same reusable connector harness as Loyverse.
 - [ ] Periodically verify official public documentation for Shopify, Lightspeed, Clover, Odoo, Epos Now and other relevant systems.
 - [ ] Record capabilities, scopes, pagination, quotas/rate limits and plan restrictions only when supported by current official sources.
 - [ ] Invite third-party contributions of official links, synthetic fixtures and fabricated CSV examples — never secrets, confidential documentation or real customer exports.
 - [ ] Select later adapters only after evidence quality, access and maintenance cost are sufficient.
 - [ ] StoreLine remains deferred until the exact NCR Voyix/StoreLine interface and authorization are established; documented CSV remains an acceptable interim path.
+
+**P4 evidence (2026-10-06):** PR #21 established the transport-injected Square read foundation on the shared connector contract; PR #23 added bounded read-only rate-limit retries; PR #24 added conservative canonical product normalization and merged after its exact HEAD passed the public test workflow. Live Square, OAuth and Marketplace certification remain explicitly unclaimed.
 
 **Exit gate:** every advertised adapter has a capability declaration and evidence level; unsupported or untested behavior is explicit.
 
