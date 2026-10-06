@@ -11,7 +11,7 @@ Last reviewed: **2026-10-06**.
 | [Loyverse](https://developer.loyverse.com/docs/) | REST v1.0, personal tokens and OAuth 2.0. Catalog, inventory, tax, merchant, store and receipt resources are documented. | Synthetic-tested read-only transport, product/receipt normalization, bounded retries and caller-owned incremental checkpoints; not yet validated against a live account. | Sanitized end-to-end mapping run, authorized test-account connector run, then OAuth evaluation. |
 | [Square](https://developer.squareup.com/reference/square) | Orders, catalog, inventory and OAuth APIs documented. | Synthetic-tested read-only stores/products/sales/inventory adapter on the shared connector contract; product, completed-sale and unambiguous-refund normalization; no live/Sandbox certification. | Authorized Sandbox or seller-account connector run. |
 | [Shopify](https://shopify.dev/docs/api/admin-graphql/latest) | GraphQL Admin API documents products, inventory, locations and orders. New public apps must use GraphQL Admin rather than legacy REST. | None. | Prove a safe POS-origin/order mapping and required scopes before proposing an adapter; do not assume all Admin orders are POS sales. |
-| [Lightspeed Retail X-Series](https://x-series-api.lightspeedhq.com/docs/introduction) | HTTP API with OAuth and personal tokens; the latter have plan restrictions. | None. | A read-only capability matrix, rate-limit handling and sanitized fixtures. |
+| [Lightspeed Retail X-Series](https://x-series-api.lightspeedhq.com/docs/introduction) | Date-versioned HTTP/JSON API with OAuth 2.0 Authorization Code and Plus-plan personal tokens; products, sales, outlets and inventory have explicit read scopes. | None. | Authorized test-store access plus synthetic product/sale/outlet/inventory mappings before proposing an adapter. |
 | [Clover](https://docs.clover.com/dev/docs/making-rest-api-calls) | REST API documents inventory, orders and payments; test-merchant sandbox and OAuth are available. | None. | Synthetic inventory/order payloads, permissions and time-unit mapping. |
 | [Odoo](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html) | Odoo 19 documents the external JSON-2 API, subject to **Custom-plan access**; exact POS models vary by database. | None. | Validate accessible POS models and provide synthetic export mappings. |
 | [Epos Now](https://developer.eposnowhq.com/Docs/Authentication) | Official developer documentation describes API-key/secret authentication for an API device. | None. | Public product/order endpoints, access requirements, security behavior and synthetic exports. |
@@ -34,6 +34,21 @@ This is a **documentation review only**. No Shopify account, token, payload or O
 Official sources reviewed: [GraphQL pagination](https://shopify.dev/docs/api/usage/pagination-graphql), [GraphQL Admin rate limits](https://shopify.dev/docs/apps/build/apis/graphql-admin/rate-limits), [bulk operations](https://shopify.dev/docs/apps/build/apis/graphql-admin/bulk-operations/queries), [locations](https://shopify.dev/docs/api/admin-graphql/latest/queries/locations), [Order](https://shopify.dev/docs/api/admin-graphql/latest/objects/Order), and the [legacy REST notice](https://shopify.dev/docs/api/admin-rest/latest/resources/order).
 
 **Adapter decision:** deferred. Documentation quality is sufficient for further design work, but POS-origin semantics and authorized test access are not yet evidenced strongly enough to justify implementation. This avoids creating a generic Shopify-commerce connector while claiming POS interoperability.
+
+## Lightspeed Retail X-Series evidence review — 2026-10-06
+
+This is a **documentation review only**. No Lightspeed account, token, payload or OpenRetailSchema connector was exercised.
+
+- New integrations should target the current date-based API versions; legacy v0.9 and v2.0 are deprecated and no longer receive new features.
+- OAuth 2.0 uses the Authorization Code Grant. New authorization requests must include explicit scopes, and the documented read scopes include `products:read`, `sales:read`, `outlets:read`, `inventory:read` and `retailer:read` where applicable.
+- Personal tokens are available only to retailers on the Plus plan. Lightspeed recommends OAuth for applications connecting to multiple retailers, so personal-token availability must not be treated as general production access.
+- Collection pagination is driven by the monotonically increasing resource `version`: callers advance with the response maximum as the next `after` value and stop on an empty collection. Page-size ceilings can vary by endpoint and must not be hard-coded globally without endpoint evidence.
+- Authorized API traffic is rate-limited per retailer/application. The published default budget is `300 × register count + 50` requests per 5-minute window, with `X-RateLimit-Limit` and `X-RateLimit-Remaining` response headers. Authorization/token endpoints have separate limits and can return HTTP 429.
+- Product and sales list endpoints are explicitly paginated and require `products:read` and `sales:read` respectively; the scope registry separately documents outlets and inventory reads.
+
+Official sources reviewed: [Introduction](https://x-series-api.lightspeedhq.com/docs/introduction), [Authorization](https://x-series-api.lightspeedhq.com/docs/authorization), [OAuth scopes](https://x-series-api.lightspeedhq.com/v2026.04/docs/scopes), [Pagination](https://x-series-api.lightspeedhq.com/v2026.01/docs/pagination), [Rate limiting](https://x-series-api.lightspeedhq.com/v1.0/docs/rate_limiting), [Products](https://x-series-api.lightspeedhq.com/reference/listproducts), and [Sales](https://x-series-api.lightspeedhq.com/reference/listsales).
+
+**Adapter decision:** deferred pending authorized test-store access and synthetic canonical mapping evidence. The public contract is strong enough to define a future read-only adapter, but documentation alone is not connector certification.
 
 ## Loyverse capability declaration
 
