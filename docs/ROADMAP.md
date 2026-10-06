@@ -104,11 +104,13 @@ Goal: turn the experimental reader into the first evidence-backed reference POS 
 Goal: make additional POS integrations predictable without forcing every consumer to understand vendor-specific behavior.
 
 - [x] Define a versioned connector capability manifest — PR #16 introduced the vendor-neutral manifest with explicit supported/unsupported declarations and unknown-by-absence semantics; local 78/78 tests passed and PR CI completed successfully before merge.
-- [ ] Define common read operations and explicit unsupported-operation behavior.
-- [ ] Define pagination, checkpoint, rate-limit and error semantics.
-- [ ] Define provenance/RAW boundaries and redaction requirements.
-- [ ] Use the normalized Loyverse connector as the first reference implementation.
-- [ ] Add connector conformance tests reusable by future adapters.
+- [x] Define common read operations and explicit unsupported-operation behavior — `connectors.operations` exposes the finite read surface and distinguishes unsupported from undeclared operations; reusable contract tests cover both fail-closed paths.
+- [x] Define pagination, checkpoint, rate-limit and error semantics — `docs/CONNECTOR_EXECUTION.md` separates ephemeral cursors from caller-owned durable checkpoints and fixes stable retry/error classes.
+- [x] Define provenance/RAW boundaries and redaction requirements — `docs/ARCHITECTURE.md` requires source provenance, finite RAW retention where used, secret/PII exclusion and redaction before diagnostics or publication.
+- [x] Use the normalized Loyverse connector as the first reference implementation — the adapter implements the common read contract and its capability manifest is exercised by the same reusable harness.
+- [x] Add connector conformance tests reusable by future adapters — `tests/connector_conformance.py` is adapter-agnostic and `tests/test_loyverse_contract.py` proves the Loyverse implementation against it.
+
+**P3 evidence (2026-10-06):** commits `6522824` through `9a82a38` define the execution contract, implement the common Loyverse adapter and apply the reusable conformance harness. This closes the generic connector-contract work without changing the still-open P2 live-provider/OAuth gates.
 
 **Exit gate:** a third-party developer can implement a connector from public documentation and run the same conformance tests.
 
