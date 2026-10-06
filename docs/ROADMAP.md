@@ -120,11 +120,13 @@ Goal: expand only where official documentation and testable access justify imple
 
 - [x] Maintain `docs/POS_INTEGRATIONS.md` as the evidence registry.
 - [x] Keep the community POS documentation/synthetic-mapping request open.
-- [ ] Re-check current official Square documentation, scopes, pagination, webhooks/rate limits and access requirements before implementation.
+- [x] Re-check current official Square documentation, scopes, pagination, webhooks/rate limits and access requirements — completed on 2026-10-06. The first transport foundation landed before this full review; that sequencing debt is recorded rather than hidden, and the merged surface was re-checked against the current official material.
 - [x] Select the minimum Square read-only surface needed by downstream retail products — `stores.read`, `products.read`, `sales.read` and `inventory.read` are the bounded synthetic surface.
 - [x] Reuse the P3 conformance contract rather than creating Square-specific abstractions — the Square adapter is exercised by the same reusable connector harness as Loyverse.
+- [ ] Normalize Square orders/returns into canonical sale/refund records without guessing missing money, tax, quantity or timezone semantics.
+- [ ] Perform an authorized Square Sandbox or seller-account connector run and keep that evidence distinct from OAuth/Marketplace certification.
 - [ ] Periodically verify official public documentation for Shopify, Lightspeed, Clover, Odoo, Epos Now and other relevant systems.
-- [ ] Record capabilities, scopes, pagination, quotas/rate limits and plan restrictions only when supported by current official sources.
+- [x] Record capabilities, scopes, pagination, quotas/rate limits and plan restrictions only when supported by current official sources — `docs/SQUARE.md` records the four minimum read scopes, cursor behavior, generic 429/backoff guidance, Sandbox/production separation, webhook boundaries, and explicitly avoids inventing a numeric quota or endpoint-specific paid-plan requirement.
 - [ ] Invite third-party contributions of official links, synthetic fixtures and fabricated CSV examples — never secrets, confidential documentation or real customer exports.
 - [ ] Select later adapters only after evidence quality, access and maintenance cost are sufficient.
 - [ ] StoreLine remains deferred until the exact NCR Voyix/StoreLine interface and authorization are established; documented CSV remains an acceptable interim path.
