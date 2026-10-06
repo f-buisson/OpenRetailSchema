@@ -3,8 +3,8 @@
 
 The connector intentionally uses an injected transport. It contains no credentials,
 SDK dependency, or live-account claim. Endpoint choices are limited to Square's
-public read APIs and keep provider dictionaries unnormalized until canonical
-semantics are defined and tested.
+public read APIs. Canonical product normalization is deliberately conservative:
+missing provider values remain absent rather than becoming zero or empty strings.
 """
 from __future__ import annotations
 
@@ -32,15 +32,7 @@ class SquareResponseError(RuntimeError):
 
 
 class SquareConnector:
-    """Expose the minimum Square read surface through the common contract.
-
-    ``transport(method, path, request)`` is injected by the caller. ``request``
-    contains either ``params`` or ``json`` and always includes ``api_version``.
-    The connector does not own authentication and never logs transport payloads.
-
-    Square ``RATE_LIMITED`` responses are retried only for these read operations.
-    Retry count is bounded and delay is injected so tests never sleep.
-    """
+    """Expose the minimum Square read surface through the common contract."""
 
     manifest = SQUARE_CAPABILITIES
 
@@ -155,3 +147,71 @@ class SquareConnector:
         if operation == "inventory.read":
             return self._paginate_post("/v2/inventory/counts/batch-retrieve", "counts", max_pages=max_pages)
         raise AssertionError("unreachable_common_read_operation")
+
+
+def _required_nonempty_string(value: Any, code: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise SquareResponseError(code)
+    return value
+
+
+def canonical_square_products(objects: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Map Square ITEM_VARIATION objects to canonical v0.1 products.
+
+    A variation is the sellable Square product identity. Its parent ITEM supplies
+    the canonical product name. Optional SKU/UPC values are copied only when
+    present and non-empty. Price is intentionally not mapped here: Square Money
+    uses integer minor units and converting that value requires currency exponent
+    semantics that are outside this lot. Omitting it preserves absent/unknown != 0.
+    """
+    if not isinstance(objects, list):
+        raise SquareResponseError("square_catalog_must_be_array")
+
+    items: dict[str, dict[str, Any]] = {}
+    variations: list[dict[str, Any]] = []
+    for obj in objects:
+        if not isinstance(obj, dict):
+            raise SquareResponseError("square_catalog_object_must_be_object")
+        object_type = obj.get("type")
+        if object_type == "ITEM":
+            item_id = _required_nonempty_string(obj.get("id"), "square_item_id_required")
+            item_data = obj.get("item_data")
+            if not isinstance(item_data, dict):
+                raise SquareResponseError("square_item_data_required")
+            items[item_id] = item_data
+        elif object_type == "ITEM_VARIATION":
+            variations.append(obj)
+
+    records: list[dict[str, Any]] = []
+    for variation in variations:
+        external_id = _required_nonempty_string(variation.get("id"), "square_variation_id_required")
+        data = variation.get("item_variation_data")
+        if not isinstance(data, dict):
+            raise SquareResponseError("square_variation_data_required")
+        item_id = _required_nonempty_string(data.get("item_id"), "square_variation_item_id_required")
+        parent = items.get(item_id)
+        if parent is None:
+            raise SquareResponseError("square_variation_parent_missing")
+        name = _required_nonempty_string(parent.get("name"), "square_item_name_required")
+
+        record: dict[str, Any] = {
+            "schema_version": "0.1.0",
+            "entity_type": "product",
+            "id": "square:variation:" + external_id,
+            "source": {"provider": "square", "external_id": external_id},
+            "name": name,
+        }
+        for source_field, canonical_field in (("sku", "sku"), ("upc", "barcode")):
+            value = data.get(source_field)
+            if value is None:
+                continue
+            record[canonical_field] = _required_nonempty_string(
+                value, "square_variation_" + source_field + "_invalid"
+            )
+        deleted = variation.get("is_deleted")
+        if deleted is not None:
+            if not isinstance(deleted, bool):
+                raise SquareResponseError("square_variation_deleted_invalid")
+            record["active"] = not deleted
+        records.append(record)
+    return records
