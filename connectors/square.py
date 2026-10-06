@@ -24,6 +24,7 @@ SQUARE_CAPABILITIES = capability_manifest("square", {
 })
 
 Transport = Callable[[str, str, dict[str, Any]], dict[str, Any]]
+Sleeper = Callable[[float], None]
 
 
 class SquareResponseError(RuntimeError):
@@ -36,14 +37,31 @@ class SquareConnector:
     ``transport(method, path, request)`` is injected by the caller. ``request``
     contains either ``params`` or ``json`` and always includes ``api_version``.
     The connector does not own authentication and never logs transport payloads.
+
+    Square ``RATE_LIMITED`` responses are retried only for these read operations.
+    Retry count is bounded and delay is injected so tests never sleep.
     """
 
     manifest = SQUARE_CAPABILITIES
 
-    def __init__(self, transport: Transport):
+    def __init__(self, transport: Transport, *, max_retries: int = 2, sleeper: Sleeper | None = None):
         if not callable(transport):
             raise TypeError("transport_must_be_callable")
+        if not isinstance(max_retries, int) or isinstance(max_retries, bool) or max_retries < 0:
+            raise ValueError("max_retries_must_be_non_negative_integer")
+        if sleeper is not None and not callable(sleeper):
+            raise TypeError("sleeper_must_be_callable")
         self._transport = transport
+        self._max_retries = max_retries
+        self._sleeper = sleeper or (lambda _seconds: None)
+
+    @staticmethod
+    def _is_rate_limited(errors: Any) -> bool:
+        return (
+            isinstance(errors, list)
+            and bool(errors)
+            and all(isinstance(error, dict) and error.get("code") == "RATE_LIMITED" for error in errors)
+        )
 
     def _request(self, method: str, path: str, *, params=None, body=None) -> dict[str, Any]:
         request: dict[str, Any] = {"api_version": SQUARE_API_VERSION}
@@ -51,13 +69,18 @@ class SquareConnector:
             request["params"] = params
         if body is not None:
             request["json"] = body
-        response = self._transport(method, path, request)
-        if not isinstance(response, dict):
-            raise SquareResponseError("square_response_must_be_object")
-        errors = response.get("errors")
-        if errors:
+        for attempt in range(self._max_retries + 1):
+            response = self._transport(method, path, request)
+            if not isinstance(response, dict):
+                raise SquareResponseError("square_response_must_be_object")
+            errors = response.get("errors")
+            if not errors:
+                return response
+            if self._is_rate_limited(errors) and attempt < self._max_retries:
+                self._sleeper(float(2 ** attempt))
+                continue
             raise SquareResponseError("square_provider_error")
-        return response
+        raise AssertionError("unreachable_square_retry_loop")
 
     def _paginate_get(self, path: str, result_key: str, *, params=None, max_pages: int = 100) -> list[dict]:
         if max_pages < 1:
@@ -114,8 +137,6 @@ class SquareConnector:
                 max_pages=max_pages,
             )
         if operation == "sales.read":
-            # SearchOrders requires location_ids for a useful seller-wide query;
-            # obtain them from the read-only Locations API first.
             locations = self._paginate_get("/v2/locations", "locations", max_pages=max_pages)
             location_ids = [item.get("id") for item in locations if isinstance(item, dict) and item.get("id")]
             if not location_ids:

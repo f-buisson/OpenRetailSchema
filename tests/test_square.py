@@ -6,7 +6,7 @@ from tests.connector_conformance import exercise_read_connector
 
 
 class SquareConnectorTests(unittest.TestCase):
-    def connector(self, responses):
+    def connector(self, responses, **kwargs):
         calls = []
         queue = list(responses)
 
@@ -16,7 +16,7 @@ class SquareConnectorTests(unittest.TestCase):
                 raise AssertionError("unexpected_transport_call")
             return queue.pop(0)
 
-        return SquareConnector(transport), calls
+        return SquareConnector(transport, **kwargs), calls
 
     def conformance_factory(self, operation):
         if operation is None:
@@ -65,11 +65,42 @@ class SquareConnectorTests(unittest.TestCase):
         self.assertEqual(len(order_calls[0][2]["json"]["location_ids"]), 10)
         self.assertEqual(len(order_calls[1][2]["json"]["location_ids"]), 1)
 
-    def test_provider_errors_fail_closed_without_payload_echo(self):
-        connector, _ = self.connector([{"errors": [{"code": "RATE_LIMITED", "detail": "secret-like detail"}]}])
+    def test_rate_limit_retries_are_bounded_and_use_backoff(self):
+        delays = []
+        connector, calls = self.connector([
+            {"errors": [{"code": "RATE_LIMITED"}]},
+            {"errors": [{"code": "RATE_LIMITED"}]},
+            {"locations": [{"id": "location-1"}]},
+        ], max_retries=2, sleeper=delays.append)
+        self.assertEqual(connector.read("stores.read"), [{"id": "location-1"}])
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(delays, [1.0, 2.0])
+
+    def test_rate_limit_exhaustion_fails_closed_without_extra_call(self):
+        delays = []
+        connector, calls = self.connector([
+            {"errors": [{"code": "RATE_LIMITED"}]},
+            {"errors": [{"code": "RATE_LIMITED"}]},
+        ], max_retries=1, sleeper=delays.append)
+        with self.assertRaisesRegex(SquareResponseError, "square_provider_error"):
+            connector.read("stores.read")
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(delays, [1.0])
+
+    def test_non_rate_limit_provider_error_is_not_retried(self):
+        connector, calls = self.connector([
+            {"errors": [{"code": "UNAUTHORIZED", "detail": "secret-like detail"}]},
+        ], max_retries=2)
         with self.assertRaisesRegex(SquareResponseError, "square_provider_error") as raised:
             connector.read("stores.read")
+        self.assertEqual(len(calls), 1)
         self.assertNotIn("secret-like detail", str(raised.exception))
+
+    def test_invalid_retry_configuration_fails_before_transport(self):
+        with self.assertRaisesRegex(ValueError, "max_retries_must_be_non_negative_integer"):
+            SquareConnector(lambda *_args: {}, max_retries=-1)
+        with self.assertRaisesRegex(ValueError, "max_retries_must_be_non_negative_integer"):
+            SquareConnector(lambda *_args: {}, max_retries=True)
 
     def test_invalid_cursor_and_page_limit_fail_closed(self):
         connector, _ = self.connector([{"objects": [], "cursor": 123}])
