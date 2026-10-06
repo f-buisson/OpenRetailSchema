@@ -103,7 +103,7 @@ Goal: turn the experimental reader into the first evidence-backed reference POS 
 
 Goal: make additional POS integrations predictable without forcing every consumer to understand vendor-specific behavior.
 
-- [ ] Define a versioned connector capability manifest.
+- [x] Define a versioned connector capability manifest — PR #16 introduced the vendor-neutral manifest with explicit supported/unsupported declarations and unknown-by-absence semantics; local 78/78 tests passed and PR CI completed successfully before merge.
 - [ ] Define common read operations and explicit unsupported-operation behavior.
 - [ ] Define pagination, checkpoint, rate-limit and error semantics.
 - [ ] Define provenance/RAW boundaries and redaction requirements.
