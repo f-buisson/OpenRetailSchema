@@ -22,6 +22,36 @@ Authoritative references:
 - https://developer.squareup.com/reference/square/inventory-api/BatchRetrieveInventoryCounts
 - https://developer.squareup.com/docs/build-basics/general-considerations/handling-errors
 
+## Authorization, environments and event boundaries
+
+The current read surface needs only the minimum seller permissions that match the operations already implemented:
+
+| Read surface | Minimum Square permission |
+| --- | --- |
+| catalog / products | `ITEMS_READ` |
+| orders / sales source | `ORDERS_READ` |
+| locations / stores | `MERCHANT_PROFILE_READ` |
+| inventory counts | `INVENTORY_READ` |
+
+For third-party seller accounts, Square OAuth is the normal authorization model: the seller approves requested scopes, Square redirects to the registered callback, and the application exchanges the authorization code for access/refresh tokens. OpenRetailSchema does not implement that OAuth flow yet and therefore does not claim OAuth certification.
+
+Square Sandbox and production are isolated environments with different credentials and resources. Sandbox is free and permits unlimited test API calls. Square notes generically that some production API calls can depend on a seller subscription to the related Square SaaS product; no endpoint-specific paid-plan requirement has been established here for the four read operations above, so this project does not claim one.
+
+Square exposes relevant webhooks such as `catalog.version.updated`, `inventory.count.updated`, `order.created` and `order.updated`. They could support future incremental or near-real-time synchronization, but they are deliberately outside the current bounded read-only connector. Webhook delivery can be duplicated and unordered, so adding them later would require an explicit idempotency/order contract rather than simply wiring event handlers.
+
+Rate-limit evidence is similarly bounded: Square documents `429 RATE_LIMITED` and recommends exponential backoff with jitter. No numeric global request quota is asserted here because the reviewed official material does not establish one for this combined read surface.
+
+Additional authoritative references:
+
+- https://developer.squareup.com/reference/square/o-auth-api
+- https://developer.squareup.com/docs/oauth-api/square-permissions
+- https://developer.squareup.com/docs/devtools/sandbox/overview
+- https://developer.squareup.com/reference/square/enums/ErrorCategory
+- https://developer.squareup.com/docs/webhooks/overview
+- https://developer.squareup.com/reference/square/catalog-api/webhooks/catalog.version.updated
+- https://developer.squareup.com/reference/square/webhooks/inventory.count.updated
+- https://developer.squareup.com/reference/square/orders/webhooks
+
 ## Current connector boundary
 
 `connectors/square.py` is deliberately transport-injected and read-only. It has no SDK dependency, credentials, persistence, OAuth flow, webhook handling, or write operation. Canonical normalization currently exists only for products; sales, stores and inventory remain provider-level read results until their semantics are defined and tested.
