@@ -67,6 +67,18 @@ The common operations are mapped as follows:
 
 `stores.read`, `sales.read` and `inventory.read` still return provider dictionaries unchanged. `products.read` can be normalized separately with `canonical_square_products()`: `ITEM_VARIATION` is the source identity, parent `ITEM` supplies the canonical name, optional SKU/UPC/deletion state are preserved only when valid, orphan variations fail closed, and `sale_price` is deliberately omitted because integer minor units are not converted without explicit currency-exponent semantics.
 
+## Canonical completed-sale boundary
+
+The canonical sale mapper is intentionally narrower than the raw `sales.read` transport:
+
+- only orders whose Square state is `COMPLETED` are emitted;
+- the canonical occurrence time is Square `closed_at`, the documented terminal-state timestamp;
+- each emitted line requires a Square line `uid`, `catalog_object_id` (CatalogItemVariation) and positive decimal `quantity`;
+- order and line money fields are not emitted yet because Square Money uses integer minor units and this connector has no currency-exponent conversion contract;
+- an order carrying a non-empty `returns` collection fails closed instead of being mislabeled as a pure sale.
+
+This last boundary is deliberate. Square `OrderReturn` provides return itemization but no return-event timestamp of its own, while canonical v0.1 refunds require `occurred_at`. The parent order's `updated_at` is not substituted because that would turn a generic last-modified timestamp into an invented refund occurrence time. A later refund lot must establish an authoritative event-time source and itemization link before `sale_kind: refund` is emitted.
+
 ## Safety and evidence rules
 
 Tests use fabricated responses only. Provider error details are not echoed by the connector exception. Cursor type, page bounds, retry exhaustion, malformed product fields and orphan variations fail closed. PR #24 merged after the public test workflow passed on its exact head. A future live test must use an authorized Square sandbox or seller account and record only non-sensitive evidence.

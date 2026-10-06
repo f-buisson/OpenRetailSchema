@@ -9,6 +9,8 @@ missing provider values remain absent rather than becoming zero or empty strings
 from __future__ import annotations
 
 from collections.abc import Callable
+from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from connectors.capabilities import capability_manifest
@@ -214,4 +216,92 @@ def canonical_square_products(objects: list[dict[str, Any]]) -> list[dict[str, A
                 raise SquareResponseError("square_variation_deleted_invalid")
             record["active"] = not deleted
         records.append(record)
+    return records
+
+
+def _required_timestamp(value: Any, code: str) -> str:
+    value = _required_nonempty_string(value, code)
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        raise SquareResponseError(code) from None
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise SquareResponseError(code)
+    return value
+
+
+def _required_positive_quantity(value: Any, code: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise SquareResponseError(code)
+    try:
+        quantity = Decimal(value)
+    except InvalidOperation:
+        raise SquareResponseError(code) from None
+    if not quantity.is_finite() or quantity <= 0:
+        raise SquareResponseError(code)
+    return format(quantity, "f")
+
+
+def canonical_square_sales(orders: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Map completed Square sale orders to canonical v0.1 sale records.
+
+    Only terminal COMPLETED orders without itemized returns are emitted. Square
+    line-item quantity and CatalogItemVariation identity map directly to fields
+    whose semantics are explicit in the canonical contract. Money is deliberately
+    omitted because Square Money uses integer minor units and this connector does
+    not yet own a currency-exponent conversion contract.
+
+    An order carrying `returns` fails closed. OrderReturn has itemization but no
+    event timestamp of its own, while the canonical refund record requires
+    `occurred_at`; using the parent order's `updated_at` would invent semantics.
+    """
+    if not isinstance(orders, list):
+        raise SquareResponseError("square_orders_must_be_array")
+
+    records: list[dict[str, Any]] = []
+    for order in orders:
+        if not isinstance(order, dict):
+            raise SquareResponseError("square_order_must_be_object")
+        if order.get("state") != "COMPLETED":
+            continue
+        returns = order.get("returns")
+        if returns not in (None, []):
+            if not isinstance(returns, list):
+                raise SquareResponseError("square_order_returns_must_be_array")
+            raise SquareResponseError("square_order_returns_not_normalized")
+
+        external_id = _required_nonempty_string(order.get("id"), "square_order_id_required")
+        location_id = _required_nonempty_string(order.get("location_id"), "square_order_location_required")
+        occurred_at = _required_timestamp(order.get("closed_at"), "square_order_closed_at_required")
+        source_lines = order.get("line_items")
+        if not isinstance(source_lines, list) or not source_lines:
+            raise SquareResponseError("square_order_lines_required")
+
+        lines: list[dict[str, Any]] = []
+        for line in source_lines:
+            if not isinstance(line, dict):
+                raise SquareResponseError("square_order_line_must_be_object")
+            line_uid = _required_nonempty_string(line.get("uid"), "square_order_line_uid_required")
+            product_id = _required_nonempty_string(
+                line.get("catalog_object_id"), "square_order_line_product_required"
+            )
+            quantity = _required_positive_quantity(
+                line.get("quantity"), "square_order_line_quantity_required"
+            )
+            lines.append({
+                "id": "square:line:" + external_id + ":" + line_uid,
+                "source_product_id": product_id,
+                "quantity": quantity,
+            })
+
+        records.append({
+            "schema_version": "0.1.0",
+            "entity_type": "sale",
+            "id": "square:order:" + external_id,
+            "source": {"provider": "square", "external_id": external_id},
+            "store_id": location_id,
+            "occurred_at": occurred_at,
+            "sale_kind": "sale",
+            "lines": lines,
+        })
     return records
