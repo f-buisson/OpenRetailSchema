@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-OFFICIAL-BOUNDARIES-01
+- Work ID: P4-SQUARE-SALE-NORMALIZATION-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
 - State: REVIEW
-- Base product HEAD: dfe5cfa24256dc6dd15ec03b1bd526e18ed7c71e.
-- Scope: complete the current official-evidence review for Square scopes, pagination, access requirements, webhook relevance, rate-limit guidance and any documented plan restrictions. Do not add persistence, write operations or speculative abstractions.
-- Acceptance: every statement added to `docs/SQUARE.md` is backed by current public Square documentation; unsupported or irrelevant surfaces are explicit; the roadmap criterion is checked only if its full wording is evidenced.
-- Evidence required: current official links and a documentation-only review against the merged Square read surface.
-- Evidence produced: current Square OAuth/scopes, Sandbox/production separation, 429 guidance and webhook boundaries were re-checked against official documentation on 2026-10-06 and recorded without claiming live or OAuth certification. PR #24 remains accepted separately: exact head `ad79607bd04f3573cb5ab4aa368ac88d6e5df5a3` passed workflow run `37484603967` and merged as `dfe5cfa24256dc6dd15ec03b1bd526e18ed7c71e`.
-- Next action: require the documentation PR to pass on its exact HEAD, merge it, then refresh `main` and hand off the next independent P4 lot: conservative Square order/return normalization.
+- Base product HEAD: b9f6ad6843b2bee9bc4de81c0eef434bb78ec4ca.
+- Scope: normalize only Square orders whose semantics are sufficient for canonical v0.1 sales. Do not invent money conversion, refund timestamps or custom-product identity.
+- Acceptance: non-completed orders are not emitted; completed orders use `closed_at`; each line requires a Square line UID, CatalogItemVariation ID and positive decimal quantity; Square minor-unit money stays absent; return-bearing orders fail closed instead of being mislabeled as sales.
+- Evidence required: targeted Square tests plus complete public PR CI on the exact branch HEAD.
+- Evidence produced: implementation and synthetic positive/negative tests committed; official Square Order and OrderReturn semantics re-checked on 2026-10-06. The review established that `OrderReturn` lacks the event timestamp required for canonical refund `occurred_at`, so refund normalization remains a separate incomplete roadmap item.
+- Next action: require CI on the exact PR HEAD, repair any regression/schema mismatch, and merge only after green proof.
 
 ## Handoff discipline
 
