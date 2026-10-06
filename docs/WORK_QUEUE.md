@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-REFUND-NORMALIZATION-01
+- Work ID: P4-SQUARE-PAGINATION-SAFETY-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
 - State: REVIEW
-- Base product HEAD: f63b00dc0db3ba5cedf503f77095bfba389df94b.
-- Scope: normalize only unambiguous completed Square refunds by combining PaymentRefund event time with OrderReturn itemization. Do not invent money conversion or allocation across multiple completed refunds.
-- Acceptance: PaymentRefund.created_at is the canonical occurrence time; PaymentRefund.order_id links to the refund order; each returned line requires source order/line identity, CatalogItemVariation ID and positive quantity; multiple completed refunds for one return order fail closed; money remains absent.
-- Evidence required: targeted Square refund tests, complete local regression suite, and public PR CI on the exact branch HEAD.
-- Evidence produced: official Square Refunds/Orders documentation re-checked on 2026-10-06; targeted Square tests passed 16/16 and complete local suite passed 111/111 on the branch after the schema-safe source-link fix.
-- Next action: open/review the PR, require CI on the exact PR HEAD, repair any regression, and merge only after green proof.
+- Base product HEAD: a46432bb491dcc851dea80773b5e3ef6c06dff8b.
+- Scope: lock the existing Square GET/POST pagination page budget into regression tests so a repeated provider cursor cannot cause unbounded transport calls. Do not change provider semantics or claim live evidence.
+- Acceptance: repeated GET and POST cursors stop at the configured `max_pages`; `max_pages=1` performs exactly one transport call; cursor propagation remains explicit.
+- Evidence required: targeted pagination-safety tests plus the complete public PR CI on the exact branch HEAD.
+- Evidence produced: implementation inspection confirms both Square pagination paths are bounded by `max_pages`; dedicated synthetic regression tests cover GET, POST and the one-page edge case. No local test execution is claimed for this lot.
+- Next action: require public PR CI on the exact branch HEAD, repair any regression, and merge only after green proof.
 
 ## Handoff discipline
 
