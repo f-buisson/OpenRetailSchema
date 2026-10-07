@@ -141,7 +141,7 @@ Goal: expand only where official documentation and testable access justify imple
 Goal: make the project safe and useful for independent consumers without creating speculative infrastructure.
 
 - [x] Complete useful French translations while keeping English canonical — the French core now covers overview, CSV, POS evidence, contribution rules, connector execution and adapter selection; English remains canonical for specifications, architecture and roadmap.
-- [ ] Review contribution provenance and Apache-2.0 compatibility for accepted contributions.
+- [x] Review contribution provenance and Apache-2.0 compatibility for accepted contributions — `docs/PROVENANCE.md` records the 2026-10-07 baseline: all 237 repository commits and all 36 historical PRs are attributable to `f-buisson`, no third-party source is vendored, direct repository/tooling dependencies are permissively licensed, and future incorporated material has an explicit provenance/licence review gate.
 - [ ] Publish migration guarantees and a versioning policy suitable for 1.0 planning.
 - [ ] Add an SDK only when repeated consumer code demonstrates a stable need.
 - [ ] Add a service API only when a real deployment use case justifies operational complexity.

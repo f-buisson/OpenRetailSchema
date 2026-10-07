@@ -34,6 +34,8 @@ Use the repository pull-request template. State the exact provider/product/versi
 
 For contributed code or fixtures, state provenance and licensing clearly. Do not paste or adapt private project source, restricted vendor material, or third-party code unless its license is compatible with Apache-2.0 and the required notices are preserved. When a mapping is uncertain, leave it unsupported or unknown rather than converting absence into zero or inventing timezone, tax, refund, or pagination semantics.
 
+The repository-wide provenance baseline and the review checklist for future third-party material are recorded in [docs/PROVENANCE.md](docs/PROVENANCE.md).
+
 Run the relevant local commands and report exactly what was executed. The public `Tests` workflow also runs on pull requests to `main` and repeats the repository unit suite; a green workflow proves repository regression status only, not live provider access or connector certification.
 
 Report security concerns privately using the contact in [SECURITY.md](SECURITY.md), not a public issue.
