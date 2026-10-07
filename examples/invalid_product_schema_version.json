@@ -1,0 +1,16 @@
+{
+  "schema_version": "0.2.0",
+  "entity_type": "product",
+  "id": "synthetic:future-schema-version",
+  "source": {
+    "provider": "synthetic",
+    "external_id": "future-schema-version"
+  },
+  "store_id": "store_demo",
+  "sku": "SKU-FUTURE",
+  "name": "Synthetic future schema item",
+  "sale_price": {
+    "amount": "2.49",
+    "currency": "EUR"
+  }
+}

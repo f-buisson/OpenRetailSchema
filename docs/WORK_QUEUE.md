@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P5-PROVENANCE-01
+- Work ID: P5-VERSIONING-01
 - Roadmap phase: P5 — Adoption and stable evolution
 - State: REVIEW
-- Base product HEAD: 3e4fac1857f07524418b570e85fab36ac3a56449.
-- Scope: establish a reproducible repository provenance/licensing baseline and a review gate for any future incorporated third-party material.
-- Acceptance: complete commit and PR history are checked for accepted contributors; vendored/generated third-party source is searched; direct Python and CI dependencies have upstream licences recorded; external references remain references rather than copied source; future third-party code/fixtures require source, exact version, licence compatibility and preserved notices before merge.
-- Evidence required: repository history/tree/code-search review plus upstream licence checks and normal public PR checks on the exact branch HEAD.
-- Evidence produced: 237/237 commits and 36/36 historical PRs are attributable to `f-buisson`; the 88-entry tree contains no vendored/third-party/generated source area; `jsonschema`, `actions/checkout` and `actions/setup-python` use permissive MIT terms upstream; named external SDK/connectors appear only in the research-reference document.
-- Next action: require normal PR checks, merge only if green, then move to the P5 migration/versioning-policy criterion.
+- Base product HEAD: 639400e8a829dee0a06bc2efc18384eaa2877dba.
+- Scope: publish a migration/versioning policy grounded in the released v0.1 schema and implemented connector manifest, plus lock fail-closed handling of an unknown canonical schema version.
+- Acceptance: repository/schema/manifest/provider versions remain independent; pre-1.0 breaking changes create new versioned contracts; historical schema meaning is stable; migration notes distinguish lossless, lossy and unsupported conversion; closed-schema additions are not falsely called compatible; adding a mandatory common connector operation is a manifest break; 1.0 mechanics are documented without declaring readiness.
+- Evidence required: targeted unknown-schema-version regression plus complete public PR checks on the exact branch HEAD.
+- Evidence produced: versioning/migration policy, compatibility/architecture alignment and a synthetic `0.2.0` product fixture that the current `0.1.0` validator must reject.
+- Next action: run the targeted test and full public PR suite, merge only if green, then reassess remaining P5 work without creating speculative SDK/service infrastructure.
 
 ## Handoff discipline
 

@@ -66,6 +66,8 @@ The CSV example is synthetic. The Loyverse connector remains experimental until 
 - [Guide CSV en français](docs/fr/CSV.md)
 - [French POS contribution overview / Intégrations POS en français](docs/fr/POS.md)
 - [Architecture and source-data principles](docs/ARCHITECTURE.md)
+- [Compatibility policy](docs/COMPATIBILITY.md)
+- [Versioning and migration guarantees](docs/VERSIONING.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)
 
