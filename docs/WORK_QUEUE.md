@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-POS-DOC-CLOVER-01
+- Work ID: P4-POS-DOC-ODOO-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
 - State: REVIEW
-- Base product HEAD: aee4ce5af7d2d49aba9d17d953e9f0c78fd99a65.
-- Scope: continue the official-provider review with Clover without starting another adapter; capture only public auth, permissions, pagination/completeness, rate-limit, timestamp and history-boundary facts that future connector work can safely depend on.
-- Acceptance: sandbox and production auth are distinct; least-privilege data permissions are explicit; top-level pagination and nested expansion limits are recorded; request/concurrency limits and 429 behavior are traceable; millisecond timestamps and order-query history boundaries cannot be mistaken for absence.
+- Base product HEAD: d52b1d5bcc80bdcabdf38fec224bdbd90fa4c7de.
+- Scope: continue the official-provider review with Odoo 19 without starting another adapter; capture only public JSON-2 access, authentication, model-discovery, security and pagination facts that future connector work can safely depend on.
+- Acceptance: JSON-2 is the current target; Custom-plan eligibility and bearer-key rotation are explicit; database-specific `/doc` discovery prevents a false universal POS schema; access rights/record rules remain authoritative; offset/limit pagination is documented without inventing a provider cursor or undocumented ceiling; no live/provider evidence or connector support is claimed.
 - Evidence required: documentation diff review plus normal public PR checks on the exact branch HEAD.
-- Evidence produced: official Clover REST usage, OAuth, permissions, sandbox token, pagination, rate-limit, timestamp and order references reviewed on 2026-10-06; no account, token, merchant payload or connector execution used.
-- Next action: require normal PR checks, merge only if green, then continue the P4 evidence cycle with Odoo rather than implementing Clover until authorized sandbox access and synthetic canonical mappings justify it.
+- Evidence produced: official Odoo 19 JSON-2, ORM search/read, legacy RPC migration and Point of Sale product documentation reviewed on 2026-10-07; no database, API key, provider payload or connector execution used.
+- Next action: require normal PR checks, merge only if green, then continue the P4 evidence cycle with Epos Now rather than implementing Odoo until authorized Custom-plan access and synthetic canonical mappings justify it.
 
 ## Handoff discipline
 
