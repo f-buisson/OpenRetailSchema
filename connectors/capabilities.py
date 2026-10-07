@@ -16,13 +16,23 @@ def validate_capability_manifest(manifest: dict) -> None:
     if manifest.get("manifest_version") != CAPABILITY_MANIFEST_VERSION:
         raise ValueError("unsupported_capability_manifest_version")
     provider = manifest.get("provider")
-    if not isinstance(provider, str) or not provider.strip() or provider != provider.lower():
+    if (
+        not isinstance(provider, str)
+        or not provider.strip()
+        or provider != provider.strip()
+        or provider != provider.lower()
+    ):
         raise ValueError("invalid_capability_provider")
     capabilities = manifest.get("capabilities")
     if not isinstance(capabilities, dict) or not capabilities:
         raise ValueError("capabilities_must_be_non_empty_object")
     for name, declaration in capabilities.items():
-        if not isinstance(name, str) or "." not in name or name != name.lower():
+        if (
+            not isinstance(name, str)
+            or "." not in name
+            or name != name.strip()
+            or name != name.lower()
+        ):
             raise ValueError("invalid_capability_name")
         if not isinstance(declaration, dict) or set(declaration) != {"support"}:
             raise ValueError("invalid_capability_declaration")
