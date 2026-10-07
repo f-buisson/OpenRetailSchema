@@ -12,7 +12,7 @@ Last reviewed: **2026-10-06**.
 | [Square](https://developer.squareup.com/reference/square) | Orders, catalog, inventory and OAuth APIs documented. | Synthetic-tested read-only stores/products/sales/inventory adapter on the shared connector contract; product, completed-sale and unambiguous-refund normalization; no live/Sandbox certification. | Authorized Sandbox or seller-account connector run. |
 | [Shopify](https://shopify.dev/docs/api/admin-graphql/latest) | GraphQL Admin API documents products, inventory, locations and orders. New public apps must use GraphQL Admin rather than legacy REST. | None. | Prove a safe POS-origin/order mapping and required scopes before proposing an adapter; do not assume all Admin orders are POS sales. |
 | [Lightspeed Retail X-Series](https://x-series-api.lightspeedhq.com/docs/introduction) | Date-versioned HTTP/JSON API with OAuth 2.0 Authorization Code and Plus-plan personal tokens; products, sales, outlets and inventory have explicit read scopes. | None. | Authorized test-store access plus synthetic product/sale/outlet/inventory mappings before proposing an adapter. |
-| [Clover](https://docs.clover.com/dev/docs/making-rest-api-calls) | REST API documents inventory, orders and payments; test-merchant sandbox and OAuth are available. | None. | Synthetic inventory/order payloads, permissions and time-unit mapping. |
+| [Clover](https://docs.clover.com/dev/docs/making-rest-api-calls) | REST API documents inventory, orders and payments; sandbox test tokens and production OAuth are distinct, with explicit read/write permissions. | None. | Authorized sandbox run plus synthetic inventory/order/payment mappings before proposing an adapter. |
 | [Odoo](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html) | Odoo 19 documents the external JSON-2 API, subject to **Custom-plan access**; exact POS models vary by database. | None. | Validate accessible POS models and provide synthetic export mappings. |
 | [Epos Now](https://developer.eposnowhq.com/Docs/Authentication) | Official developer documentation describes API-key/secret authentication for an API device. | None. | Public product/order endpoints, access requirements, security behavior and synthetic exports. |
 | NCR Voyix / StoreLine | **Not independently verified:** access to one NCR Voyix product does not establish an open StoreLine API or permission to use it. | None. | Publicly shareable integration documentation or an authorized, redacted export specification first. |
@@ -49,6 +49,22 @@ This is a **documentation review only**. No Lightspeed account, token, payload o
 Official sources reviewed: [Introduction](https://x-series-api.lightspeedhq.com/docs/introduction), [Authorization](https://x-series-api.lightspeedhq.com/docs/authorization), [OAuth scopes](https://x-series-api.lightspeedhq.com/v2026.04/docs/scopes), [Pagination](https://x-series-api.lightspeedhq.com/v2026.01/docs/pagination), [Rate limiting](https://x-series-api.lightspeedhq.com/v1.0/docs/rate_limiting), [Products](https://x-series-api.lightspeedhq.com/reference/listproducts), and [Sales](https://x-series-api.lightspeedhq.com/reference/listsales).
 
 **Adapter decision:** deferred pending authorized test-store access and synthetic canonical mapping evidence. The public contract is strong enough to define a future read-only adapter, but documentation alone is not connector certification.
+
+## Clover evidence review — 2026-10-06
+
+This is a **documentation review only**. No Clover account, token, merchant payload or OpenRetailSchema connector was exercised.
+
+- Clover separates sandbox and production credentials. Sandbox test merchants can use merchant-specific test API tokens; production web apps use OAuth, and the current v2/OAuth flow issues expiring access/refresh token pairs.
+- Permissions are configured per data category and Read/Write direction. A future read-only adapter must request only the resource reads it actually needs; permission changes can require merchants, including test merchants, to reinstall the app.
+- Top-level REST collections use offset/limit pagination. The documented default is 100 records and the hard limit is 1000; nested expanded fields are not pageable and can be truncated to their first 100 records, so a connector must not treat an expanded nested collection as complete without endpoint-specific evidence.
+- Published REST limits are 50 new requests/s per app and 16/s per token, plus concurrent limits of 10 per app and 5 per token. HTTP 429 is the rate-limit signal; concurrent-limit responses include `retry-after`, and Clover documents exponential backoff after repeated 429s.
+- Clover timestamps are milliseconds since the Unix epoch. They must be converted explicitly; milliseconds must never be interpreted as seconds.
+- Order retrieval has entitlement/query-window boundaries. The v3 order reference documents 90-day restrictions for several filtered searches, while Clover recommends time-windowed queries for larger histories. This must be represented as an access/query boundary, not as an empty history.
+- Orders can expand payments, refunds and line items, but expanded/nested data inherits the pagination-completeness warning above. A future canonical sale mapper must therefore fetch or prove complete itemization rather than silently accepting truncation.
+
+Official sources reviewed: [REST API usage](https://docs.clover.com/dev/docs/making-rest-api-calls), [v2/OAuth](https://docs.clover.com/dev/docs/use-oauth), [app permissions](https://docs.clover.com/dev/docs/permissions), [sandbox test tokens](https://docs.clover.com/dev/docs/using-api-tokens), [pagination](https://docs.clover.com/dev/docs/paginating-elements), [rate limits](https://docs.clover.com/dev/docs/api-usage-rate-limits), [timestamp conversion](https://docs.clover.com/dev/docs/convert-timestamps-to-unix-time), and [orders](https://docs.clover.com/dev/reference/ordergetorders).
+
+**Adapter decision:** deferred pending authorized sandbox access and synthetic canonical mapping evidence. The public contract is sufficient to design a bounded read-only adapter, but documentation alone is not connector certification.
 
 ## Loyverse capability declaration
 
