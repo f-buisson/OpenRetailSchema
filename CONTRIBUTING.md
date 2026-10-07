@@ -30,8 +30,10 @@ Add at least one regression fixture for behavior changes. Avoid writing vendor-s
 
 ## Pull requests
 
-Describe what changed, why it is necessary, which schema version it affects, what was tested locally, and any missing vendor capabilities or security implications. Maintainers may request evidence or tests before accepting an integration.
+Use the repository pull-request template. State the exact provider/product/version when vendor-specific, link the official sources used, and keep evidence levels separate: **documented**, **synthetic-tested**, **externally tested**, and **live-tested in this repository** are not interchangeable.
 
-No hosted GitHub Actions are configured for this project. Local validation is the reference process until an explicitly approved CI policy exists.
+For contributed code or fixtures, state provenance and licensing clearly. Do not paste or adapt private project source, restricted vendor material, or third-party code unless its license is compatible with Apache-2.0 and the required notices are preserved. When a mapping is uncertain, leave it unsupported or unknown rather than converting absence into zero or inventing timezone, tax, refund, or pagination semantics.
+
+Run the relevant local commands and report exactly what was executed. The public `Tests` workflow also runs on pull requests to `main` and repeats the repository unit suite; a green workflow proves repository regression status only, not live provider access or connector certification.
 
 Report security concerns privately using the contact in [SECURITY.md](SECURITY.md), not a public issue.
