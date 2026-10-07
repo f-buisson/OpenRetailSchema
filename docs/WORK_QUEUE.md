@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P5-FR-CORE-GUIDES-01
+- Work ID: P5-PROVENANCE-01
 - Roadmap phase: P5 — Adoption and stable evolution
 - State: REVIEW
-- Base product HEAD: 935759d7a6e601ffc91b0dc25c67272190379457.
-- Scope: align the useful French documentation with current repository behavior while keeping English canonical; translate connector execution and adapter selection, and repair stale POS/contribution guidance.
-- Acceptance: French POS guidance uses the four evidence levels; Square's synthetic status is current; contribution guidance reflects provenance rules and public CI; connector execution and adapter selection have faithful French guides; English remains the authority for specifications, architecture and roadmap.
-- Evidence required: translation diff review plus normal public PR checks on the exact branch HEAD.
-- Evidence produced: two new core French guides and aligned French overview/POS/contribution pages; no schema, connector or runtime behavior changes.
-- Next action: require normal PR checks, merge only if green, then move to P5 contribution provenance/Apache-2.0 review.
+- Base product HEAD: 3e4fac1857f07524418b570e85fab36ac3a56449.
+- Scope: establish a reproducible repository provenance/licensing baseline and a review gate for any future incorporated third-party material.
+- Acceptance: complete commit and PR history are checked for accepted contributors; vendored/generated third-party source is searched; direct Python and CI dependencies have upstream licences recorded; external references remain references rather than copied source; future third-party code/fixtures require source, exact version, licence compatibility and preserved notices before merge.
+- Evidence required: repository history/tree/code-search review plus upstream licence checks and normal public PR checks on the exact branch HEAD.
+- Evidence produced: 237/237 commits and 36/36 historical PRs are attributable to `f-buisson`; the 88-entry tree contains no vendored/third-party/generated source area; `jsonschema`, `actions/checkout` and `actions/setup-python` use permissive MIT terms upstream; named external SDK/connectors appear only in the research-reference document.
+- Next action: require normal PR checks, merge only if green, then move to the P5 migration/versioning-policy criterion.
 
 ## Handoff discipline
 
