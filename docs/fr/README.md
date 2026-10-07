@@ -1,6 +1,6 @@
 # OpenRetailSchema — présentation
 
-[English (canonical documentation)](../../README.md) · [Import CSV](CSV.md) · [Intégrations POS et contributions](POS.md) · [Architecture (EN)](../ARCHITECTURE.md) · [Roadmap (EN)](../ROADMAP.md) · [Contribuer (EN)](../../CONTRIBUTING.md) · [Apache 2.0](../../LICENSE)
+[English (canonical documentation)](../../README.md) · [Import CSV](CSV.md) · [Intégrations POS et contributions](POS.md) · [Exécution des connecteurs](CONNECTOR_EXECUTION.md) · [Sélection des adaptateurs](ADAPTER_SELECTION.md) · [Architecture (EN)](../ARCHITECTURE.md) · [Roadmap (EN)](../ROADMAP.md) · [Contribuer](CONTRIBUTING.md) · [Apache 2.0](../../LICENSE)
 
 **Un schéma commun, indépendant des éditeurs, pour faciliter l’intégration des logiciels de caisse (POS).**
 
@@ -21,13 +21,13 @@ OpenRetailSchema vise à permettre à plusieurs applications d’exploiter les d
 
 Nous recherchons de la [documentation officielle, des correspondances de champs et des exemples fictifs](POS.md) pour d'autres POS. Ne publiez jamais de jeton, d'export réel ou de données clients dans une issue.
 
-### Premières étapes
+### État des principales briques
 
-1. Contrat JSON commun et validation locale.
-2. Premier import CSV d'articles disponible, avec mapping explicite et [guide pratique](CSV.md) ; ventes et stocks restent à développer.
-3. Lecteur Loyverse expérimental en lecture seule déjà ajouté, avec tests synthétiques ; validation indépendante sur compte autorisé encore nécessaire.
-4. Étude d’un connecteur StoreLine sur la base d’interfaces effectivement accessibles et autorisées.
-5. SDK, API facultative et contributions de la communauté.
+1. Contrat JSON commun v0.1 publié et validation locale disponible.
+2. Import CSV d'articles disponible, avec mapping explicite et [guide pratique](CSV.md).
+3. Connecteur Loyverse expérimental en lecture seule couvert par des tests synthétiques ; validation directe sur compte autorisé encore nécessaire.
+4. Connecteur Square en lecture seule déjà présent et testé synthétiquement pour les surfaces principales ; test Sandbox ou vendeur autorisé encore nécessaire.
+5. Les futurs connecteurs passent par une [grille de sélection explicite](ADAPTER_SELECTION.md) avant tout développement ; StoreLine reste différé tant que son interface exacte et son autorisation ne sont pas établies.
 
 ### Essayer le validateur
 

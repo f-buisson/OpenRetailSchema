@@ -140,7 +140,7 @@ Goal: expand only where official documentation and testable access justify imple
 
 Goal: make the project safe and useful for independent consumers without creating speculative infrastructure.
 
-- [ ] Complete useful French translations while keeping English canonical.
+- [x] Complete useful French translations while keeping English canonical — the French core now covers overview, CSV, POS evidence, contribution rules, connector execution and adapter selection; English remains canonical for specifications, architecture and roadmap.
 - [ ] Review contribution provenance and Apache-2.0 compatibility for accepted contributions.
 - [ ] Publish migration guarantees and a versioning policy suitable for 1.0 planning.
 - [ ] Add an SDK only when repeated consumer code demonstrates a stable need.

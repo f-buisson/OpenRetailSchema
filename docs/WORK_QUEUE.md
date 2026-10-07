@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-ADAPTER-SELECTION-GATE-01
-- Roadmap phase: P4 — Square next, then evidence-backed adapters
+- Work ID: P5-FR-CORE-GUIDES-01
+- Roadmap phase: P5 — Adoption and stable evolution
 - State: REVIEW
-- Base product HEAD: cdc9755b30df3672e66dc0fa10a451dde6bae625.
-- Scope: turn the later-adapter policy into a reproducible decision gate and compare all reviewed providers without starting new connector code.
-- Acceptance: provider selection requires exact official surface, authorized access path, bounded execution semantics, canonical-semantic confidence, synthetic reproducibility and manageable maintenance cost; current candidates are compared with named missing proof; no provider is promoted solely because documentation exists.
-- Evidence required: decision-record review plus normal public PR checks on the exact branch HEAD.
-- Evidence produced: the selection record keeps Square as the active certification path, selects no additional adapter, and names Clover only as the first future re-evaluation candidate after authorized sandbox evidence and fabricated mappings.
-- Next action: require normal PR checks, merge only if green, then the remaining P4 work is external Square certification and the explicitly deferred StoreLine interface proof; do not start another adapter without new evidence.
+- Base product HEAD: 935759d7a6e601ffc91b0dc25c67272190379457.
+- Scope: align the useful French documentation with current repository behavior while keeping English canonical; translate connector execution and adapter selection, and repair stale POS/contribution guidance.
+- Acceptance: French POS guidance uses the four evidence levels; Square's synthetic status is current; contribution guidance reflects provenance rules and public CI; connector execution and adapter selection have faithful French guides; English remains the authority for specifications, architecture and roadmap.
+- Evidence required: translation diff review plus normal public PR checks on the exact branch HEAD.
+- Evidence produced: two new core French guides and aligned French overview/POS/contribution pages; no schema, connector or runtime behavior changes.
+- Next action: require normal PR checks, merge only if green, then move to P5 contribution provenance/Apache-2.0 review.
 
 ## Handoff discipline
 
