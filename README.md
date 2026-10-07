@@ -75,7 +75,7 @@ The CSV example is synthetic. The Loyverse connector remains experimental until 
 
 Issues and pull requests are welcome, particularly schema design reviews and reproducible synthetic vendor samples. See [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a connector. Do not post access tokens or real customer transaction data in issues.
 
-This repository does not require GitHub Actions. Validation may be run locally without any hosted CI service.
+Local validation remains fully supported. The public `Tests` workflow also runs on pull requests and `main` to repeat the unit suite; CI success does not certify live vendor access.
 
 ---
 
