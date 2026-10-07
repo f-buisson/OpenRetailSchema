@@ -4,7 +4,7 @@
 
 **Capability and evidence status are separate.** An official API existing, an API being exercised in another application, and an OpenRetailSchema connector being released are three different claims.
 
-Last reviewed: **2026-10-06**.
+Last reviewed: **2026-10-07**.
 
 | Platform | Public interface evidenced | Independent OpenRetailSchema connector | Next contribution |
 | --- | --- | --- | --- |
@@ -13,7 +13,7 @@ Last reviewed: **2026-10-06**.
 | [Shopify](https://shopify.dev/docs/api/admin-graphql/latest) | GraphQL Admin API documents products, inventory, locations and orders. New public apps must use GraphQL Admin rather than legacy REST. | None. | Prove a safe POS-origin/order mapping and required scopes before proposing an adapter; do not assume all Admin orders are POS sales. |
 | [Lightspeed Retail X-Series](https://x-series-api.lightspeedhq.com/docs/introduction) | Date-versioned HTTP/JSON API with OAuth 2.0 Authorization Code and Plus-plan personal tokens; products, sales, outlets and inventory have explicit read scopes. | None. | Authorized test-store access plus synthetic product/sale/outlet/inventory mappings before proposing an adapter. |
 | [Clover](https://docs.clover.com/dev/docs/making-rest-api-calls) | REST API documents inventory, orders and payments; sandbox test tokens and production OAuth are distinct, with explicit read/write permissions. | None. | Authorized sandbox run plus synthetic inventory/order/payment mappings before proposing an adapter. |
-| [Odoo](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html) | Odoo 19 documents the external JSON-2 API, subject to **Custom-plan access**; exact POS models vary by database. | None. | Validate accessible POS models and provide synthetic export mappings. |
+| [Odoo](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html) | Odoo 19 JSON-2 is available on Custom plans; bearer API keys, database-specific models/fields/methods and standard access rules apply. | None. | Verify the actual POS model surface from an authorized database `/doc` page and provide synthetic read-only mappings before proposing an adapter. |
 | [Epos Now](https://developer.eposnowhq.com/Docs/Authentication) | Official developer documentation describes API-key/secret authentication for an API device. | None. | Public product/order endpoints, access requirements, security behavior and synthetic exports. |
 | NCR Voyix / StoreLine | **Not independently verified:** access to one NCR Voyix product does not establish an open StoreLine API or permission to use it. | None. | Publicly shareable integration documentation or an authorized, redacted export specification first. |
 | Other POS platforms | Open for proposals. | None. | [Open a POS connector request](https://github.com/f-buisson/OpenRetailSchema/issues/new/choose). |
@@ -66,6 +66,22 @@ Official sources reviewed: [REST API usage](https://docs.clover.com/dev/docs/mak
 
 **Adapter decision:** deferred pending authorized sandbox access and synthetic canonical mapping evidence. The public contract is sufficient to design a bounded read-only adapter, but documentation alone is not connector certification.
 
+## Odoo 19 evidence review — 2026-10-07
+
+This is a **documentation review only**. No Odoo database, API key, payload or OpenRetailSchema connector was exercised.
+
+- Odoo 19 introduces the external JSON-2 API at `POST /json/2/<model>/<method>` and authenticates requests with a bearer API key. New OpenRetailSchema work should target JSON-2 rather than start a legacy XML-RPC/JSON-RPC integration; those older RPC endpoints are scheduled for removal in Odoo 22.
+- External API data access is available only on the **Custom** Odoo pricing plan, not One App Free or Standard. A future connector must treat plan eligibility as an access prerequisite, never as an empty dataset.
+- The actual models, fields and methods exposed by JSON-2 are specific to each database and can be inspected on that database's `/doc` page. OpenRetailSchema must therefore verify the installed Point of Sale model surface on an authorized database before claiming a portable product, sale or inventory mapping.
+- JSON-2 uses Odoo's normal access rights, record rules and field access controls. A future read-only integration should use a dedicated service user with only the permissions required by the declared connector capabilities.
+- Manually created API keys have explicit lifetimes and cannot last more than three months, so credential rotation is part of the access contract rather than an exceptional recovery path.
+- Odoo ORM search operations expose `offset`, `limit` and `order`. A future reader may paginate with bounded offset/limit windows, but it should specify deterministic ordering and must not invent a provider cursor or global page-size ceiling that the documentation does not define.
+- Point of Sale product documentation confirms that products, variants and stock are part of the POS domain, but the public external-API contract does not by itself prove a fixed cross-database technical model/field mapping for POS sales.
+
+Official sources reviewed: [External JSON-2 API](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html), [ORM search/read](https://www.odoo.com/documentation/19.0/developer/reference/backend/orm.html), [legacy RPC migration notice](https://www.odoo.com/documentation/19.0/developer/reference/external_rpc_api.html), and [Point of Sale products](https://www.odoo.com/documentation/19.0/applications/sales/point_of_sale/products.html).
+
+**Adapter decision:** deferred pending an authorized Custom-plan database, inspection of its `/doc` model surface and synthetic canonical mappings. Documentation is sufficient to define safe access boundaries, but not to claim a universal Odoo POS schema or connector certification.
+
 ## Loyverse capability declaration
 
 This table describes the connector code currently present in this repository. **Synthetic-tested** means fabricated responses exercise repository behavior; it does not mean the OpenRetailSchema connector has been run against a live Loyverse account.
@@ -100,12 +116,12 @@ Crucial observed behaviors that OpenRetailSchema must preserve in regression tes
 
 - 10 product prices and 42 stock readings were unavailable; they remained **unknown**, never zero.
 - No tax was configured. The taxable basis and rates remained **unknown**; no default VAT rate was inferred.
-- `merchant.currency` was returned as an object with a currency code on the tested account (THB), not necessarily a bare string. Never default a missing or unparsable source currency to EUR in canonical records.
+- `merchant.currency` was returned as an object containing a currency code on the tested account (THB), not necessarily a bare string. Never default a missing or unparsable source currency to EUR in canonical records.
 - Repeated incremental catalog reads produced no duplicates.
 - Historical receipts access on this test account could return **HTTP 402** beyond its entitled history window. This does **not** mean invalid credentials. The boundary changes over time; do not hard-code a 31-day guarantee.
 - A separate receipt normalization experiment used 44 source receipts (including two refunds), but that experiment does **not** establish a production-ready OpenRetailSchema receipts connector. The project's own end-to-end test remains pending.
 
-The test account, full vendor payloads, original source code and tokens are **not** published. Only generalized observations and **synthetic fixtures** may enter this repository. The same distinction applies to prototypes or separate integrations used for PlanCaisse and other applications: their tests inform the contract; they do not count as this repository's release certification.
+The test account, full vendor payloads, original source code and tokens are **not published**. Only generalized observations and **synthetic fixtures** may enter this repository. The same distinction applies to prototypes or separate integrations used for PlanCaisse and other applications: their tests inform the contract; they do not count as this repository's release certification.
 
 ## Official Loyverse API and access model
 
