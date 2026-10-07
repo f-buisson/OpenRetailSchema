@@ -14,7 +14,7 @@ Last reviewed: **2026-10-07**.
 | [Lightspeed Retail X-Series](https://x-series-api.lightspeedhq.com/docs/introduction) | Date-versioned HTTP/JSON API with OAuth 2.0 Authorization Code and Plus-plan personal tokens; products, sales, outlets and inventory have explicit read scopes. | None. | Authorized test-store access plus synthetic product/sale/outlet/inventory mappings before proposing an adapter. |
 | [Clover](https://docs.clover.com/dev/docs/making-rest-api-calls) | REST API documents inventory, orders and payments; sandbox test tokens and production OAuth are distinct, with explicit read/write permissions. | None. | Authorized sandbox run plus synthetic inventory/order/payment mappings before proposing an adapter. |
 | [Odoo](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html) | Odoo 19 JSON-2 is available on Custom plans; bearer API keys, database-specific models/fields/methods and standard access rules apply. | None. | Verify the actual POS model surface from an authorized database `/doc` page and provide synthetic read-only mappings before proposing an adapter. |
-| [Epos Now](https://developer.eposnowhq.com/Docs/Authentication) | Official developer documentation describes API-key/secret authentication for an API device. | None. | Public product/order endpoints, access requirements, security behavior and synthetic exports. |
+| [Epos Now](https://developer.eposnowhq.com/Docs/Authentication) | REST API V4 documents products, product stock and transactions; authentication uses per-API-device Basic tokens derived from an API key/secret. | None. | Authorized API-device run plus verified transaction timezone semantics and synthetic product/stock/sale mappings before proposing an adapter. |
 | NCR Voyix / StoreLine | **Not independently verified:** access to one NCR Voyix product does not establish an open StoreLine API or permission to use it. | None. | Publicly shareable integration documentation or an authorized, redacted export specification first. |
 | Other POS platforms | Open for proposals. | None. | [Open a POS connector request](https://github.com/f-buisson/OpenRetailSchema/issues/new/choose). |
 
@@ -81,6 +81,22 @@ This is a **documentation review only**. No Odoo database, API key, payload or O
 Official sources reviewed: [External JSON-2 API](https://www.odoo.com/documentation/19.0/developer/reference/external_api.html), [ORM search/read](https://www.odoo.com/documentation/19.0/developer/reference/backend/orm.html), [legacy RPC migration notice](https://www.odoo.com/documentation/19.0/developer/reference/external_rpc_api.html), and [Point of Sale products](https://www.odoo.com/documentation/19.0/applications/sales/point_of_sale/products.html).
 
 **Adapter decision:** deferred pending an authorized Custom-plan database, inspection of its `/doc` model surface and synthetic canonical mappings. Documentation is sufficient to define safe access boundaries, but not to claim a universal Odoo POS schema or connector certification.
+
+## Epos Now evidence review — 2026-10-07
+
+This is a **documentation review only**. No Epos Now account, API device, token, payload or OpenRetailSchema connector was exercised.
+
+- Current integration work should target **API V4** where a V4 equivalent exists. The public V2 product, product-stock, transaction and transaction-item references mark those endpoints deprecated and direct new integrations to V4.
+- Authentication uses a Basic authorization token derived by Base64-encoding the API device's key and secret. Tokens differ per registered API device, and API-device credentials can be regenerated in Backoffice. Credentials must therefore be treated as rotating secrets and never published in fixtures or diagnostics.
+- Creating an API device consumes an Epos Now device licence. The Backoffice also exposes the account's API request limit. Public documentation does not define one universal numeric quota, so a future connector must not hard-code a global requests-per-second budget; an account-specific `API Limit Exceeded` condition is an access/rate-limit boundary, not an empty result.
+- V4 products and product stock expose separate read surfaces. V4 collection reads use page-number pagination with up to **200 records per page**; omitting the page returns page 1. A future reader must bound page traversal and stop from observed page content rather than inventing a cursor.
+- V4 transaction documentation exposes latest-transaction paging and transaction records with item, tender, tax and refund-related fields. This is enough to justify further synthetic mapping work, but not enough to claim canonical sale/refund semantics without fixtures and authorized observation.
+- The public transaction schema exposes a `DateTime` string, but the reviewed material does not establish a timezone or mandatory UTC offset for that value. OpenRetailSchema must not emit a canonical sale `event_time` from an offsetless provider timestamp until official timezone semantics or authorized evidence establish the conversion.
+- V4 token information is tied to the authorizing token and includes application/location context. A single API-device token therefore must not be assumed to prove complete multi-location coverage without authorized testing.
+
+Official sources reviewed: [Authentication](https://developer.eposnowhq.com/Docs/Authentication), [API device setup and limits](https://developer.eposnowhq.com/Setup/ApiDevice), [pagination](https://developer.eposnowhq.com/Docs/Pagination), [V4 reference](https://developer.eposnowhq.com/Docs/v4/index), [V2 products](https://developer.eposnowhq.com/Docs/Api?endpoint=Product), [V2 transactions](https://developer.eposnowhq.com/Docs/Api?endpoint=Transaction), and [transaction model introduction](https://developer.eposnowhq.com/Docs/TransactionIntroduction).
+
+**Adapter decision:** deferred pending an authorized API-device run, explicit transaction timezone/offset evidence and synthetic canonical product/stock/sale mappings. The public V4 surface is promising, but documentation alone is not connector certification and does not justify guessing event-time semantics.
 
 ## Loyverse capability declaration
 
