@@ -65,7 +65,31 @@ The common operations are mapped as follows:
 | `stores.read` | Locations list | synthetic implementation |
 | `inventory.read` | Batch retrieve inventory counts | synthetic implementation |
 
-`stores.read`, `sales.read` and `inventory.read` still return provider dictionaries unchanged. `products.read` can be normalized separately with `canonical_square_products()`: `ITEM_VARIATION` is the source identity, parent `ITEM` supplies the canonical name, optional SKU/UPC/deletion state are preserved only when valid, orphan variations fail closed, and `sale_price` is deliberately omitted because integer minor units are not converted without explicit currency-exponent semantics.
+`stores.read`, `sales.read` and `inventory.read` still return provider dictionaries unchanged. `products.read` can be normalized separately with `canonical_square_products()`: `ITEM_VARIATION` is the source identity, parent `ITEM` supplies the canonical name, optional SKU/UPC/deletion state are preserved only when valid, orphan variations fail closed, and `sale_price` is emitted only where Square's pricing semantics are unambiguous.
+
+## Canonical product price boundary
+
+`CatalogItemVariation.price_money` is converted to canonical `sale_price` only
+under the conditions Square documents explicitly:
+
+- `pricing_type` `FIXED_PRICING` with a `price_money` object yields canonical
+  `sale_price`; an explicit zero amount is preserved as zero;
+- a missing `price_money` leaves `sale_price` absent, and absence is never
+  rewritten as zero;
+- `pricing_type` `VARIABLE_PRICING` carrying a `price_money` fails closed rather
+  than being published as a fixed price, and any other `pricing_type` value fails
+  closed as well;
+- minor units are converted through one implementation using documented currency
+  exponents: `AUD`, `CAD`, `EUR`, `GBP` and `USD` use exponent 2, `JPY` uses
+  exponent 0. Any other currency fails closed instead of assuming an exponent;
+- the amount must be a JSON integer. A boolean, a float or a missing amount fails
+  closed, and a negative amount fails closed because a negative product price is
+  not a documented Square meaning even though the canonical money pattern would
+  accept the sign.
+
+The conversion is intentionally local to this connector: Square is the only
+reviewed provider that publishes integer minor units, so no shared money
+abstraction is introduced for a single caller.
 
 ## Canonical completed-sale boundary
 
@@ -74,14 +98,14 @@ The canonical sale mapper is intentionally narrower than the raw `sales.read` tr
 - only orders whose Square state is `COMPLETED` are emitted;
 - the canonical occurrence time is Square `closed_at`, the documented terminal-state timestamp;
 - each emitted line requires a Square line `uid`, `catalog_object_id` (CatalogItemVariation) and positive decimal `quantity`;
-- order and line money fields are not emitted yet because Square Money uses integer minor units and this connector has no currency-exponent conversion contract;
+- order and line money fields are not emitted yet; the minor-unit conversion is defined and proven for product prices, but mapping order-level and line-level money is outside this lot;
 - an order carrying a non-empty `returns` collection fails closed instead of being mislabeled as a pure sale.
 
 This last boundary is deliberate. Square `OrderReturn` provides return itemization but no return-event timestamp of its own, while canonical v0.1 refunds require `occurred_at`. The parent order's `updated_at` is not substituted because that would turn a generic last-modified timestamp into an invented refund occurrence time. A later refund lot must establish an authoritative event-time source and itemization link before `sale_kind: refund` is emitted.
 
 ## Canonical refund boundary
 
-Square refund normalization combines two official read models instead of guessing from a generic order modification time. A completed PaymentRefund provides created_at and order_id; the linked refund Order provides OrderReturn.return_line_items, including source_line_item_uid, CatalogItemVariation identity and quantity. Only a one-to-one completed PaymentRefund-to-refund-order link is emitted. Multiple completed refunds linked to the same return order fail closed because item-level allocation would otherwise be invented. Monetary values remain absent until currency-exponent conversion is explicit.
+Square refund normalization combines two official read models instead of guessing from a generic order modification time. A completed PaymentRefund provides created_at and order_id; the linked refund Order provides OrderReturn.return_line_items, including source_line_item_uid, CatalogItemVariation identity and quantity. Only a one-to-one completed PaymentRefund-to-refund-order link is emitted. Multiple completed refunds linked to the same return order fail closed because item-level allocation would otherwise be invented. Monetary values remain absent: the minor-unit conversion exists for product prices, but refund money mapping is outside this lot.
 
 Authoritative references:
 

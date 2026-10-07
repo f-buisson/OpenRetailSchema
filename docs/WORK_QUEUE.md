@@ -12,17 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P5-VERSIONING-01
-- Roadmap phase: P5 — Adoption and stable evolution
-- State: ACCEPTED
-- Base product HEAD: 639400e8a829dee0a06bc2efc18384eaa2877dba.
-- Accepted product HEAD: 281a17daf012fa4bef1389d6042cf178b46591ef.
-- Scope: publish a migration/versioning policy grounded in the released v0.1 schema and implemented connector manifest, plus lock fail-closed handling of an unknown canonical schema version.
-- Acceptance: repository/schema/manifest/provider versions remain independent; pre-1.0 breaking changes create new versioned contracts; historical schema meaning is stable; migration notes distinguish lossless, lossy and unsupported conversion; closed-schema additions are not falsely called compatible; adding a mandatory common connector operation is a manifest break; 1.0 mechanics are documented without declaring readiness.
-- Evidence required: targeted unknown-schema-version regression plus complete public PR checks on the exact branch HEAD.
-- Evidence produced: versioning/migration policy, compatibility/architecture alignment and a synthetic `0.2.0` product fixture that the current `0.1.0` validator must reject.
-- Acceptance evidence: PR #39 merged to `main` at `281a17daf012fa4bef1389d6042cf178b46591ef`; the roadmap records the versioning policy and unknown-schema-version regression as complete.
-- Next action: do not start speculative SDK/service work. Prefer authorized live connector evidence when access is available; otherwise select a small independent correctness, security, provenance or downstream-reuse task.
+- Work ID: P4-SQUARE-MONEY-01
+- Roadmap phase: P4 — Square next, then evidence-backed adapters
+- State: REVIEW
+- Base product HEAD: 0bbb0618858a697ac0b82b5f284986dd72e6d61b.
+- Scope: convert Square `CatalogItemVariation.price_money` into canonical `sale_price` through a single minor-unit implementation, and only where Square's pricing semantics are unambiguous.
+- Acceptance: `FIXED_PRICING` with a valid Money yields a canonical price; an explicit zero stays zero; a missing price stays absent and is never rewritten as zero; `VARIABLE_PRICING` carrying a price fails closed; unsupported currency, non-integer amount, boolean amount and negative price all fail closed; documented exponents are `AUD`/`CAD`/`EUR`/`GBP`/`USD` 2 and `JPY` 0; sales and refunds normalization is unchanged; no shared money abstraction is introduced for a single caller.
+- Evidence required: targeted Square tests including negative and boundary Money cases, the complete repository suite, canonical schema validation of emitted records, and the public PR checks on the exact branch HEAD.
+- Evidence produced: minor-unit conversion with documented exponents; negative product price rejected after measurement showed the canonical money pattern would accept the sign; boolean amount rejected because Python booleans are integers; emitted records validated against `schemas/v0.1/record.schema.json`; provider documentation and roadmap corrected where their stated reason for absent money no longer held.
+- Next action: await the public PR result. Sales and refunds money mapping stays out of scope until its allocation and tax semantics are established; the authorized Square Sandbox or seller-account run remains the outstanding P4 evidence.
 
 ## Handoff discipline
 
