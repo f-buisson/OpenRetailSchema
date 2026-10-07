@@ -23,6 +23,13 @@ class SchemaValidationTests(unittest.TestCase):
     def test_valid_product(self):
         self.assertEqual(self.run_validator("valid_product.json").returncode, 0)
 
+    def test_unknown_schema_version_is_rejected(self):
+        fixture = json.loads((SAMPLES / "invalid_product_schema_version.json").read_text(encoding="utf-8"))
+        result = self.run_validator("invalid_product_schema_version.json")
+        self.assertEqual(fixture["schema_version"], "0.2.0")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("FAIL", result.stderr)
+
     def test_valid_activity_metric(self):
         self.assertEqual(self.run_validator("valid_activity_metric.json").returncode, 0)
 

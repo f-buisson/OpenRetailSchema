@@ -142,7 +142,7 @@ Goal: make the project safe and useful for independent consumers without creatin
 
 - [x] Complete useful French translations while keeping English canonical — the French core now covers overview, CSV, POS evidence, contribution rules, connector execution and adapter selection; English remains canonical for specifications, architecture and roadmap.
 - [x] Review contribution provenance and Apache-2.0 compatibility for accepted contributions — `docs/PROVENANCE.md` records the 2026-10-07 baseline: all 237 repository commits and all 36 historical PRs are attributable to `f-buisson`, no third-party source is vendored, direct repository/tooling dependencies are permissively licensed, and future incorporated material has an explicit provenance/licence review gate.
-- [ ] Publish migration guarantees and a versioning policy suitable for 1.0 planning.
+- [x] Publish migration guarantees and a versioning policy suitable for 1.0 planning — `docs/VERSIONING.md` separates repository, canonical-schema, connector-manifest and provider-API versions; defines pre/post-1.0 compatibility, fail-closed unknown versions, migration/loss rules and 1.0 transition mechanics. A regression fixture proves schema `0.2.0` is rejected by the current `0.1.0` validator.
 - [ ] Add an SDK only when repeated consumer code demonstrates a stable need.
 - [ ] Add a service API only when a real deployment use case justifies operational complexity.
 - [ ] Define the 1.0 gate only after v0.1 adoption and at least one live-tested reference connector provide evidence for stable contracts.

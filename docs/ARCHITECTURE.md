@@ -48,11 +48,13 @@ A sale's amounts are optional unless provided by the source. Refunds have their 
 
 An activity metric stores offset-aware `interval_start` and `interval_end`, plus an optional store timezone. The schema validates timestamp format, while the offline validator also rejects intervals whose end instant is not after their start instant. Consumers must not infer business-day boundaries or aggregation completeness from those checks, and must not assume customer counts from transaction counts.
 
-## Connector capability contract (proposed)
+## Connector capability contract
 
-Each adapter must expose a stable provider ID and capabilities for individual resources and operations (for example `sales.read`, `products.read`, `inventory.read`, `sales.events`, or `prices.write`). Missing resources and inaccessible interfaces must be represented as unsupported, not silently fabricated.
+The repository implements capability-manifest version `1` and a finite common read surface: `products.read`, `sales.read`, `stores.read` and `inventory.read`. Every conforming adapter must explicitly declare each common operation as supported or unsupported; absence remains unknown and fails closed. Loyverse and Square are exercised by the reusable conformance harness.
 
-Future sync requirements: pagination, retry and rate-limit handling, idempotent upserts, incremental checkpoints, data-deletion policy, store isolation, clock and DST handling, safe logging and secret storage. Outbound POS writes are out of scope for the initial read-only release.
+Changing the manifest shape or making an additional common operation mandatory is a connector-contract break and requires a new `manifest_version`; it must not silently redefine manifest version `1`. Provider-specific capabilities may remain additional declarations when they do not change the common contract.
+
+Future sync requirements still include persistence-backed idempotent upserts, data-deletion policy, store isolation, safe secret storage and other deployment concerns. Outbound POS writes remain outside the initial read-only contract.
 
 ## Validation
 

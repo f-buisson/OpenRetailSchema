@@ -1,6 +1,6 @@
 # Schema compatibility policy
 
-[Home](../README.md) · [Architecture](ARCHITECTURE.md) · [Roadmap](ROADMAP.md)
+[Home](../README.md) · [Versioning and migrations](VERSIONING.md) · [Architecture](ARCHITECTURE.md) · [Roadmap](ROADMAP.md)
 
 OpenRetailSchema uses explicit semantic versions in every canonical record. The current contract is **0.1.0** and remains experimental throughout the pre-1.0 series; publishing a tag does not imply stable-API status. This document defines how changes are classified so consumers can decide whether to accept a newer contract deliberately rather than by accident.
 
@@ -56,7 +56,9 @@ These gaps are tracked as contract work, not treated as permission to guess.
 
 Before a stable 1.0 release, incompatible changes are expected to be uncommon but possible. Each incompatible version must document: the old field or behavior, the new representation, whether conversion is lossless, and a deterministic migration example where one exists.
 
-After 1.0, backward-compatible additions belong in minor releases and breaking contract changes require a new major version.
+After 1.0, backward-compatible additions belong in minor releases and breaking contract changes require a new major version. Because canonical schemas are closed with `additionalProperties: false`, a newly added canonical property is **not automatically backward-compatible** with older strict validators; compatibility must be demonstrated, not assumed.
+
+The release/schema/connector version axes, migration guarantees, deprecation rules and 1.0 transition mechanics are defined in [VERSIONING.md](VERSIONING.md).
 
 ## Connector evidence is independent
 
