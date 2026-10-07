@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-POS-DOC-EPOSNOW-01
+- Work ID: P4-CONTRIBUTION-CONTRACT-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
 - State: REVIEW
-- Base product HEAD: 0b06521d167cf78b12b12400dcc7cedce29c5dde.
-- Scope: complete the named official-provider review cycle with Epos Now without starting another adapter; capture only public versioning, authentication, API-device access, pagination, quota and transaction-time boundaries that future connector work can safely depend on.
-- Acceptance: V4 is preferred where current equivalents exist; per-device Basic credentials and rotation are explicit; account-specific API limits are not replaced by an invented global quota; 200-record page-number pagination is explicit; transaction timezone/offset uncertainty blocks canonical event-time emission; no live/provider evidence or connector support is claimed.
-- Evidence required: documentation diff review plus normal public PR checks on the exact branch HEAD.
-- Evidence produced: official Epos Now authentication, API-device setup/limits, pagination, V4 reference, product/transaction references and transaction-model introduction reviewed on 2026-10-07; no account, API device, token, provider payload or connector execution used.
-- Next action: require normal PR checks, merge only if green, then reassess the remaining P4 criteria instead of starting an Epos Now adapter until authorized access, timezone evidence and synthetic mappings justify it.
+- Base product HEAD: 2f9c12d3fc793c666ed98d2daba595047d93ccec.
+- Scope: make external POS contributions reproducible and license-safe without adding connector code; align the contribution guide, issue form, pull-request template and CI documentation with repository reality.
+- Acceptance: provider/version and official sources are explicit; synthetic fixture or fabricated mapping intent is required; provenance and redistribution rights are recorded; missing/unknown semantics are not guessed; local test reporting and public CI roles are distinct; no secrets or real provider payloads are requested.
+- Evidence required: review of issue #1 and contribution surfaces plus normal public PR checks on the exact branch HEAD.
+- Evidence produced: issue #1 is open as the community entry point; the strengthened proposal form and new pull-request template make evidence, provenance, test reporting and safety expectations explicit; stale statements claiming no hosted CI are removed.
+- Next action: require normal PR checks, merge only if green, then evaluate the remaining P4 adapter-selection gate without starting another adapter prematurely.
 
 ## Handoff discipline
 
