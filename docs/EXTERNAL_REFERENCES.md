@@ -32,7 +32,7 @@ Official vendor documentation remains the authoritative reference, even when an 
 
 Both can help **stress-test our normalization pipeline and generic CSV importer** after independent validation. Their generated fields are **not authentic POS API responses**; convert them through explicitly documented test adapters instead of claiming vendor compatibility.
 
-## Intended OpenRetailSchema acceptance harness (local, no hosted CI)
+## OpenRetailSchema acceptance evidence model
 
 For every future POS connector, keep evidence at four separate levels:
 
@@ -41,4 +41,4 @@ For every future POS connector, keep evidence at four separate levels:
 3. **Authorized live test:** date, tested operations, anonymized counts, observed limitations and a verified revocation/disconnection path. Never publish token, original raw payloads or customer identifiers.
 4. **Certified OpenRetailSchema mapping:** each tested vendor response produces a schema-valid canonical record with provenance, no inferred unknowns, stable IDs and documented gaps.
 
-Reference implementations should have a clear license compatible with Apache-2.0, but prefer original adapters and synthetic fixtures written expressly for this project. Neither existing source code nor a public CI configuration has been imported from the projects listed above. **No GitHub Actions are needed** for this research or these acceptance criteria.
+Reference implementations should have a clear license compatible with Apache-2.0, but prefer original adapters and synthetic fixtures written expressly for this project. Neither existing source code nor a public CI configuration has been imported from the projects listed above. OpenRetailSchema's own public `Tests` workflow checks repository regressions on pull requests and `main`; it does not turn third-party examples or documentation into live-provider certification.

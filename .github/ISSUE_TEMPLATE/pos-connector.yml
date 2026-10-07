@@ -21,8 +21,8 @@ body:
     id: official_docs
     attributes:
       label: Official publicly accessible API or export documentation
-      description: Official URL if public; otherwise explain at a high level without reproducing restricted material.
-      placeholder: https://vendor.example/developers/api
+      description: Official URL if public; otherwise explain at a high level without reproducing restricted material. Include the API/export version and the date you checked it when known.
+      placeholder: https://vendor.example/developers/api — v4, checked 2026-10-07
     validations:
       required: true
   - type: dropdown
@@ -62,14 +62,23 @@ body:
   - type: textarea
     id: synthetic
     attributes:
-      label: Synthetic example or proposed test coverage
-      description: Include small **fabricated** records only, or propose the tests that would verify a connector.
+      label: Synthetic fixture, fabricated CSV mapping, or proposed test coverage
+      description: Include only fabricated records. If you cannot provide one yet, explain the smallest synthetic case that should be added before implementation.
     validations:
-      required: false
+      required: true
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Provenance and licensing
+      description: State whether the material is your original work, derived only from public vendor documentation, or based on third-party material. Link any applicable license and explain what may be redistributed under Apache-2.0.
+    validations:
+      required: true
   - type: checkboxes
     id: safety
     attributes:
       label: Contribution safety
       options:
         - label: I have not included credentials, sensitive information or unredacted data, and may share the material I provided.
+          required: true
+        - label: I have identified the source and redistribution rights for any material proposed for inclusion.
           required: true
