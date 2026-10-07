@@ -107,7 +107,7 @@ class SquareConnectorTests(unittest.TestCase):
         self.assertEqual(records[0]["sku"], "COF-L")
         self.assertEqual(records[0]["barcode"], "123456789012")
         self.assertIs(records[0]["active"], True)
-        self.assertNotIn("sale_price", records[0])
+        self.assertEqual(records[0]["sale_price"], {"amount": "5.00", "currency": "USD"})
         self.assertNotIn("sale_price", records[1])
         self.assertNotIn("sku", records[1])
         self.assertNotIn("barcode", records[1])
@@ -121,6 +121,38 @@ class SquareConnectorTests(unittest.TestCase):
                 {"type": "ITEM", "id": "i", "item_data": {"name": "Item"}},
                 {"type": "ITEM_VARIATION", "id": "v", "item_variation_data": {"item_id": "i", "sku": ""}},
             ])
+
+    def test_product_money_preserves_zero_and_supports_zero_decimal_currency(self):
+        records = canonical_square_products([
+            {"type": "ITEM", "id": "i", "item_data": {"name": "Item"}},
+            {"type": "ITEM_VARIATION", "id": "usd", "item_variation_data": {"item_id": "i", "pricing_type": "FIXED_PRICING", "price_money": {"amount": 0, "currency": "USD"}}},
+            {"type": "ITEM_VARIATION", "id": "jpy", "item_variation_data": {"item_id": "i", "pricing_type": "FIXED_PRICING", "price_money": {"amount": 500, "currency": "JPY"}}},
+        ])
+        self.assertEqual(records[0]["sale_price"], {"amount": "0.00", "currency": "USD"})
+        self.assertEqual(records[1]["sale_price"], {"amount": "500", "currency": "JPY"})
+
+    def test_product_money_fails_closed_for_unproven_or_malformed_values(self):
+        parent = {"type": "ITEM", "id": "i", "item_data": {"name": "Item"}}
+        def variation(price_money, pricing_type="FIXED_PRICING"):
+            return {"type": "ITEM_VARIATION", "id": "v", "item_variation_data": {"item_id": "i", "pricing_type": pricing_type, "price_money": price_money}}
+        with self.assertRaisesRegex(SquareResponseError, "square_money_currency_unsupported"):
+            canonical_square_products([parent, variation({"amount": 100, "currency": "XXX"})])
+        with self.assertRaisesRegex(SquareResponseError, "square_money_amount_must_be_integer"):
+            canonical_square_products([parent, variation({"amount": 1.5, "currency": "USD"})])
+        with self.assertRaisesRegex(SquareResponseError, "square_variable_pricing_has_price"):
+            canonical_square_products([parent, variation({"amount": 100, "currency": "USD"}, "VARIABLE_PRICING")])
+        # Python bools are ints, so an amount check that only asked for int would
+        # read True as one cent.
+        with self.assertRaisesRegex(SquareResponseError, "square_money_amount_must_be_integer"):
+            canonical_square_products([parent, variation({"amount": True, "currency": "USD"})])
+        # A product sale price is a price. The canonical money pattern accepts a
+        # sign, so a negative amount would validate and still mean nothing here.
+        with self.assertRaisesRegex(SquareResponseError, "square_variation_price_negative"):
+            canonical_square_products([parent, variation({"amount": -500, "currency": "USD"})])
+        with self.assertRaisesRegex(SquareResponseError, "square_money_must_be_object"):
+            canonical_square_products([parent, variation([100, "USD"])])
+        with self.assertRaisesRegex(SquareResponseError, "square_pricing_type_unsupported"):
+            canonical_square_products([parent, variation({"amount": 100, "currency": "USD"}, "TIERED_PRICING")])
 
 
     def test_completed_sale_normalization_preserves_only_proven_semantics(self):

@@ -157,6 +157,24 @@ def _required_nonempty_string(value: Any, code: str) -> str:
     return value
 
 
+_SQUARE_CURRENCY_EXPONENTS = {"AUD": 2, "CAD": 2, "EUR": 2, "GBP": 2, "JPY": 0, "USD": 2}
+
+
+def _square_money(value: Any) -> dict[str, str]:
+    """Convert documented Square minor-unit Money without guessing currency rules."""
+    if not isinstance(value, dict):
+        raise SquareResponseError("square_money_must_be_object")
+    amount = value.get("amount")
+    currency = value.get("currency")
+    if not isinstance(amount, int) or isinstance(amount, bool):
+        raise SquareResponseError("square_money_amount_must_be_integer")
+    if not isinstance(currency, str) or currency not in _SQUARE_CURRENCY_EXPONENTS:
+        raise SquareResponseError("square_money_currency_unsupported")
+    exponent = _SQUARE_CURRENCY_EXPONENTS[currency]
+    decimal_amount = Decimal(amount).scaleb(-exponent)
+    return {"amount": format(decimal_amount, f".{exponent}f"), "currency": currency}
+
+
 def canonical_square_products(objects: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Map Square ITEM_VARIATION objects to canonical v0.1 products."""
     if not isinstance(objects, list):
@@ -195,6 +213,25 @@ def canonical_square_products(objects: list[dict[str, Any]]) -> list[dict[str, A
             value = data.get(source_field)
             if value is not None:
                 record[canonical_field] = _required_nonempty_string(value, "square_variation_" + source_field + "_invalid")
+        pricing_type = data.get("pricing_type")
+        price_money = data.get("price_money")
+        if pricing_type == "FIXED_PRICING":
+            if price_money is not None:
+                money = _square_money(price_money)
+                # A sale price is a price. Square's Money object permits a sign and
+                # the canonical money pattern accepts one, so a negative amount
+                # would validate and still mean nothing as a product price: it
+                # would be invented semantics. The sign rule lives here rather than
+                # in the converter because the admissible sign is contextual, and a
+                # later refund mapping may legitimately be negative.
+                if money["amount"].startswith("-"):
+                    raise SquareResponseError("square_variation_price_negative")
+                record["sale_price"] = money
+        elif pricing_type == "VARIABLE_PRICING":
+            if price_money is not None:
+                raise SquareResponseError("square_variable_pricing_has_price")
+        elif pricing_type is not None or price_money is not None:
+            raise SquareResponseError("square_pricing_type_unsupported")
         deleted = variation.get("is_deleted")
         if deleted is not None:
             if not isinstance(deleted, bool):
@@ -272,7 +309,8 @@ def canonical_square_refunds(return_orders: list[dict[str, Any]], payment_refund
     original sale line. PaymentRefund supplies an authoritative `created_at` and
     links to the refund order with `order_id`. To avoid inventing allocation, this
     mapper accepts only refund orders linked to exactly one COMPLETED PaymentRefund.
-    Money remains absent until currency-exponent conversion is defined.
+    Refund money stays absent because this lot maps product prices only; the
+    minor-unit conversion itself is now defined and proven for products.
     """
     if not isinstance(return_orders, list) or not isinstance(payment_refunds, list):
         raise SquareResponseError("square_refund_inputs_must_be_arrays")
