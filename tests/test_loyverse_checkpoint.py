@@ -76,5 +76,47 @@ class LoyverseCheckpointTests(unittest.TestCase):
             client.read_incremental("items", checkpoint="2026-10-04T10:00:00Z")
 
 
+    def test_failed_pagination_can_restart_from_the_same_durable_checkpoint(self):
+        durable_checkpoint = "2026-10-04T10:00:00Z"
+        run = 1
+        calls = []
+
+        def transport(path, token):
+            self.assertEqual(token, "synthetic-token")
+            query = parse_qs(urlsplit(path).query)
+            calls.append((run, query))
+            self.assertEqual(query["updated_at_min"], [durable_checkpoint])
+
+            if "cursor" not in query:
+                return {
+                    "items": [{"id": "a", "updated_at": "2026-10-04T11:00:00Z"}],
+                    "cursor": "page-two",
+                }
+
+            self.assertEqual(query["cursor"], ["page-two"])
+            if run == 1:
+                raise LoyverseError("connection_failure")
+            return {"items": [{"id": "b", "updated_at": "2026-10-04T12:00:00Z"}]}
+
+        client = LoyverseClient(
+            "synthetic-token", transport=transport, max_attempts=1
+        )
+        with self.assertRaisesRegex(LoyverseError, "connection_failure"):
+            client.read_incremental("items", checkpoint=durable_checkpoint)
+
+        # A failed traversal cannot advance durable progress or retain its cursor.
+        run = 2
+        rows, checkpoint = client.read_incremental(
+            "items", checkpoint=durable_checkpoint
+        )
+        self.assertEqual([row["id"] for row in rows], ["a", "b"])
+        self.assertEqual(checkpoint, "2026-10-04T12:00:00Z")
+        self.assertEqual([attempt for attempt, _ in calls], [1, 1, 2, 2])
+        self.assertNotIn("cursor", calls[0][1])
+        self.assertEqual(calls[1][1]["cursor"], ["page-two"])
+        self.assertNotIn("cursor", calls[2][1])
+        self.assertEqual(calls[3][1]["cursor"], ["page-two"])
+
+
 if __name__ == "__main__":
     unittest.main()
