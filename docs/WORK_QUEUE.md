@@ -12,16 +12,17 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P2-LOYVERSE-EXPLICIT-PRICE-01
-- Roadmap phase: P2 — Loyverse reference connector
-- State: ACCEPTED
-- Base product HEAD: 83b8c6ab86790b2124709c4a38f8b2fc15836491.
-- Previous handoff: P2-LOYVERSE-PRODUCT-PRICE-01 accepted through merged PR #42, with 119 complete regression tests and public checks green.
-- Scope: reject explicitly supplied malformed Loyverse product prices at the canonical product boundary; preserve missing/null versus zero and do not alter the shared signed money formatter.
-- Acceptance: unsupported types (including floats, booleans, strings, collections), non-finite Decimals and negative numeric prices raise sanitized `invalid_product_price`; missing/null stay absent, numeric zero and positive amounts remain intact; unknown merchant currency does not invent a price; receipt/refund money remains unchanged.
-- Evidence required: targeted product/money tests, complete repository regression, JSON fixture validation and public PR checks on the exact commit.
-- Evidence observed on this branch: targeted Loyverse suites 23, 7 and 3 tests OK; complete regression 120 tests OK; the 13 JSON examples behave as their names declare; `git diff --check` clean. Three mutations killed: removing the guard, widening it to refuse a genuinely absent price, and dropping its null check each turn witnesses red.
-- Next action: none for this lot, accepted through merged PR #43 (merge commit 126526c0aa05be77009a61a1994b3e5baca18e10). Public checks passed on both branch commits and again on main after merge. Authorized live Loyverse connector execution and independent OAuth validation remain deferred P2 gates, still unclaimed.
+- Work ID: P4-SQUARE-PAGINATION-CYCLE-01
+- Roadmap phase: P4 — Square next, then evidence-backed adapters
+- State: REVIEW
+- Base product HEAD: 6e2aefae201837c11dc63e100042217b930ef181.
+- Previous handoff: P2-LOYVERSE-EXPLICIT-PRICE-01 accepted through merged PR #43, with 120 complete regression tests and public checks green.
+- Scope: reject repeated Square pagination cursors on GET and POST reads, including non-adjacent cycles; reject falsy non-string cursors while preserving absent, null and empty-string termination.
+- Acceptance: repeated cursors raise sanitized `square_cursor_repeated`; malformed cursors raise `square_cursor_must_be_string`; no extra transport calls after detection; distinct cursors continue; page limits, retries and mappings remain unchanged.
+- Evidence required: targeted Square tests including negative cases, full repository regression, JSON example validation, diff check and public PR checks on the exact commit.
+- Evidence observed on this branch: `tests.test_square` 18 tests OK; complete regression 125 tests OK, exit 0, zero skips; the 13 JSON examples behave as their names declare; `git diff --check` clean. Three mutations killed: removing cycle detection, restoring the falsy cursor shortcut, and shifting the page budget each turn witnesses red.
+- Defect found and fixed in review: the published commit left the complete suite red at 2 failures. `tests/test_square_pagination_safety.py` pinned the superseded safety net, where a stuck cursor was requested until the page budget stopped it. Those two witnesses were retargeted at the stronger guarantee rather than deleted, and a third was added because they were the only multi-page budget coverage, which cycle detection would otherwise have hidden.
+- Next action: review this lot and its public CI evidence before acceptance. Authorized Square Sandbox execution, live Loyverse connector execution and independent OAuth validation remain deferred and unclaimed.
 
 ## Handoff discipline
 

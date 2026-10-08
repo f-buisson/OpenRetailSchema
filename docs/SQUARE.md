@@ -67,6 +67,20 @@ The common operations are mapped as follows:
 
 `stores.read`, `sales.read` and `inventory.read` still return provider dictionaries unchanged. `products.read` can be normalized separately with `canonical_square_products()`: `ITEM_VARIATION` is the source identity, parent `ITEM` supplies the canonical name, optional SKU/UPC/deletion state are preserved only when valid, orphan variations fail closed, and `sale_price` is emitted only where Square's pricing semantics are unambiguous.
 
+## Pagination integrity
+
+Both GET and POST paginated read operations reject a cursor already encountered
+within the same traversal with `square_cursor_repeated`. A repeated cursor is
+not treated as an additional page and its value is never included in errors.
+Malformed non-string cursors (including falsy numeric or boolean values) fail
+closed with `square_cursor_must_be_string`; missing, null and empty-string
+cursors retain the existing end-of-pagination behavior. Each traversal has its
+own cursor history. The existing page budget and bounded read retries are
+unchanged, but the budget is no longer what ends a cycle: a repeat is refused
+on the page that repeats it, so the budget now only bounds a traversal whose
+cursors all differ. This behavior is verified only with synthetic responses; it
+does not establish live Square connector certification.
+
 ## Canonical product price boundary
 
 `CatalogItemVariation.price_money` is converted to canonical `sale_price` only
