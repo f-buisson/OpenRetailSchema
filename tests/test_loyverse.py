@@ -158,7 +158,7 @@ class LoyverseTests(unittest.TestCase):
 
     def test_canonical_product_rejects_explicit_malformed_price(self):
         malformed = (
-            "0", "12.50", "not-a-number", True, False, 0.0, 1.5, -1.5,
+            "0", "12.50", "not-a-number", "", True, False, 0.0, 1.5, -1.5,
             float("nan"), float("inf"), float("-inf"),
             Decimal("NaN"), Decimal("Infinity"), Decimal("-Infinity"),
             [], {}, [1], {"amount": 2},
@@ -170,6 +170,9 @@ class LoyverseTests(unittest.TestCase):
                     canonical_product(variant, {"currency": "EUR"})
                 self.assertEqual(ctx.exception.code, "invalid_product_price")
                 self.assertEqual(str(ctx.exception), "invalid_product_price")
+                # The shared formatter is deliberately not where this rule lives:
+                # it still omits rather than refuses, which receipt amounts rely on.
+                self.assertIsNone(canonical_money(variant, "price", {"currency": "EUR"}))
 
     def test_canonical_product_rejects_negative_price_without_changing_refund_money(self):
         for price in (-1, Decimal("-0.01"), Decimal("-1000000000.00")):
