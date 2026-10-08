@@ -12,15 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-MONEY-01
-- Roadmap phase: P4 — Square next, then evidence-backed adapters
+- Work ID: P2-LOYVERSE-CHECKPOINT-RECOVERY-01
+- Roadmap phase: P2 — Loyverse reference connector
 - State: REVIEW
-- Base product HEAD: 0bbb0618858a697ac0b82b5f284986dd72e6d61b.
-- Scope: convert Square `CatalogItemVariation.price_money` into canonical `sale_price` through a single minor-unit implementation, and only where Square's pricing semantics are unambiguous.
-- Acceptance: `FIXED_PRICING` with a valid Money yields a canonical price; an explicit zero stays zero; a missing price stays absent and is never rewritten as zero; `VARIABLE_PRICING` carrying a price fails closed; unsupported currency, non-integer amount, boolean amount and negative price all fail closed; documented exponents are `AUD`/`CAD`/`EUR`/`GBP`/`USD` 2 and `JPY` 0; sales and refunds normalization is unchanged; no shared money abstraction is introduced for a single caller.
-- Evidence required: targeted Square tests including negative and boundary Money cases, the complete repository suite, canonical schema validation of emitted records, and the public PR checks on the exact branch HEAD.
-- Evidence produced: minor-unit conversion with documented exponents; negative product price rejected after measurement showed the canonical money pattern would accept the sign; boolean amount rejected because Python booleans are integers; emitted records validated against `schemas/v0.1/record.schema.json`; provider documentation and roadmap corrected where their stated reason for absent money no longer held.
-- Next action: await the public PR result. Sales and refunds money mapping stays out of scope until its allocation and tax semantics are established; the authorized Square Sandbox or seller-account run remains the outstanding P4 evidence.
+- Base product HEAD: 02ac73ff08ccbf421fdf93432c1d23e95065af97.
+- Previous handoff: P4-SQUARE-MONEY-01 accepted through merged PR #40 at 02ac73ff08ccbf421fdf93432c1d23e95065af97; Square Sandbox or seller-account evidence remains deferred.
+- Scope: prove that an interrupted paginated Loyverse incremental read can be retried by the caller using the unchanged durable source checkpoint, without retaining the failed traversal's ephemeral cursor.
+- Acceptance: a synthetic second-page transport failure returns no checkpoint; a subsequent call on the same client starts from the original `updated_at_min` without `cursor`, re-reads the first page, completes the second page and advances only to the newest processed source timestamp. Internal GET retries are disabled for this scenario.
+- Evidence: `tests/test_loyverse_checkpoint.py` covers both attempts, request parameters and final records/checkpoint; targeted and complete regression results are required in the PR checks before acceptance.
+- Next action: review the public PR and its test evidence. Authorized live Loyverse connector execution and independent OAuth validation remain deferred P2 gates, not synthetic-test results.
 
 ## Handoff discipline
 
