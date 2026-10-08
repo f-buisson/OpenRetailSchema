@@ -76,8 +76,10 @@ Malformed non-string cursors (including falsy numeric or boolean values) fail
 closed with `square_cursor_must_be_string`; missing, null and empty-string
 cursors retain the existing end-of-pagination behavior. Each traversal has its
 own cursor history. The existing page budget and bounded read retries are
-unchanged. This behavior is verified only with synthetic responses; it does
-not establish live Square connector certification.
+unchanged, but the budget is no longer what ends a cycle: a repeat is refused
+on the page that repeats it, so the budget now only bounds a traversal whose
+cursors all differ. This behavior is verified only with synthetic responses; it
+does not establish live Square connector certification.
 
 ## Canonical product price boundary
 
