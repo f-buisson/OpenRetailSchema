@@ -14,14 +14,14 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 - Work ID: P2-LOYVERSE-EXPLICIT-PRICE-01
 - Roadmap phase: P2 — Loyverse reference connector
-- State: REVIEW
+- State: ACCEPTED
 - Base product HEAD: 83b8c6ab86790b2124709c4a38f8b2fc15836491.
 - Previous handoff: P2-LOYVERSE-PRODUCT-PRICE-01 accepted through merged PR #42, with 119 complete regression tests and public checks green.
 - Scope: reject explicitly supplied malformed Loyverse product prices at the canonical product boundary; preserve missing/null versus zero and do not alter the shared signed money formatter.
 - Acceptance: unsupported types (including floats, booleans, strings, collections), non-finite Decimals and negative numeric prices raise sanitized `invalid_product_price`; missing/null stay absent, numeric zero and positive amounts remain intact; unknown merchant currency does not invent a price; receipt/refund money remains unchanged.
 - Evidence required: targeted product/money tests, complete repository regression, JSON fixture validation and public PR checks on the exact commit.
 - Evidence observed on this branch: targeted Loyverse suites 23, 7 and 3 tests OK; complete regression 120 tests OK; the 13 JSON examples behave as their names declare; `git diff --check` clean. Three mutations killed: removing the guard, widening it to refuse a genuinely absent price, and dropping its null check each turn witnesses red.
-- Next action: review this lot and its public CI evidence before acceptance. Authorized live Loyverse connector execution and independent OAuth validation remain deferred P2 gates, still unclaimed.
+- Next action: none for this lot, accepted through merged PR #43 (merge commit 126526c0aa05be77009a61a1994b3e5baca18e10). Public checks passed on both branch commits and again on main after merge. Authorized live Loyverse connector execution and independent OAuth validation remain deferred P2 gates, still unclaimed.
 
 ## Handoff discipline
 
