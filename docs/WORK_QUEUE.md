@@ -12,16 +12,16 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P2-LOYVERSE-PRODUCT-PRICE-01
+- Work ID: P2-LOYVERSE-EXPLICIT-PRICE-01
 - Roadmap phase: P2 — Loyverse reference connector
-- State: ACCEPTED
-- Base product HEAD: c3343b6d26c4a0b0dcc1aeecb126836e286d24c2.
-- Previous handoff: P2-LOYVERSE-CHECKPOINT-RECOVERY-01 accepted through merged PR #41; PR and main workflow checks passed on 2026-10-08.
-- Scope: reject explicitly negative Loyverse product prices at the product-mapping boundary without changing the signed money formatter shared with refund contexts.
-- Acceptance: negative integer and decimal variant prices raise a sanitized `invalid_product_price`; zero, missing and positive prices retain existing semantics; generic signed money formatting remains unchanged.
-- Evidence required: targeted product/money tests, complete repository regression and public PR checks on the exact commit.
-- Evidence observed on 88fed3d9aef66661d0647a258bdbe62fb5557a17: targeted Loyverse suites 22, 7 and 3 tests OK; complete regression 119 tests OK; the 13 JSON fixtures behave as their names declare; public checks green on the reviewed commit and again on main after merge.
-- Next action: none for this lot, accepted through merged PR #42 (merge commit a2b6c105ec6c24a9497fd92616603ee6db4c61b1). Authorized live Loyverse connector execution and independent OAuth validation remain deferred P2 gates, still unclaimed.
+- State: BUILDING
+- Base product HEAD: 83b8c6ab86790b2124709c4a38f8b2fc15836491.
+- Previous handoff: P2-LOYVERSE-PRODUCT-PRICE-01 accepted through merged PR #42, with 119 complete regression tests and public checks green.
+- Scope: reject explicitly supplied malformed Loyverse product prices at the canonical product boundary; preserve missing/null versus zero and do not alter the shared signed money formatter.
+- Acceptance: unsupported types (including floats, booleans, strings, collections), non-finite Decimals and negative numeric prices raise sanitized `invalid_product_price`; missing/null stay absent, numeric zero and positive amounts remain intact; unknown merchant currency does not invent a price; receipt/refund money remains unchanged.
+- Evidence required: targeted product/money tests, complete repository regression, JSON fixture validation and public PR checks on the exact commit.
+- Evidence observed: code and synthetic regression cases prepared; execution and PR checks not yet claimed.
+- Next action: execute targeted and full tests, review the exact diff, open a PR and accept only after successful checks. Authorized live Loyverse connector execution and independent OAuth validation remain deferred P2 gates, still unclaimed.
 
 ## Handoff discipline
 

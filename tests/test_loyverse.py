@@ -148,11 +148,28 @@ class LoyverseTests(unittest.TestCase):
         absent = canonical_product({"id": "a", "name": "Absent"}, merchant)
         null = canonical_product({"id": "n", "name": "Null", "price": None}, merchant)
         zero = canonical_product({"id": "z", "name": "Zero", "price": 0}, merchant)
-        unsupported = canonical_product({"id": "s", "name": "String", "price": "0"}, merchant)
         self.assertNotIn("sale_price", absent)
         self.assertNotIn("sale_price", null)
-        self.assertNotIn("sale_price", unsupported)
         self.assertEqual(zero["sale_price"], {"amount": "0", "currency": "EUR"})
+        self.assertNotIn(
+            "sale_price",
+            canonical_product({"id": "u", "name": "Unknown currency", "price": 1}, {}),
+        )
+
+    def test_canonical_product_rejects_explicit_malformed_price(self):
+        malformed = (
+            "0", "12.50", "not-a-number", True, False, 0.0, 1.5, -1.5,
+            float("nan"), float("inf"), float("-inf"),
+            Decimal("NaN"), Decimal("Infinity"), Decimal("-Infinity"),
+            [], {}, [1], {"amount": 2},
+        )
+        for price in malformed:
+            with self.subTest(price=price):
+                variant = {"id": "private-id", "name": "Private name", "price": price}
+                with self.assertRaises(LoyverseError) as ctx:
+                    canonical_product(variant, {"currency": "EUR"})
+                self.assertEqual(ctx.exception.code, "invalid_product_price")
+                self.assertEqual(str(ctx.exception), "invalid_product_price")
 
     def test_canonical_product_rejects_negative_price_without_changing_refund_money(self):
         for price in (-1, Decimal("-0.01"), Decimal("-1000000000.00")):

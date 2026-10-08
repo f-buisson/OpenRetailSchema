@@ -254,6 +254,8 @@ def canonical_product(variant: dict, merchant: dict) -> dict:
         optional[field] = value
     record = {"schema_version": "0.1.0", "entity_type": "product", "id": "loyverse:variant:" + external_id, "source": {"provider": "loyverse", "external_id": external_id}, "name": name, **optional}
     product_price = source_decimal(variant, "price")
+    if "price" in variant and variant["price"] is not None and product_price is None:
+        raise LoyverseError("invalid_product_price")
     if product_price is not None and product_price < 0:
         raise LoyverseError("invalid_product_price")
     price = canonical_money(variant, "price", merchant)
