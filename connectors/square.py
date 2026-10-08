@@ -76,11 +76,25 @@ class SquareConnector:
             raise SquareResponseError("square_provider_error")
         raise AssertionError("unreachable_square_retry_loop")
 
+    @staticmethod
+    def _next_cursor(response: dict[str, Any], seen: set[str]) -> str | None:
+        """Validate each traversal cursor without exposing its value in errors."""
+        cursor = response.get("cursor")
+        if cursor is None or cursor == "":
+            return None
+        if not isinstance(cursor, str):
+            raise SquareResponseError("square_cursor_must_be_string")
+        if cursor in seen:
+            raise SquareResponseError("square_cursor_repeated")
+        seen.add(cursor)
+        return cursor
+
     def _paginate_get(self, path: str, result_key: str, *, params=None, max_pages: int = 100) -> list[dict]:
         if max_pages < 1:
             raise ValueError("max_pages_must_be_positive")
         base = dict(params or {})
         cursor = None
+        seen: set[str] = set()
         records: list[dict] = []
         for _ in range(max_pages):
             page_params = dict(base)
@@ -91,11 +105,9 @@ class SquareConnector:
             if not isinstance(page, list):
                 raise SquareResponseError("square_result_must_be_array")
             records.extend(page)
-            cursor = response.get("cursor")
-            if not cursor:
+            cursor = self._next_cursor(response, seen)
+            if cursor is None:
                 return records
-            if not isinstance(cursor, str):
-                raise SquareResponseError("square_cursor_must_be_string")
         raise SquareResponseError("square_pagination_limit_exceeded")
 
     def _paginate_post(self, path: str, result_key: str, *, body=None, max_pages: int = 100) -> list[dict]:
@@ -103,6 +115,7 @@ class SquareConnector:
             raise ValueError("max_pages_must_be_positive")
         base = dict(body or {})
         cursor = None
+        seen: set[str] = set()
         records: list[dict] = []
         for _ in range(max_pages):
             page_body = dict(base)
@@ -113,11 +126,9 @@ class SquareConnector:
             if not isinstance(page, list):
                 raise SquareResponseError("square_result_must_be_array")
             records.extend(page)
-            cursor = response.get("cursor")
-            if not cursor:
+            cursor = self._next_cursor(response, seen)
+            if cursor is None:
                 return records
-            if not isinstance(cursor, str):
-                raise SquareResponseError("square_cursor_must_be_string")
         raise SquareResponseError("square_pagination_limit_exceeded")
 
     def read(self, operation: str, *, max_pages: int = 100) -> list[dict]:

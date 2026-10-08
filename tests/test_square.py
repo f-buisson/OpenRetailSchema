@@ -91,6 +91,61 @@ class SquareConnectorTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "max_pages_must_be_positive"):
             connector.read("products.read", max_pages=0)
 
+    def test_repeated_cursor_fails_closed_on_get_and_post(self):
+        for operation, result_key, request_key in (
+            ("products.read", "objects", "params"),
+            ("inventory.read", "counts", "json"),
+        ):
+            with self.subTest(operation=operation):
+                connector, calls = self.connector([
+                    {result_key: [{"id": "first"}], "cursor": "same"},
+                    {result_key: [{"id": "second"}], "cursor": "same"},
+                ])
+                with self.assertRaisesRegex(SquareResponseError, "^square_cursor_repeated$") as raised:
+                    connector.read(operation)
+                self.assertEqual(len(calls), 2)
+                self.assertEqual(calls[1][2][request_key]["cursor"], "same")
+                self.assertNotIn("same", str(raised.exception))
+
+    def test_nonadjacent_cursor_cycle_fails_closed_on_get_and_post(self):
+        for operation, result_key in (("stores.read", "locations"), ("inventory.read", "counts")):
+            with self.subTest(operation=operation):
+                connector, calls = self.connector([
+                    {result_key: [], "cursor": "first"},
+                    {result_key: [], "cursor": "second"},
+                    {result_key: [], "cursor": "first"},
+                ])
+                with self.assertRaisesRegex(SquareResponseError, "^square_cursor_repeated$"):
+                    connector.read(operation)
+                self.assertEqual(len(calls), 3)
+
+    def test_malformed_cursors_fail_closed_before_extra_requests(self):
+        for operation, result_key in (("products.read", "objects"), ("inventory.read", "counts")):
+            for invalid in (0, False, True, [], {}, 1.5):
+                with self.subTest(operation=operation, invalid=repr(invalid)):
+                    connector, calls = self.connector([{result_key: [], "cursor": invalid}])
+                    with self.assertRaisesRegex(SquareResponseError, "^square_cursor_must_be_string$"):
+                        connector.read(operation)
+                    self.assertEqual(len(calls), 1)
+
+    def test_distinct_cursors_and_empty_terminal_cursor_succeed(self):
+        for operation, result_key, request_key in (
+            ("products.read", "objects", "params"),
+            ("inventory.read", "counts", "json"),
+        ):
+            with self.subTest(operation=operation):
+                connector, calls = self.connector([
+                    {result_key: [{"id": "one"}], "cursor": "next-1"},
+                    {result_key: [{"id": "two"}], "cursor": "next-2"},
+                    {result_key: [{"id": "three"}], "cursor": ""},
+                ])
+                self.assertEqual(connector.read(operation), [
+                    {"id": "one"}, {"id": "two"}, {"id": "three"},
+                ])
+                self.assertEqual(len(calls), 3)
+                self.assertEqual(calls[1][2][request_key]["cursor"], "next-1")
+                self.assertEqual(calls[2][2][request_key]["cursor"], "next-2")
+
     def test_product_normalization_preserves_identity_and_absence(self):
         records = canonical_square_products([
             {"type": "ITEM", "id": "item-1", "item_data": {"name": "Coffee"}},
