@@ -154,6 +154,17 @@ class LoyverseTests(unittest.TestCase):
         self.assertNotIn("sale_price", unsupported)
         self.assertEqual(zero["sale_price"], {"amount": "0", "currency": "EUR"})
 
+    def test_canonical_product_rejects_negative_price_without_changing_refund_money(self):
+        for price in (-1, Decimal("-0.01"), Decimal("-1000000000.00")):
+            with self.subTest(price=price):
+                with self.assertRaisesRegex(LoyverseError, "^invalid_product_price$"):
+                    canonical_product({"id": "negative", "name": "Synthetic", "price": price}, {"currency": "EUR"})
+        # The generic money formatter still preserves signs for other contexts.
+        self.assertEqual(
+            canonical_money({"amount": Decimal("-0.01")}, "amount", {"currency": "EUR"}),
+            {"amount": "-0.01", "currency": "EUR"},
+        )
+
     def test_canonical_product_rejects_invalid_required_fields(self):
         cases = (({}, "invalid_product_identity"), ({"id": "", "name": "X"}, "invalid_product_identity"), ({"id": "x"}, "invalid_product_name"), ({"id": "x", "name": "   "}, "invalid_product_name"))
         for variant, code in cases:
