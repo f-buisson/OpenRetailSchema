@@ -9,7 +9,7 @@ Status: **documented + synthetic implementation merged on `main`**. No live Squa
 Reviewed against Square's public API reference on 2026-10-06, API version `2026-09-16` where exposed by the current reference:
 
 - Catalog `GET /v2/catalog/list`: `ITEMS_READ`; cursor pagination; the connector explicitly requests `ITEM,ITEM_VARIATION` rather than relying on version-dependent default object types.
-- Orders `POST /v2/orders/search`: `ORDERS_READ`; cursor pagination; at most 10 location IDs per search request. Orders include Square sales and returns, but OpenRetailSchema does not yet normalize them into canonical sales.
+- Orders `POST /v2/orders/search`: `ORDERS_READ`; cursor pagination; at most 10 location IDs per search request. The read operation returns provider orders; separate conservative mappers normalize completed sales and unambiguous refunds with explicit unsupported fields.
 - Locations `GET /v2/locations`: `MERCHANT_PROFILE_READ`; used to discover the seller locations required by Orders search.
 - Inventory `POST /v2/inventory/counts/batch-retrieve`: `INVENTORY_READ`; cursor pagination and optional filters. Quantities remain provider strings; no missing value is converted to zero.
 - Square documents HTTP 429 / `RATE_LIMITED` responses and recommends exponential backoff with jitter. The connector now applies bounded retries to these read operations with injected delays; synthetic tests prove retry bounds and fail-closed exhaustion. This is implementation evidence, not a live quota/certification claim.
@@ -54,7 +54,7 @@ Additional authoritative references:
 
 ## Current connector boundary
 
-`connectors/square.py` is deliberately transport-injected and read-only. It has no SDK dependency, credentials, persistence, OAuth flow, webhook handling, or write operation. Canonical normalization currently exists only for products; sales, stores and inventory remain provider-level read results until their semantics are defined and tested.
+`connectors/square.py` is deliberately transport-injected and read-only. It has no SDK dependency, credentials, persistence, OAuth flow, webhook handling, or write operation. Read operations return provider dictionaries; separate tested mappers provide conservative canonical products, completed sales and unambiguous refunds. Stores and inventory do not have canonical mappers.
 
 The common operations are mapped as follows:
 
@@ -64,6 +64,12 @@ The common operations are mapped as follows:
 | `sales.read` | Locations + Orders search, location IDs chunked to the documented limit of 10 | synthetic implementation |
 | `stores.read` | Locations list | synthetic implementation |
 | `inventory.read` | Batch retrieve inventory counts | synthetic implementation |
+
+For `sales.read`, every returned Locations entry is validated before any
+Orders search request is sent. Non-object entries, invalid/blank location IDs
+and duplicate IDs (including across pages) fail with sanitized errors.
+An explicitly empty Locations list retains the existing empty result; this
+does not certify provider completeness. IDs keep order and ten-ID batching.
 
 `stores.read`, `sales.read` and `inventory.read` still return provider dictionaries unchanged. `products.read` can be normalized separately with `canonical_square_products()`: `ITEM_VARIATION` is the source identity, parent `ITEM` supplies the canonical name, optional SKU/UPC/deletion state are preserved only when valid, orphan variations fail closed, and `sale_price` is emitted only where Square's pricing semantics are unambiguous.
 

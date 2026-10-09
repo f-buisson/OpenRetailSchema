@@ -12,17 +12,16 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-PAGINATION-CYCLE-01
+- Work ID: P4-SQUARE-LOCATION-COMPLETENESS-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
-- State: ACCEPTED
-- Base product HEAD: 6e2aefae201837c11dc63e100042217b930ef181.
-- Previous handoff: P2-LOYVERSE-EXPLICIT-PRICE-01 accepted through merged PR #43, with 120 complete regression tests and public checks green.
-- Scope: reject repeated Square pagination cursors on GET and POST reads, including non-adjacent cycles; reject falsy non-string cursors while preserving absent, null and empty-string termination.
-- Acceptance: repeated cursors raise sanitized `square_cursor_repeated`; malformed cursors raise `square_cursor_must_be_string`; no extra transport calls after detection; distinct cursors continue; page limits, retries and mappings remain unchanged.
-- Evidence required: targeted Square tests including negative cases, full repository regression, JSON example validation, diff check and public PR checks on the exact commit.
-- Evidence observed on this branch: `tests.test_square` 18 tests OK; complete regression 125 tests OK, exit 0, zero skips; the 13 JSON examples behave as their names declare; `git diff --check` clean. Three mutations killed: removing cycle detection, restoring the falsy cursor shortcut, and shifting the page budget each turn witnesses red.
-- Defect found and fixed in review: the published commit left the complete suite red at 2 failures. `tests/test_square_pagination_safety.py` pinned the superseded safety net, where a stuck cursor was requested until the page budget stopped it. Those two witnesses were retargeted at the stronger guarantee rather than deleted, and a third was added because they were the only multi-page budget coverage, which cycle detection would otherwise have hidden.
-- Next action: none for this lot, accepted through merged PR #44 (merge commit 6e9e6c5dfabc3ca49c215a6aaf65dcf462d28008). Public checks green on the reviewed commit and again on main after merge. Authorized Square Sandbox execution, live Loyverse connector execution and independent OAuth validation remain deferred and unclaimed.
+- State: BUILDING
+- Base product HEAD: 7cb938f2a2bf4b7483a83e4c3757c4bd74d8e39a.
+- Previous handoff: P4-SQUARE-PAGINATION-CYCLE-01 accepted through merged PR #44, with 125 complete regression tests and public checks green.
+- Scope: validate every Square location ID before sales search; refuse malformed and repeated IDs without silently truncating the location set or querying orders twice.
+- Acceptance: malformed locations fail closed with sanitized errors; duplicates across pages fail closed; explicitly empty locations retain the existing empty result; eleven valid locations retain ten-ID batching; no Orders request occurs after invalid location discovery.
+- Evidence required: targeted Square tests, full regression, JSON example validation, diff check and public PR checks on the exact commit.
+- Evidence observed: pending; no repository tests have been executed for this lot yet.
+- Next action: run tests, review the exact diff, publish a PR only after local checks pass, and preserve the three deferred live Square/Loyverse/OAuth gates.
 
 ## Handoff discipline
 

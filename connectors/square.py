@@ -143,7 +143,16 @@ class SquareConnector:
             )
         if operation == "sales.read":
             locations = self._paginate_get("/v2/locations", "locations", max_pages=max_pages)
-            location_ids = [item.get("id") for item in locations if isinstance(item, dict) and item.get("id")]
+            location_ids: list[str] = []
+            seen_location_ids: set[str] = set()
+            for item in locations:
+                if not isinstance(item, dict):
+                    raise SquareResponseError("square_location_must_be_object")
+                location_id = _required_nonempty_string(item.get("id"), "square_location_id_invalid")
+                if location_id in seen_location_ids:
+                    raise SquareResponseError("square_location_id_repeated")
+                seen_location_ids.add(location_id)
+                location_ids.append(location_id)
             if not location_ids:
                 return []
             records: list[dict] = []
