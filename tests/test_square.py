@@ -55,6 +55,119 @@ class SquareConnectorTests(unittest.TestCase):
         self.assertEqual(len(order_calls[0][2]["json"]["location_ids"]), 10)
         self.assertEqual(len(order_calls[1][2]["json"]["location_ids"]), 1)
 
+    def test_sales_with_no_locations_makes_no_order_search(self):
+        connector, calls = self.connector([{"locations": []}])
+        self.assertEqual(connector.read("sales.read"), [])
+        self.assertEqual([path for _, path, _ in calls], ["/v2/locations"])
+
+    def test_sales_rejects_a_locations_page_missing_the_property(self):
+        cases = (
+            ("first page", [{}], 1),
+            ("page carrying only a cursor", [{"cursor": "next"}], 1),
+            ("subsequent page", [{"locations": [{"id": "location-1"}], "cursor": "next"}, {}], 2),
+            ("empty first page then an incomplete one", [{"locations": [], "cursor": "next"}, {}], 2),
+        )
+        for label, responses, location_calls in cases:
+            with self.subTest(case=label):
+                connector, calls = self.connector(responses)
+                with self.assertRaises(SquareResponseError) as raised:
+                    connector.read("sales.read")
+                self.assertEqual(str(raised.exception), "square_locations_missing")
+                # A location set that could not be learned must never become an
+                # order search: a partial set would report fewer sales as success.
+                self.assertEqual([path for _, path, _ in calls], ["/v2/locations"] * location_calls)
+
+    def test_sales_keeps_an_empty_locations_page_distinct_from_a_missing_one(self):
+        connector, calls = self.connector([
+            {"locations": [], "cursor": "next"},
+            {"locations": [{"id": "location-1"}]},
+            {"orders": [{"id": "order-a"}]},
+        ])
+        self.assertEqual(connector.read("sales.read"), [{"id": "order-a"}])
+        self.assertEqual(
+            [path for _, path, _ in calls],
+            ["/v2/locations", "/v2/locations", "/v2/orders/search"],
+        )
+
+    def test_missing_locations_error_carries_no_payload_data(self):
+        connector, _ = self.connector([{"merchant_id": "merchant-private", "detail": "payload-detail"}])
+        with self.assertRaises(SquareResponseError) as raised:
+            connector.read("sales.read")
+        self.assertEqual(str(raised.exception), "square_locations_missing")
+        self.assertNotIn("merchant-private", str(raised.exception))
+        self.assertNotIn("payload-detail", str(raised.exception))
+
+    def test_locations_requirement_does_not_leak_into_other_reads(self):
+        for operation in ("products.read", "inventory.read"):
+            with self.subTest(operation=operation):
+                connector, _ = self.connector([{}])
+                raised = None
+                try:
+                    connector.read(operation)
+                except SquareResponseError as error:
+                    raised = str(error)
+                # Only the locations traversal was made to require its result key.
+                # What a catalog or inventory payload missing its own result key
+                # ought to do is a separate question, still open; it must never be
+                # answered with a locations error code.
+                self.assertNotEqual(raised, "square_locations_missing")
+
+    def test_sales_rejects_invalid_location_entries_before_order_search(self):
+        invalid_cases = (
+            (None, "square_location_must_be_object"),
+            ("location-sensitive", "square_location_must_be_object"),
+            ({}, "square_location_id_invalid"),
+            ({"id": None}, "square_location_id_invalid"),
+            ({"id": ""}, "square_location_id_invalid"),
+            ({"id": "   "}, "square_location_id_invalid"),
+            ({"id": 3}, "square_location_id_invalid"),
+            ({"id": 0}, "square_location_id_invalid"),
+            ({"id": False}, "square_location_id_invalid"),
+            ({"id": {}}, "square_location_id_invalid"),
+            ({"id": True}, "square_location_id_invalid"),
+            ({"id": []}, "square_location_id_invalid"),
+        )
+        for bad_entry, error_code in invalid_cases:
+            with self.subTest(entry=type(bad_entry).__name__, code=error_code):
+                connector, calls = self.connector([{
+                    "locations": [{"id": "location-valid"}, bad_entry],
+                }])
+                with self.assertRaises(SquareResponseError) as raised:
+                    connector.read("sales.read")
+                self.assertEqual(str(raised.exception), error_code)
+                self.assertEqual([path for _, path, _ in calls], ["/v2/locations"])
+                self.assertNotIn("location-sensitive", str(raised.exception))
+
+    def test_sales_rejects_duplicate_location_ids_across_pages(self):
+        connector, calls = self.connector([
+            {"locations": [{"id": "location-1"}], "cursor": "next"},
+            {"locations": [{"id": "location-2"}, {"id": "location-1"}]},
+        ])
+        with self.assertRaises(SquareResponseError) as raised:
+            connector.read("sales.read")
+        self.assertEqual(str(raised.exception), "square_location_id_repeated")
+        self.assertEqual([path for _, path, _ in calls], ["/v2/locations", "/v2/locations"])
+
+    def test_sales_rejects_duplicate_location_ids_within_page(self):
+        connector, calls = self.connector([{
+            "locations": [{"id": "location-1"}, {"id": "location-1"}],
+        }])
+        with self.assertRaises(SquareResponseError) as raised:
+            connector.read("sales.read")
+        self.assertEqual(str(raised.exception), "square_location_id_repeated")
+        self.assertEqual([path for _, path, _ in calls], ["/v2/locations"])
+
+    def test_sales_valid_locations_preserve_order_and_batch_boundaries(self):
+        ids = [f"location-{index}" for index in range(11)]
+        connector, calls = self.connector([
+            {"locations": [{"id": item} for item in ids]},
+            {"orders": [{"id": "order-a"}]},
+            {"orders": [{"id": "order-b"}]},
+        ])
+        self.assertEqual(connector.read("sales.read"), [{"id": "order-a"}, {"id": "order-b"}])
+        batches = [request["json"]["location_ids"] for _, path, request in calls if path == "/v2/orders/search"]
+        self.assertEqual(batches, [ids[:10], ids[10:]])
+
     def test_rate_limit_retries_are_bounded_and_use_backoff(self):
         delays = []
         connector, calls = self.connector([{"errors": [{"code": "RATE_LIMITED"}]}, {"errors": [{"code": "RATE_LIMITED"}]}, {"locations": [{"id": "location-1"}]}], max_retries=2, sleeper=delays.append)

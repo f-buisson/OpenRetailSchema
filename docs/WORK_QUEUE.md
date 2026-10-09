@@ -12,17 +12,18 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-PAGINATION-CYCLE-01
+- Work ID: P4-SQUARE-LOCATION-COMPLETENESS-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
-- State: ACCEPTED
-- Base product HEAD: 6e2aefae201837c11dc63e100042217b930ef181.
-- Previous handoff: P2-LOYVERSE-EXPLICIT-PRICE-01 accepted through merged PR #43, with 120 complete regression tests and public checks green.
-- Scope: reject repeated Square pagination cursors on GET and POST reads, including non-adjacent cycles; reject falsy non-string cursors while preserving absent, null and empty-string termination.
-- Acceptance: repeated cursors raise sanitized `square_cursor_repeated`; malformed cursors raise `square_cursor_must_be_string`; no extra transport calls after detection; distinct cursors continue; page limits, retries and mappings remain unchanged.
-- Evidence required: targeted Square tests including negative cases, full repository regression, JSON example validation, diff check and public PR checks on the exact commit.
-- Evidence observed on this branch: `tests.test_square` 18 tests OK; complete regression 125 tests OK, exit 0, zero skips; the 13 JSON examples behave as their names declare; `git diff --check` clean. Three mutations killed: removing cycle detection, restoring the falsy cursor shortcut, and shifting the page budget each turn witnesses red.
-- Defect found and fixed in review: the published commit left the complete suite red at 2 failures. `tests/test_square_pagination_safety.py` pinned the superseded safety net, where a stuck cursor was requested until the page budget stopped it. Those two witnesses were retargeted at the stronger guarantee rather than deleted, and a third was added because they were the only multi-page budget coverage, which cycle detection would otherwise have hidden.
-- Next action: none for this lot, accepted through merged PR #44 (merge commit 6e9e6c5dfabc3ca49c215a6aaf65dcf462d28008). Public checks green on the reviewed commit and again on main after merge. Authorized Square Sandbox execution, live Loyverse connector execution and independent OAuth validation remain deferred and unclaimed.
+- State: REVIEW
+- Base product HEAD: 7cb938f2a2bf4b7483a83e4c3757c4bd74d8e39a.
+- Previous handoff: P4-SQUARE-PAGINATION-CYCLE-01 accepted through merged PR #44, with 125 complete regression tests and public checks green.
+- Scope: refuse an incomplete Square location set instead of reporting it as an empty one. A Locations page with no `locations` property at all is now distinguished from an explicitly empty list, on the first page and on every later page, and every entry is validated before any Orders search is sent.
+- Acceptance: malformed locations fail closed with sanitized errors; duplicates across pages fail closed; explicitly empty locations retain the existing empty result; eleven valid locations retain ten-ID batching; no Orders request occurs after invalid location discovery.
+- Evidence required: targeted Square tests, full regression, JSON example validation, diff check and public PR checks on the exact commit.
+- Evidence observed on this branch: `tests.test_square` 27 tests OK; complete regression 134 tests OK, exit 0, zero skips; the 13 JSON examples behave as their names declare; `git diff --check` clean.
+- Defect found and fixed in review: the published commit validated location entries but left a missing `locations` property indistinguishable from an empty list, because `_paginate_get` defaults an absent result key to `[]`. Measured on that commit, an absent property on the first page returned no sales at all, and an absent property on a later page carried on with a PARTIAL location set and searched orders anyway, reporting incompleteness as success. The requirement is declared per call, so no other operation changed in this lot.
+- Mutation evidence: removing the guard, checking only the first page, and widening the guard to every GET read each turn witnesses red. The third mutation initially SURVIVED, which showed nothing pinned the scope; a witness was added so a locations error code can never answer a catalog or inventory payload.
+- Next action: review this lot and its public CI evidence before acceptance. The three deferred gates stay open: authorized Square Sandbox or seller-account execution, live Loyverse connector execution and independent OAuth validation.
 
 ## Handoff discipline
 
