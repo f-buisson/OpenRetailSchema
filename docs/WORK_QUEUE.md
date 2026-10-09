@@ -14,7 +14,7 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 - Work ID: P4-SQUARE-LOCATION-COMPLETENESS-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
-- State: REVIEW
+- State: ACCEPTED
 - Base product HEAD: 7cb938f2a2bf4b7483a83e4c3757c4bd74d8e39a.
 - Previous handoff: P4-SQUARE-PAGINATION-CYCLE-01 accepted through merged PR #44, with 125 complete regression tests and public checks green.
 - Scope: refuse an incomplete Square location set instead of reporting it as an empty one. A Locations page with no `locations` property at all is now distinguished from an explicitly empty list, on the first page and on every later page, and every entry is validated before any Orders search is sent.
@@ -23,7 +23,7 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 - Evidence observed on this branch: `tests.test_square` 27 tests OK; complete regression 134 tests OK, exit 0, zero skips; the 13 JSON examples behave as their names declare; `git diff --check` clean.
 - Defect found and fixed in review: the published commit validated location entries but left a missing `locations` property indistinguishable from an empty list, because `_paginate_get` defaults an absent result key to `[]`. Measured on that commit, an absent property on the first page returned no sales at all, and an absent property on a later page carried on with a PARTIAL location set and searched orders anyway, reporting incompleteness as success. The requirement is declared per call, so no other operation changed in this lot.
 - Mutation evidence: removing the guard, checking only the first page, and widening the guard to every GET read each turn witnesses red. The third mutation initially SURVIVED, which showed nothing pinned the scope; a witness was added so a locations error code can never answer a catalog or inventory payload.
-- Next action: review this lot and its public CI evidence before acceptance. The three deferred gates stay open: authorized Square Sandbox or seller-account execution, live Loyverse connector execution and independent OAuth validation.
+- Next action: none for this lot, accepted through merged PR #45 (merge commit ff5ac219325751422c929dccb816287f255bc486). Public checks green on the reviewed commit and again on main after merge. The three deferred gates stay open: authorized Square Sandbox or seller-account execution, live Loyverse connector execution and independent OAuth validation.
 
 ## Handoff discipline
 
