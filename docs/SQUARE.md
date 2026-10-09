@@ -68,8 +68,12 @@ The common operations are mapped as follows:
 For `sales.read`, every returned Locations entry is validated before any
 Orders search request is sent. Non-object entries, invalid/blank location IDs
 and duplicate IDs (including across pages) fail with sanitized errors.
-An explicitly empty Locations list retains the existing empty result; this
-does not certify provider completeness. IDs keep order and ten-ID batching.
+A Locations page carrying no `locations` property at all fails closed with
+`square_locations_missing`, on the first page and on every later page: a
+location set that could not be read must not become a partial Orders search
+reported as success. An explicitly empty Locations list states a different
+fact and retains the existing empty result; neither case certifies provider
+completeness. IDs keep order and ten-ID batching.
 
 `stores.read`, `sales.read` and `inventory.read` still return provider dictionaries unchanged. `products.read` can be normalized separately with `canonical_square_products()`: `ITEM_VARIATION` is the source identity, parent `ITEM` supplies the canonical name, optional SKU/UPC/deletion state are preserved only when valid, orphan variations fail closed, and `sale_price` is emitted only where Square's pricing semantics are unambiguous.
 

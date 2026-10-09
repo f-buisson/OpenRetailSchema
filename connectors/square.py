@@ -89,7 +89,7 @@ class SquareConnector:
         seen.add(cursor)
         return cursor
 
-    def _paginate_get(self, path: str, result_key: str, *, params=None, max_pages: int = 100) -> list[dict]:
+    def _paginate_get(self, path: str, result_key: str, *, params=None, max_pages: int = 100, missing_key_code: str | None = None) -> list[dict]:
         if max_pages < 1:
             raise ValueError("max_pages_must_be_positive")
         base = dict(params or {})
@@ -101,6 +101,8 @@ class SquareConnector:
             if cursor:
                 page_params["cursor"] = cursor
             response = self._request("GET", path, params=page_params)
+            if missing_key_code is not None and result_key not in response:
+                raise SquareResponseError(missing_key_code)
             page = response.get(result_key, [])
             if not isinstance(page, list):
                 raise SquareResponseError("square_result_must_be_array")
@@ -142,7 +144,12 @@ class SquareConnector:
                 max_pages=max_pages,
             )
         if operation == "sales.read":
-            locations = self._paginate_get("/v2/locations", "locations", max_pages=max_pages)
+            locations = self._paginate_get(
+                "/v2/locations",
+                "locations",
+                max_pages=max_pages,
+                missing_key_code="square_locations_missing",
+            )
             location_ids: list[str] = []
             seen_location_ids: set[str] = set()
             for item in locations:
