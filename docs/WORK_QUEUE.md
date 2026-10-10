@@ -14,7 +14,7 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 - Work ID: P4-SQUARE-STORES-COMPLETENESS-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
-- State: REVIEW
+- State: ACCEPTED
 - Base product HEAD: 159e3ed088ae3d58a968b1c0f34d6250bcabac54.
 - Previous handoff: P4-SQUARE-LOCATION-COMPLETENESS-01 accepted through merged PR #45; PR and main workflow checks passed on 2026-10-09.
 - Scope: extend the per-page `square_locations_missing` guard to `stores.read`. Both operations read `GET /v2/locations`, but only the `sales.read` traversal declared its result key mandatory, so a Locations payload with no `locations` property reported zero stores instead of failing closed.
@@ -22,7 +22,7 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 - Evidence required: targeted Square tests, full regression, JSON example validation, diff check and public PR checks on the exact commit.
 - Evidence observed on this branch: `tests.test_square` 30 tests OK; complete regression 137 tests OK, exit 0, zero skips; the 13 JSON examples behave as their names declare; `git diff --check origin/main...HEAD` clean; no secret or client-data pattern in the diff or the commit metadata.
 - Mutation evidence: removing the guard from `stores.read`, and narrowing it to the first page only, each turn witnesses red. The second also reddens the `sales.read` witness, which is the point: the two operations now share one rule.
-- Next action: review this lot and its public CI evidence before acceptance. The deferred gates are unchanged and unclaimed: an authorized Square Sandbox or seller-account connector run, live Loyverse connector execution, and independent OAuth validation.
+- Next action: none for this lot, accepted through merged PR #46 (merge commit c41fd85f1c18a4ac67a6655af580fdf48b607cb0). Public checks green on the reviewed commit and again on main after merge. The deferred gates are unchanged and unclaimed: an authorized Square Sandbox or seller-account connector run, live Loyverse connector execution, and independent OAuth validation.
 
 ## Handoff discipline
 
