@@ -75,6 +75,11 @@ reported as success. An explicitly empty Locations list states a different
 fact and retains the existing empty result; neither case certifies provider
 completeness. IDs keep order and ten-ID batching.
 
+`stores.read` uses the same per-page `square_locations_missing` guard: a missing
+`locations` property is an incomplete provider response, not evidence of zero
+stores. An explicitly empty list remains a valid empty response. This does not
+change catalog or inventory reads, and it is not live-provider certification.
+
 `stores.read`, `sales.read` and `inventory.read` still return provider dictionaries unchanged. `products.read` can be normalized separately with `canonical_square_products()`: `ITEM_VARIATION` is the source identity, parent `ITEM` supplies the canonical name, optional SKU/UPC/deletion state are preserved only when valid, orphan variations fail closed, and `sale_price` is emitted only where Square's pricing semantics are unambiguous.
 
 ## Pagination integrity

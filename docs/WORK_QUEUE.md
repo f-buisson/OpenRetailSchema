@@ -12,18 +12,17 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-LOCATION-COMPLETENESS-01
+- Work ID: P4-SQUARE-STORES-COMPLETENESS-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
-- State: ACCEPTED
-- Base product HEAD: 7cb938f2a2bf4b7483a83e4c3757c4bd74d8e39a.
-- Previous handoff: P4-SQUARE-PAGINATION-CYCLE-01 accepted through merged PR #44, with 125 complete regression tests and public checks green.
-- Scope: refuse an incomplete Square location set instead of reporting it as an empty one. A Locations page with no `locations` property at all is now distinguished from an explicitly empty list, on the first page and on every later page, and every entry is validated before any Orders search is sent.
-- Acceptance: malformed locations fail closed with sanitized errors; duplicates across pages fail closed; explicitly empty locations retain the existing empty result; eleven valid locations retain ten-ID batching; no Orders request occurs after invalid location discovery.
+- State: REVIEW
+- Base product HEAD: 159e3ed088ae3d58a968b1c0f34d6250bcabac54.
+- Previous handoff: P4-SQUARE-LOCATION-COMPLETENESS-01 accepted through merged PR #45; PR and main workflow checks passed on 2026-10-09.
+- Scope: extend the per-page `square_locations_missing` guard to `stores.read`. Both operations read `GET /v2/locations`, but only the `sales.read` traversal declared its result key mandatory, so a Locations payload with no `locations` property reported zero stores instead of failing closed.
+- Acceptance: a Locations page with no `locations` property fails closed on the first page and on every later page; an explicitly empty list keeps its empty result; `locations: null` keeps `square_result_must_be_array`; cursor cycles, malformed cursors, page budgets and bounded retries are unchanged; `stores.read` still returns provider dictionaries untouched, and `sales.read` entry validation is unaffected.
 - Evidence required: targeted Square tests, full regression, JSON example validation, diff check and public PR checks on the exact commit.
-- Evidence observed on this branch: `tests.test_square` 27 tests OK; complete regression 134 tests OK, exit 0, zero skips; the 13 JSON examples behave as their names declare; `git diff --check` clean.
-- Defect found and fixed in review: the published commit validated location entries but left a missing `locations` property indistinguishable from an empty list, because `_paginate_get` defaults an absent result key to `[]`. Measured on that commit, an absent property on the first page returned no sales at all, and an absent property on a later page carried on with a PARTIAL location set and searched orders anyway, reporting incompleteness as success. The requirement is declared per call, so no other operation changed in this lot.
-- Mutation evidence: removing the guard, checking only the first page, and widening the guard to every GET read each turn witnesses red. The third mutation initially SURVIVED, which showed nothing pinned the scope; a witness was added so a locations error code can never answer a catalog or inventory payload.
-- Next action: none for this lot, accepted through merged PR #45 (merge commit ff5ac219325751422c929dccb816287f255bc486). Public checks green on the reviewed commit and again on main after merge. The three deferred gates stay open: authorized Square Sandbox or seller-account execution, live Loyverse connector execution and independent OAuth validation.
+- Evidence observed on this branch: `tests.test_square` 30 tests OK; complete regression 137 tests OK, exit 0, zero skips; the 13 JSON examples behave as their names declare; `git diff --check origin/main...HEAD` clean; no secret or client-data pattern in the diff or the commit metadata.
+- Mutation evidence: removing the guard from `stores.read`, and narrowing it to the first page only, each turn witnesses red. The second also reddens the `sales.read` witness, which is the point: the two operations now share one rule.
+- Next action: review this lot and its public CI evidence before acceptance. The deferred gates are unchanged and unclaimed: an authorized Square Sandbox or seller-account connector run, live Loyverse connector execution, and independent OAuth validation.
 
 ## Handoff discipline
 

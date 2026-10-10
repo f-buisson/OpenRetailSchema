@@ -172,7 +172,12 @@ class SquareConnector:
                 ))
             return records
         if operation == "stores.read":
-            return self._paginate_get("/v2/locations", "locations", max_pages=max_pages)
+            return self._paginate_get(
+                "/v2/locations",
+                "locations",
+                max_pages=max_pages,
+                missing_key_code="square_locations_missing",
+            )
         if operation == "inventory.read":
             return self._paginate_post("/v2/inventory/counts/batch-retrieve", "counts", max_pages=max_pages)
         raise AssertionError("unreachable_common_read_operation")
