@@ -60,6 +60,39 @@ class SquareConnectorTests(unittest.TestCase):
         self.assertEqual(connector.read("sales.read"), [])
         self.assertEqual([path for _, path, _ in calls], ["/v2/locations"])
 
+    def test_stores_rejects_missing_locations_on_any_page(self):
+        cases = (
+            ("first page", [{}], 1),
+            ("later page", [{"locations": [{"id": "location-1"}], "cursor": "next"}, {}], 2),
+            ("empty first page", [{"locations": [], "cursor": "next"}, {}], 2),
+        )
+        for label, responses, expected_calls in cases:
+            with self.subTest(case=label):
+                connector, calls = self.connector(responses)
+                with self.assertRaises(SquareResponseError) as raised:
+                    connector.read("stores.read")
+                self.assertEqual(str(raised.exception), "square_locations_missing")
+                self.assertEqual([path for _, path, _ in calls], ["/v2/locations"] * expected_calls)
+
+    def test_stores_distinguishes_empty_and_null_locations(self):
+        connector, calls = self.connector([{"locations": []}])
+        self.assertEqual(connector.read("stores.read"), [])
+        self.assertEqual([path for _, path, _ in calls], ["/v2/locations"])
+
+        connector, calls = self.connector([{"locations": None}])
+        with self.assertRaises(SquareResponseError) as raised:
+            connector.read("stores.read")
+        self.assertEqual(str(raised.exception), "square_result_must_be_array")
+        self.assertEqual([path for _, path, _ in calls], ["/v2/locations"])
+
+    def test_stores_preserves_explicitly_empty_page_before_valid_locations(self):
+        connector, calls = self.connector([
+            {"locations": [], "cursor": "next"},
+            {"locations": [{"id": "location-1"}]},
+        ])
+        self.assertEqual(connector.read("stores.read"), [{"id": "location-1"}])
+        self.assertEqual([path for _, path, _ in calls], ["/v2/locations", "/v2/locations"])
+
     def test_sales_rejects_a_locations_page_missing_the_property(self):
         cases = (
             ("first page", [{}], 1),
