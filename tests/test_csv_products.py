@@ -99,6 +99,22 @@ class CsvProductsTests(unittest.TestCase):
             with self.assertRaises(MappingError):
                 import_products(self.csv(source), mapping())
 
+    def test_malformed_header_fails_closed_without_source_leak(self):
+        source = self.csv('ref;"synthetic-private-field\n')
+        with self.assertRaisesRegex(MappingError, "^malformed_csv$"):
+            import_products(source, mapping())
+        config = self.directory / "mapping.json"
+        config.write_text(json.dumps(mapping()), encoding="utf-8")
+        output = self.directory / "products.jsonl"
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--input", str(source),
+             "--mapping", str(config), "--output", str(output)],
+            cwd=ROOT, capture_output=True, text=True, check=False,
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stderr, "ERROR malformed_csv\n")
+        self.assertFalse(output.exists())
+
     def test_hard_max_rows(self):
         with self.assertRaises(MappingError):
             import_products(self.csv("ref;label;sku;barcode;price\n1;one;;;1,00\n2;two;;;2,00\n"), mapping(), max_rows=1)

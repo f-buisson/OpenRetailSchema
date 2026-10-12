@@ -147,9 +147,13 @@ def import_products(source_path: Path, mapping: dict, schema_path: Path = SCHEMA
     records, issues, seen = [], [], set()
     with source_path.open(newline="", encoding=mapping.get("encoding", "utf-8-sig")) as handle:
         reader = csv.DictReader(handle, delimiter=mapping.get("delimiter", ","), strict=True)
-        if not reader.fieldnames or len(reader.fieldnames) != len(set(reader.fieldnames)) or any(not h for h in reader.fieldnames):
+        try:
+            headers = reader.fieldnames
+        except csv.Error:
+            raise MappingError("malformed_csv") from None
+        if not headers or len(headers) != len(set(headers)) or any(not h for h in headers):
             raise MappingError("invalid_or_duplicate_headers")
-        missing = set(mapping["columns"].values()) - set(reader.fieldnames)
+        missing = set(mapping["columns"].values()) - set(headers)
         if missing:
             # Do not print values from source data or silently guess alternative headers.
             raise MappingError("missing_mapped_headers")
