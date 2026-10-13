@@ -18,6 +18,13 @@ class ConnectorExecutionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "pagination_cursor_invalid"):
             PageState(cursor="   ")
 
+    def test_pagination_cursor_rejects_non_string_values(self):
+        for invalid in (0, False, 1, True, 1.5, [], {}, ["next"]):
+            for has_more in (False, True):
+                with self.subTest(cursor=invalid, has_more=has_more):
+                    with self.assertRaisesRegex(ValueError, "pagination_cursor_invalid"):
+                        PageState(cursor=invalid, has_more=has_more)
+
     def test_checkpoint_is_explicit_caller_owned_progress(self):
         self.assertEqual(Checkpoint("2026-10-06T00:00:00Z").value, "2026-10-06T00:00:00Z")
         for invalid in ("", "   "):
