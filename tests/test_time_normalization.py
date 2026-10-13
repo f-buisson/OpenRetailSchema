@@ -66,5 +66,16 @@ class TimestampNormalizationTests(unittest.TestCase):
             normalize_timestamp("2026-02-10T12:30:00", timezone_name="Not/AZone")
 
 
+    def test_dst_occurrence_rejects_bool_and_float(self):
+        for invalid in (True, 1.0, 2.0):
+            with self.subTest(occurrence=invalid):
+                with self.assertRaisesRegex(TimestampNormalizationError, "invalid_occurrence"):
+                    normalize_timestamp(
+                        "2026-10-25T02:15:00",
+                        timezone_name="Europe/Paris",
+                        occurrence=invalid,
+                    )
+
+
 if __name__ == "__main__":
     unittest.main()

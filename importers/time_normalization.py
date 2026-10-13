@@ -52,7 +52,7 @@ def normalize_timestamp(value: str, *, timezone_name: str | None = None,
 
     if timezone_name is None:
         raise TimestampNormalizationError("timezone_required")
-    if occurrence not in (None, 1, 2):
+    if occurrence is not None and (type(occurrence) is not int or occurrence not in (1, 2)):
         raise TimestampNormalizationError("invalid_occurrence")
 
     try:
