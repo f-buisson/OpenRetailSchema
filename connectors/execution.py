@@ -25,6 +25,8 @@ class PageState:
     has_more: bool = False
 
     def __post_init__(self) -> None:
+        if self.cursor is not None and not isinstance(self.cursor, str):
+            raise ValueError("pagination_cursor_invalid")
         if self.has_more and not self.cursor:
             raise ValueError("pagination_cursor_required")
         if self.cursor is not None and not self.cursor.strip():
