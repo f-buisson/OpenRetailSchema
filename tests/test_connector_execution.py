@@ -64,5 +64,23 @@ class ConnectorExecutionTests(unittest.TestCase):
                 classify_http_failure(status)
 
 
+    def test_retry_after_rejects_non_finite_or_non_numeric_values(self):
+        invalid = (float("nan"), float("inf"), float("-inf"), True, False,
+                   "5", "", [], {}, complex(1, 2))
+        for value in invalid:
+            with self.subTest(value=repr(value)):
+                with self.assertRaisesRegex(ValueError, "retry_after_invalid"):
+                    classify_http_failure(429, value)
+
+    def test_retry_after_rejects_unrepresentable_integer(self):
+        with self.assertRaisesRegex(ValueError, "retry_after_invalid"):
+            classify_http_failure(429, 10 ** 1000)
+
+    def test_retry_after_accepts_finite_numeric_values_and_absence(self):
+        for value in (None, 0, 3, 1.25):
+            with self.subTest(value=value):
+                self.assertEqual(classify_http_failure(429, value).retry_after_seconds, value)
+
+
 if __name__ == "__main__":
     unittest.main()

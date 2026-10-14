@@ -16,7 +16,7 @@ OpenRetailSchema does not add persistent storage merely to hold checkpoints. Per
 
 ## Rate limits and retries
 
-`429` is classified as `rate_limit` and is retryable. A provider `Retry-After` delay, when represented by the common contract, must be explicit and non-negative. The common contract does not invent a retry delay when the provider does not supply one.
+`429` is classified as `rate_limit` and is retryable. A provider `Retry-After` delay, when represented by the common contract, must be an explicit, finite, non-negative numeric number of seconds (not a boolean or string). The common contract does not invent a retry delay when the provider does not supply one.
 
 Provider `5xx` failures are classified as `provider_unavailable` and are retryable. The generic contract deliberately does not prescribe retry counts, backoff schedules or jitter; an adapter may use bounded retry behavior appropriate to its documented provider constraints.
 
