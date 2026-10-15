@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 from typing import Optional
 
 
@@ -58,7 +59,14 @@ class ConnectorFailure:
         if self.retry_after_seconds is not None:
             if self.kind != "rate_limit":
                 raise ValueError("retry_after_requires_rate_limit")
-            if self.retry_after_seconds < 0:
+            delay = self.retry_after_seconds
+            if isinstance(delay, bool) or not isinstance(delay, (int, float)):
+                raise ValueError("retry_after_invalid")
+            try:
+                finite = isfinite(delay)
+            except OverflowError:
+                finite = False
+            if not finite or delay < 0:
                 raise ValueError("retry_after_invalid")
         if self.kind in {"authentication", "authorization", "entitlement", "invalid_request", "invalid_response"} and self.retryable:
             raise ValueError("permanent_connector_error_cannot_retry")
