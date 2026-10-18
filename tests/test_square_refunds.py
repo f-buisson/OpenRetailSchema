@@ -72,5 +72,40 @@ class SquareRefundNormalizationTests(unittest.TestCase):
             canonical_square_refunds([base_order], [refund])
 
 
+    def test_refund_created_at_rejects_non_rfc3339_forms(self):
+        return_order = {
+            "id": "refund-order-1", "location_id": "location-1",
+            "returns": [{
+                "source_order_id": "sale-order-1",
+                "return_line_items": [{
+                    "uid": "return-line-1", "source_line_item_uid": "sale-line-1",
+                    "catalog_object_id": "variation-1", "quantity": "1",
+                }],
+            }],
+        }
+        refund = {
+            "id": "refund-1", "order_id": "refund-order-1", "location_id": "location-1",
+            "status": "COMPLETED", "created_at": "2026-10-06T16:30:00Z",
+        }
+        for timestamp in (
+            "2026-10-06 16:30:00+00:00",
+            "20261006T163000+00:00",
+            "2026-10-06T16:30:00+00:00:30",
+            "2026-10-06T16:30:00+0000",
+        ):
+            with self.subTest(timestamp=timestamp):
+                with self.assertRaisesRegex(SquareResponseError, "^square_payment_refund_created_at_required$"):
+                    canonical_square_refunds([return_order], [{**refund, "created_at": timestamp}])
+
+        for timestamp in (
+            "2026-10-06T16:30:00Z",
+            "2026-10-06T16:30:00.123+02:00",
+            "2026-10-06t16:30:00z",
+        ):
+            with self.subTest(timestamp=timestamp):
+                records = canonical_square_refunds([return_order], [{**refund, "created_at": timestamp}])
+                self.assertEqual(records[0]["occurred_at"], timestamp)
+
+
 if __name__ == "__main__":
     unittest.main()

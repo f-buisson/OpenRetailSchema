@@ -12,18 +12,15 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-STORES-COMPLETENESS-01
+- Work ID: P4-SQUARE-RFC3339-TIMESTAMPS-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
-- State: ACCEPTED
-- Base product HEAD: 159e3ed088ae3d58a968b1c0f34d6250bcabac54.
-- Previous handoff: P4-SQUARE-LOCATION-COMPLETENESS-01 accepted through merged PR #45; PR and main workflow checks passed on 2026-10-09.
-- Scope: extend the per-page `square_locations_missing` guard to `stores.read`. Both operations read `GET /v2/locations`, but only the `sales.read` traversal declared its result key mandatory, so a Locations payload with no `locations` property reported zero stores instead of failing closed.
-- Acceptance: a Locations page with no `locations` property fails closed on the first page and on every later page; an explicitly empty list keeps its empty result; `locations: null` keeps `square_result_must_be_array`; cursor cycles, malformed cursors, page budgets and bounded retries are unchanged; `stores.read` still returns provider dictionaries untouched, and `sales.read` entry validation is unaffected.
-- Evidence required: targeted Square tests, full regression, JSON example validation, diff check and public PR checks on the exact commit.
-- Evidence observed on this branch: `tests.test_square` 30 tests OK; complete regression 137 tests OK, exit 0, zero skips; the 13 JSON examples behave as their names declare; `git diff --check origin/main...HEAD` clean; no secret or client-data pattern in the diff or the commit metadata.
-- Mutation evidence: removing the guard from `stores.read`, and narrowing it to the first page only, each turn witnesses red. The second also reddens the `sales.read` witness, which is the point: the two operations now share one rule.
-- Next action: none for this lot, accepted through merged PR #46 (merge commit c41fd85f1c18a4ac67a6655af580fdf48b607cb0). Public checks green on the reviewed commit and again on main after merge. The deferred gates are unchanged and unclaimed: an authorized Square Sandbox or seller-account connector run, live Loyverse connector execution, and independent OAuth validation.
+- State: REVIEW
+- Base product HEAD: a54e382c0474ad0de55e21955481c63acbcdac6c.
+- Previous handoff: P4-SQUARE-STORES-COMPLETENESS-01 accepted via merged PR #46; no reopening.
+- Scope: require RFC 3339 extended date-time syntax before mapping Square completed-order `closed_at` and completed PaymentRefund `created_at` into canonical `occurred_at`.
+- Defect: Python `datetime.fromisoformat` accepts space separators, basic/week dates and offsets with seconds or without colons; these are outside the published canonical RFC 3339 contract. The old function accepted seven such invalid forms in a local reproduction using its exact implementation.
+- Acceptance: reject malformed/non-RFC-3339 timestamps with the existing sanitized Square error codes, preserve valid `Z` and numeric offsets, fractional seconds and case-insensitive `t`/`z`; cover both sale and refund mapping without changing raw transport.
+- Evidence: isolated Python reproduction of the exact original helper observed 7 accepted invalid examples; the patched helper passed 2 local `unittest` methods with subtests for 8 invalid and 5 valid strings. This is NOT a fresh-checkout test of the full repository.
+- Remaining gate: execute `python -m unittest tests.test_square tests.test_square_refunds -v`, then `python -m unittest discover -s tests -v`, canonical validation and diff checks on the PR HEAD; public PR checks may provide independent confirmation. Do not claim live Square or OAuth certification.
+- Next action: review the proposed PR and its exact-HEAD tests; only mark ACCEPTED after reproducible suite evidence.
 
-## Handoff discipline
-
-Keep this file compact. Replace the current handoff when a new lot starts; durable product decisions belong in specifications or provider documentation. Deferred external live/OAuth proof remains incomplete without blocking independent implementation.
