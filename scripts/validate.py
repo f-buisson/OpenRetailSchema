@@ -20,7 +20,7 @@ def _has_explicit_offset(value: str) -> bool:
     if not isinstance(value, str):
         return False
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00").replace("z", "+00:00"))
     except ValueError:
         return False
     return parsed.tzinfo is not None and parsed.utcoffset() is not None
@@ -58,8 +58,8 @@ def semantic_errors(document: object) -> list[str]:
         start = document.get("interval_start")
         end = document.get("interval_end")
         if _has_explicit_offset(start) and _has_explicit_offset(end):
-            start_instant = datetime.fromisoformat(start.replace("Z", "+00:00"))
-            end_instant = datetime.fromisoformat(end.replace("Z", "+00:00"))
+            start_instant = datetime.fromisoformat(start.replace("Z", "+00:00").replace("z", "+00:00"))
+            end_instant = datetime.fromisoformat(end.replace("Z", "+00:00").replace("z", "+00:00"))
             if end_instant <= start_instant:
                 errors.append("interval_end: must represent an instant after interval_start")
     return errors
