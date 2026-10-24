@@ -92,6 +92,8 @@ class SquareRefundNormalizationTests(unittest.TestCase):
             "20261006T163000+00:00",
             "2026-10-06T16:30:00+00:00:30",
             "2026-10-06T16:30:00+0000",
+            "2026-10-06T16:30:00+00:60",
+            "2026-10-06T16:30:00+01:99",
         ):
             with self.subTest(timestamp=timestamp):
                 with self.assertRaisesRegex(SquareResponseError, "^square_payment_refund_created_at_required$"):
@@ -100,6 +102,7 @@ class SquareRefundNormalizationTests(unittest.TestCase):
         for timestamp in (
             "2026-10-06T16:30:00Z",
             "2026-10-06T16:30:00.123+02:00",
+            "2026-10-06T16:30:00+23:59",
             "2026-10-06t16:30:00z",
         ):
             with self.subTest(timestamp=timestamp):

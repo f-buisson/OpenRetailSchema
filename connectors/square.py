@@ -277,7 +277,7 @@ def canonical_square_products(objects: list[dict[str, Any]]) -> list[dict[str, A
 # datetime.fromisoformat also accepts basic/week dates, spaces and offsets with
 # seconds. Canonical event timestamps require the RFC 3339 extended shape.
 _SQUARE_RFC3339 = re.compile(
-    r"\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[Zz]|[+-]\d{2}:\d{2})",
+    r"\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[Zz]|[+-](?:[01]\d|2[0-3]):[0-5]\d)",
     re.ASCII,
 )
 
