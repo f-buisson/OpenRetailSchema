@@ -2,6 +2,7 @@
 import json
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -16,6 +17,15 @@ class SchemaValidationTests(unittest.TestCase):
             [sys.executable, str(VALIDATOR), str(SAMPLES / relative)],
             capture_output=True, text=True, check=False,
         )
+
+    def run_validator_document(self, document: dict):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "record.json"
+            path.write_text(json.dumps(document), encoding="utf-8")
+            return subprocess.run(
+                [sys.executable, str(VALIDATOR), str(path)],
+                capture_output=True, text=True, check=False,
+            )
 
     def test_valid_sale(self):
         self.assertEqual(self.run_validator("valid_sale.json").returncode, 0)
@@ -69,6 +79,27 @@ class SchemaValidationTests(unittest.TestCase):
     def test_dst_fallback_interval_is_ordered_by_absolute_instant(self):
         result = self.run_validator("valid_activity_dst_fallback.json")
         self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_lowercase_z_sale_is_valid(self):
+        sale = json.loads((SAMPLES / "valid_sale.json").read_text(encoding="utf-8"))
+        sale["occurred_at"] = "2026-10-06t12:34:56z"
+        result = self.run_validator_document(sale)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_lowercase_z_activity_interval_is_valid(self):
+        activity = json.loads((SAMPLES / "valid_activity_metric.json").read_text(encoding="utf-8"))
+        activity["interval_start"] = "2026-10-25t02:30:00+02:00"
+        activity["interval_end"] = "2026-10-25T02:15:00z"
+        result = self.run_validator_document(activity)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_lowercase_z_reversed_activity_interval_is_rejected(self):
+        activity = json.loads((SAMPLES / "valid_activity_metric.json").read_text(encoding="utf-8"))
+        activity["interval_start"] = "2026-10-25t02:30:00z"
+        activity["interval_end"] = "2026-10-25T02:15:00z"
+        result = self.run_validator_document(activity)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("interval_end: must represent an instant after interval_start", result.stderr)
 
     def test_reversed_activity_interval_is_rejected(self):
         result = self.run_validator("invalid_activity_reversed.json")
