@@ -9,6 +9,7 @@ missing provider values remain absent rather than becoming zero or empty strings
 from __future__ import annotations
 
 from collections.abc import Callable
+import re
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
@@ -273,10 +274,20 @@ def canonical_square_products(objects: list[dict[str, Any]]) -> list[dict[str, A
     return records
 
 
+# datetime.fromisoformat also accepts basic/week dates, spaces and offsets with
+# seconds. Canonical event timestamps require the RFC 3339 extended shape.
+_SQUARE_RFC3339 = re.compile(
+    r"\d{4}-\d{2}-\d{2}[Tt]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[Zz]|[+-](?:[01]\d|2[0-3]):[0-5]\d)",
+    re.ASCII,
+)
+
+
 def _required_timestamp(value: Any, code: str) -> str:
     value = _required_nonempty_string(value, code)
+    if _SQUARE_RFC3339.fullmatch(value) is None:
+        raise SquareResponseError(code)
     try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00").replace("z", "+00:00"))
     except ValueError:
         raise SquareResponseError(code) from None
     if parsed.tzinfo is None or parsed.utcoffset() is None:
