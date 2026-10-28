@@ -412,5 +412,52 @@ class SquareConnectorTests(unittest.TestCase):
             canonical_square_sales([{**base, "line_items": [{"uid": "line-1", "catalog_object_id": "variation-1", "quantity": "NaN"}]}])
 
 
+    def test_sale_closed_at_rejects_non_rfc3339_forms(self):
+        order = {
+            "id": "order-time", "location_id": "location-1", "state": "COMPLETED",
+            "closed_at": "2026-10-06T12:34:56Z",
+            "line_items": [{"uid": "line-1", "catalog_object_id": "variation-1", "quantity": "1"}],
+        }
+        # fromisoformat accepts these ISO 8601 variants, but the canonical
+        # contract requires RFC 3339's extended date/time and offset shape.
+        invalid = (
+            "2026-10-06 12:34:56+00:00",
+            "20261006T123456+00:00",
+            "2026-W41-2T12:34:56+00:00",
+            "2026-10-06T12:34:56+00:00:30",
+            "2026-10-06T12:34:56+0000",
+            "2026-10-06T12:34:56+00",
+            "2026-10-06T12:34+00:00",
+            "2026-02-30T12:34:56Z",
+            "2026-10-06T12:34:56+00:60",
+            "2026-10-06T12:34:56+01:99",
+            "2026-10-06T12:34:56-00:60",
+            "2026-10-06T12:34:56+12:60",
+            "2026-10-06T12:34:56+24:00",
+        )
+        for timestamp in invalid:
+            with self.subTest(timestamp=timestamp):
+                with self.assertRaisesRegex(SquareResponseError, "^square_order_closed_at_required$"):
+                    canonical_square_sales([{**order, "closed_at": timestamp}])
+
+    def test_sale_closed_at_preserves_valid_rfc3339_offsets(self):
+        order = {
+            "id": "order-time", "location_id": "location-1", "state": "COMPLETED",
+            "line_items": [{"uid": "line-1", "catalog_object_id": "variation-1", "quantity": "1"}],
+        }
+        valid = (
+            "2026-10-06T12:34:56Z",
+            "2026-10-06T12:34:56+00:00",
+            "2026-10-06T12:34:56.123456789+05:30",
+            "2026-10-06T12:34:56-04:00",
+            "2026-10-06T12:34:56+23:59",
+            "2026-10-06t12:34:56z",
+        )
+        for timestamp in valid:
+            with self.subTest(timestamp=timestamp):
+                records = canonical_square_sales([{**order, "closed_at": timestamp}])
+                self.assertEqual(records[0]["occurred_at"], timestamp)
+
+
 if __name__ == "__main__":
     unittest.main()

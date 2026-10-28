@@ -12,17 +12,18 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-STORES-COMPLETENESS-01
+- Work ID: P4-SQUARE-RFC3339-TIMESTAMPS-01
 - Roadmap phase: P4 — Square next, then evidence-backed adapters
-- State: ACCEPTED
-- Base product HEAD: 159e3ed088ae3d58a968b1c0f34d6250bcabac54.
-- Previous handoff: P4-SQUARE-LOCATION-COMPLETENESS-01 accepted through merged PR #45; PR and main workflow checks passed on 2026-10-09.
-- Scope: extend the per-page `square_locations_missing` guard to `stores.read`. Both operations read `GET /v2/locations`, but only the `sales.read` traversal declared its result key mandatory, so a Locations payload with no `locations` property reported zero stores instead of failing closed.
-- Acceptance: a Locations page with no `locations` property fails closed on the first page and on every later page; an explicitly empty list keeps its empty result; `locations: null` keeps `square_result_must_be_array`; cursor cycles, malformed cursors, page budgets and bounded retries are unchanged; `stores.read` still returns provider dictionaries untouched, and `sales.read` entry validation is unaffected.
-- Evidence required: targeted Square tests, full regression, JSON example validation, diff check and public PR checks on the exact commit.
-- Evidence observed on this branch: `tests.test_square` 30 tests OK; complete regression 137 tests OK, exit 0, zero skips; the 13 JSON examples behave as their names declare; `git diff --check origin/main...HEAD` clean; no secret or client-data pattern in the diff or the commit metadata.
-- Mutation evidence: removing the guard from `stores.read`, and narrowing it to the first page only, each turn witnesses red. The second also reddens the `sales.read` witness, which is the point: the two operations now share one rule.
-- Next action: none for this lot, accepted through merged PR #46 (merge commit c41fd85f1c18a4ac67a6655af580fdf48b607cb0). Public checks green on the reviewed commit and again on main after merge. The deferred gates are unchanged and unclaimed: an authorized Square Sandbox or seller-account connector run, live Loyverse connector execution, and independent OAuth validation.
+- State: REVIEW
+- Base product HEAD: a54e382c0474ad0de55e21955481c63acbcdac6c.
+- Previous handoff: P4-SQUARE-STORES-COMPLETENESS-01 accepted via merged PR #46; no reopening.
+- Scope: require RFC 3339 extended date-time syntax before mapping Square completed-order `closed_at` and completed PaymentRefund `created_at` into canonical `occurred_at`.
+- Defect: Python `datetime.fromisoformat` accepts space separators, basic/week dates and offsets with seconds or without colons; these are outside the published canonical RFC 3339 contract. The old function accepted seven such invalid forms in a local reproduction using its exact implementation.
+- Acceptance: reject malformed/non-RFC-3339 timestamps with the existing sanitized Square error codes, preserve valid `Z` and numeric offsets, fractional seconds and case-insensitive `t`/`z`; cover both sale and refund mapping without changing raw transport.
+- Evidence: PR #49 is OPEN/DRAFT. On its prior HEAD `94ae059b`, Python 3.12.14 with jsonschema 4.26.0 passed 147/147 synthetic tests on 2026-10-23. Independent isolated review subsequently proved that invalid offset minutes such as `+00:60` were still accepted by `datetime.fromisoformat` and returned unchanged; the existing PR now constrains offset hours to 00–23 and minutes to 00–59, with sale/refund regressions.
+- Remaining gate: rerun targeted Square tests, the full regression, canonical examples and diff checks from a clean checkout on the *new exact branch HEAD*. The 147/147 evidence predates this offset fix and must not be represented as certification of the new commit. Square Sandbox/seller-account execution, live Loyverse and OAuth OpenRetail remain NOT_RUN.
+- Next action: finish PR #49 review and exact-HEAD certification before acceptance; do not open a duplicate PR or merge automatically.
+
 
 ## Handoff discipline
 
