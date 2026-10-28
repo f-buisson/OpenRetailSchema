@@ -2,8 +2,10 @@
 """Validate OpenRetailSchema v0.1 records offline, without calling POS APIs."""
 import argparse
 import json
+import re
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+from fractions import Fraction
 from pathlib import Path
 
 try:
@@ -24,6 +26,39 @@ def _has_explicit_offset(value: str) -> bool:
     except ValueError:
         return False
     return parsed.tzinfo is not None and parsed.utcoffset() is not None
+
+
+_RFC3339 = re.compile(
+    r"^(\d{4}-\d{2}-\d{2})[Tt](\d{2}:\d{2}:\d{2})(?:\.(\d+))?([Zz]|[+-]\d{2}:\d{2})$"
+)
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
+def _exact_instant(value: str):
+    """Return the instant as an exact rational number of seconds since the epoch.
+
+    `datetime` keeps six fractional digits only: two distinct RFC 3339 instants
+    within one microsecond compared as equal, and a valid increasing interval
+    was rejected (issue #50). Whole seconds come from the UTC instant; the
+    fraction is kept as an exact rational, whatever its number of digits.
+    Returns None for forms outside RFC 3339, which keep the datetime path.
+    """
+    match = _RFC3339.match(value) if isinstance(value, str) else None
+    if match is None:
+        return None
+    date, clock, fraction, offset = match.groups()
+    offset = "+00:00" if offset in ("Z", "z") else offset
+    whole = datetime.fromisoformat(f"{date}T{clock}{offset}")
+    seconds = (whole - _EPOCH) // timedelta(seconds=1)
+    return Fraction(seconds) + (Fraction(int(fraction), 10 ** len(fraction)) if fraction else 0)
+
+
+def _instant_key(value: str):
+    exact = _exact_instant(value)
+    if exact is not None:
+        return exact
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00").replace("z", "+00:00"))
+    return Fraction((parsed - _EPOCH) // timedelta(microseconds=1), 10 ** 6)
 
 
 def _sale_currencies(document: dict) -> set[str]:
@@ -58,9 +93,7 @@ def semantic_errors(document: object) -> list[str]:
         start = document.get("interval_start")
         end = document.get("interval_end")
         if _has_explicit_offset(start) and _has_explicit_offset(end):
-            start_instant = datetime.fromisoformat(start.replace("Z", "+00:00").replace("z", "+00:00"))
-            end_instant = datetime.fromisoformat(end.replace("Z", "+00:00").replace("z", "+00:00"))
-            if end_instant <= start_instant:
+            if _instant_key(end) <= _instant_key(start):
                 errors.append("interval_end: must represent an instant after interval_start")
     return errors
 
