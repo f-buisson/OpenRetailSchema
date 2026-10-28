@@ -50,7 +50,16 @@ def _exact_instant(value: str):
     offset = "+00:00" if offset in ("Z", "z") else offset
     whole = datetime.fromisoformat(f"{date}T{clock}{offset}")
     seconds = (whole - _EPOCH) // timedelta(seconds=1)
-    return Fraction(seconds) + (Fraction(int(fraction), 10 ** len(fraction)) if fraction else 0)
+    if not fraction:
+        return Fraction(seconds)
+    # Convert in bounded chunks: int(long_decimal_string) raises ValueError on
+    # Python 3.11+ once the interpreter's decimal-digit safety limit is hit.
+    digits = fraction.rstrip("0")
+    numerator = 0
+    for index in range(0, len(digits), 1000):
+        chunk = digits[index:index + 1000]
+        numerator = numerator * (10 ** len(chunk)) + int(chunk)
+    return Fraction(seconds) + Fraction(numerator, 10 ** len(digits))
 
 
 def _instant_key(value: str):
