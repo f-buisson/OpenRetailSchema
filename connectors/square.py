@@ -295,8 +295,14 @@ def _required_timestamp(value: Any, code: str) -> str:
     return value
 
 
+# Square OrderLineItem and OrderReturnLineItem quantities are decimal strings
+# with a maximum length of 12. Do not accept exponent notation: Decimal("1e999999")
+# is short on input but format(..., "f") would expand it without bound.
+_SQUARE_QUANTITY = re.compile(r"(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)", re.ASCII)
+
+
 def _required_positive_quantity(value: Any, code: str) -> str:
-    if not isinstance(value, str) or not value.strip():
+    if not isinstance(value, str) or len(value) > 12 or _SQUARE_QUANTITY.fullmatch(value) is None:
         raise SquareResponseError(code)
     try:
         quantity = Decimal(value)
