@@ -48,13 +48,18 @@ def refund_inputs(quantity: str):
     return orders, refunds
 
 
+# Out-of-contract inputs shared by sales and refunds, which go through the same
+# validator. "١" (ARABIC-INDIC DIGIT ONE) and "２" (FULLWIDTH DIGIT TWO)
+# pin the ASCII-only rule: Decimal() accepts them, so only the pattern refuses them.
+INVALID_QUANTITIES = ("1e100000", "1e-100000", "1234567890123", "1_0",
+                      " 2 ", "+2", "NaN", "0", "١", "２")
+
+
 class SquareQuantityBoundsTests(unittest.TestCase):
     def test_sale_rejects_out_of_contract_quantities(self):
         # 1e100000 is only 8 input characters, but previously expanded
         # to 100001 output characters in Decimal fixed-point formatting.
-        invalid = ("1e100000", "1e-100000", "1234567890123",
-                   "1_0", " 2 ", "+2", "NaN", "0")
-        for quantity in invalid:
+        for quantity in INVALID_QUANTITIES:
             with self.subTest(quantity=quantity):
                 with self.assertRaisesRegex(
                     SquareResponseError, "^square_order_line_quantity_required$"
@@ -62,7 +67,7 @@ class SquareQuantityBoundsTests(unittest.TestCase):
                     canonical_square_sales(sale(quantity))
 
     def test_refund_rejects_out_of_contract_quantities(self):
-        for quantity in ("1e100000", "1e-100000", "1234567890123", "1_0"):
+        for quantity in INVALID_QUANTITIES:
             with self.subTest(quantity=quantity):
                 orders, refunds = refund_inputs(quantity)
                 with self.assertRaisesRegex(
