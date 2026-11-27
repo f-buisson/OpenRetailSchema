@@ -12,18 +12,17 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-RFC3339-TIMESTAMPS-01
-- Roadmap phase: P4 — Square next, then evidence-backed adapters
-- State: REVIEW
-- Base product HEAD: a54e382c0474ad0de55e21955481c63acbcdac6c.
-- Previous handoff: P4-SQUARE-STORES-COMPLETENESS-01 accepted via merged PR #46; no reopening.
-- Scope: require RFC 3339 extended date-time syntax before mapping Square completed-order `closed_at` and completed PaymentRefund `created_at` into canonical `occurred_at`.
-- Defect: Python `datetime.fromisoformat` accepts space separators, basic/week dates and offsets with seconds or without colons; these are outside the published canonical RFC 3339 contract. The old function accepted seven such invalid forms in a local reproduction using its exact implementation.
-- Acceptance: reject malformed/non-RFC-3339 timestamps with the existing sanitized Square error codes, preserve valid `Z` and numeric offsets, fractional seconds and case-insensitive `t`/`z`; cover both sale and refund mapping without changing raw transport.
-- Evidence: PR #49 is OPEN/DRAFT. On its prior HEAD `94ae059b`, Python 3.12.14 with jsonschema 4.26.0 passed 147/147 synthetic tests on 2026-10-23. Independent isolated review subsequently proved that invalid offset minutes such as `+00:60` were still accepted by `datetime.fromisoformat` and returned unchanged; the existing PR now constrains offset hours to 00–23 and minutes to 00–59, with sale/refund regressions.
-- Remaining gate: rerun targeted Square tests, the full regression, canonical examples and diff checks from a clean checkout on the *new exact branch HEAD*. The 147/147 evidence predates this offset fix and must not be represented as certification of the new commit. Square Sandbox/seller-account execution, live Loyverse and OAuth OpenRetail remain NOT_RUN.
-- Next action: finish PR #49 review and exact-HEAD certification before acceptance; do not open a duplicate PR or merge automatically.
-
+- Work ID: P4-SQUARE-QUANTITY-BOUNDS-01
+- Roadmap phase: P4 — Square next, then evidence-backed adapters; P0 fail-closed correctness.
+- State: REVIEW (DRAFT PR, not accepted).
+- Base product HEAD: a406eba424fe0a8c5033b2866726b7191ecf817d.
+- Previous handoffs: #46–#49, #51 and #52 merged; issue #50 fixed. Do not reopen or duplicate them.
+- Scope: enforce Square's documented maximum 12-character decimal quantity for OrderLineItem and OrderReturnLineItem, before Decimal normalization in the existing sale/refund mappers.
+- Defect: `Decimal("1e100000")` is finite and positive, and `format(..., "f")` expands an 8-character provider string into 100001 characters. The old function also accepts overlength values, underscores and whitespace. An isolated execution of the exact old function body reproduced these behaviors; this is not a full-module checkout test.
+- Evidence: official Square OrderLineItem and OrderReturnLineItem API references (version 2026-09-16) both state quantity maximum length 12 and decimal format. The isolated negative witness accepts `1e100000` and `1e-100000`; the new regression exercises both sale and refund normalization, with valid decimal controls including `.50`.
+- Proposed fix: bounded ASCII decimal syntax and length check before Decimal conversion; preserve valid positive decimal quantities and sanitized existing error codes. No transport, schema, persistence or other adapter change.
+- Remaining gate: verify exact PR HEAD and author/provenance, run targeted tests and full suite from a clean checkout, inspect the public CI if automatically triggered, and review compatibility before merge. Square Sandbox/seller-account execution, live Loyverse and OAuth OpenRetail remain NOT_RUN.
+- Next action: independent review/certification of the single DRAFT PR; do not merge automatically or open another implementation lot.
 
 ## Handoff discipline
 
