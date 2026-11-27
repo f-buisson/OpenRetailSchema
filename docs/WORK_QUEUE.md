@@ -12,17 +12,19 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 ## Current handoff
 
-- Work ID: P4-SQUARE-QUANTITY-BOUNDS-01
-- Roadmap phase: P4 — Square next, then evidence-backed adapters; P0 fail-closed correctness.
-- State: REVIEW (DRAFT PR, not accepted).
-- Base product HEAD: a406eba424fe0a8c5033b2866726b7191ecf817d.
-- Previous handoffs: #46–#49, #51 and #52 merged; issue #50 fixed. Do not reopen or duplicate them.
-- Scope: enforce Square's documented maximum 12-character decimal quantity for OrderLineItem and OrderReturnLineItem, before Decimal normalization in the existing sale/refund mappers.
-- Defect: `Decimal("1e100000")` is finite and positive, and `format(..., "f")` expands an 8-character provider string into 100001 characters. The old function also accepts overlength values, underscores and whitespace. An isolated execution of the exact old function body reproduced these behaviors; this is not a full-module checkout test.
-- Evidence: official Square OrderLineItem and OrderReturnLineItem API references (version 2026-09-16) both state quantity maximum length 12 and decimal format. The isolated negative witness accepts `1e100000` and `1e-100000`; the new regression exercises both sale and refund normalization, with valid decimal controls including `.50`.
-- Proposed fix: bounded ASCII decimal syntax and length check before Decimal conversion; preserve valid positive decimal quantities and sanitized existing error codes. No transport, schema, persistence or other adapter change.
-- Remaining gate: verify exact PR HEAD and author/provenance, run targeted tests and full suite from a clean checkout, inspect the public CI if automatically triggered, and review compatibility before merge. Square Sandbox/seller-account execution, live Loyverse and OAuth OpenRetail remain NOT_RUN.
-- Next action: independent review/certification of the single DRAFT PR; do not merge automatically or open another implementation lot.
+- Work ID: P3-READ-COMPLETENESS-01
+- Roadmap phase: P3 — Connector contract (shared semantics for downstream consumers); P0 fail-closed correctness.
+- State: REVIEW (PR open, not accepted).
+- Base product HEAD: c7002239f96677e97118336b56776d7efbd43039.
+- Previous handoffs: #46–#49 and #51–#53 merged; issue #50 fixed. P4-SQUARE-QUANTITY-BOUNDS-01 is accepted (PR #53, merge `c700223`). Do not reopen or duplicate them.
+- Scope: make read completeness and related-data failure handling explicit in the execution contract. That means `ReadOutcome` (scope, missing, checkpoint), `proves_absence`, `related_data_may_be_missing`, and the English and French documentation. No adapter, transport, schema or persistence change.
+- Defect class: on 2026-11-27 a downstream consumer reproduced two failure modes in its own connectors, with end-to-end synthetic tests:
+  - A traversal stopped by a repeated page or by a page budget removed records it had not read when it was applied as a full catalogue. Applied as a patch onto the empty baseline left by a restart, it replaced the catalogue.
+  - A transient 429 or 5xx on the tax list, reported as "tax rates missing", erased the known rate of every record at the next full read.
+- Contract gap: ORS adapters already fail closed on the first mode (repeated cursor, `square_pagination_limit_exceeded`), but the contract did not state it. It said nothing about the second.
+- Evidence: `tests/test_read_outcome.py` adds 8 tests. The local full suite passes 167/167 from the PR head. All 9 mutants of the new rules are killed, with the control green before and after.
+- Remaining gate: independent review of the exact PR HEAD, public CI on that HEAD, and owner acceptance before merge. The Square Sandbox or seller-account run, live Loyverse and OAuth OpenRetail remain NOT_RUN for OpenRetailSchema adapters.
+- Next action: review this single PR. Do not open another implementation lot.
 
 ## Handoff discipline
 

@@ -14,6 +14,19 @@ A checkpoint is **caller-owned durable source progress**. It must be explicit an
 
 OpenRetailSchema does not add persistent storage merely to hold checkpoints. Persistence remains a consumer concern until a concrete repository storage contract exists.
 
+## Read completeness
+
+A read either proves the end of its traversal or fails. The end is proven only by a provider-documented marker: an empty page, an absent next cursor, or a provider-declared total. A repeated cursor or page, or an exhausted page budget, is not an end: the adapter fails instead of returning the records it saw. `ReadOutcome` records a successful read; an incomplete traversal is never one.
+
+Only a `full` read may justify treating an unseen record as removed (`ReadOutcome.proves_absence`). An `incremental` read returns what changed since a checkpoint; a record it does not return is unchanged, not removed. A consumer applies an incremental read onto an established baseline and never uses it as the baseline itself.
+
+Related data read alongside the records (tax rates, stock levels, names) follows `related_data_may_be_missing`:
+
+- a durable refusal (`authorization`, `entitlement`) lets the read continue, and the read names the data in `ReadOutcome.missing`;
+- any other failure, including transient `rate_limit` and `provider_unavailable`, fails the whole read with that failure.
+
+A transient failure reported as missing data would let the consumer overwrite known values with unknown ones at the next full read. Missing data is unknown, never absent: a consumer must not replace a known value with a value from data named in `missing`.
+
 ## Rate limits and retries
 
 `429` is classified as `rate_limit` and is retryable. A provider `Retry-After` delay, when represented by the common contract, must be an explicit, finite, non-negative numeric number of seconds (not a boolean or string). The common contract does not invent a retry delay when the provider does not supply one.

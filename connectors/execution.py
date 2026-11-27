@@ -2,6 +2,7 @@
 """Vendor-neutral execution semantics shared by read-only connectors."""
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from math import isfinite
 from typing import Optional
@@ -70,6 +71,60 @@ class ConnectorFailure:
                 raise ValueError("retry_after_invalid")
         if self.kind in {"authentication", "authorization", "entitlement", "invalid_request", "invalid_response"} and self.retryable:
             raise ValueError("permanent_connector_error_cannot_retry")
+
+
+READ_SCOPES = frozenset({"full", "incremental"})
+
+_RELATED_DATA_NAME = re.compile(r"[a-z][a-z0-9_]*")
+
+# Durable refusals of related data: the read may continue and name what is missing.
+_DURABLE_RELATED_REFUSALS = frozenset({"authorization", "entitlement"})
+
+
+@dataclass(frozen=True)
+class ReadOutcome:
+    """Completion record of one successful read traversal.
+
+    A successful read is complete by definition: an adapter that cannot prove the
+    end of its traversal (repeated cursor or page, exhausted page budget) fails
+    instead of returning the records it saw. ``missing`` names related data that
+    a durable refusal kept out of the read; a transient failure of related data
+    fails the whole read instead (see ``related_data_may_be_missing``).
+    """
+
+    scope: str
+    missing: tuple = ()
+    checkpoint: Optional[Checkpoint] = None
+
+    def __post_init__(self) -> None:
+        if self.scope not in READ_SCOPES:
+            raise ValueError("read_scope_invalid")
+        if not isinstance(self.missing, tuple):
+            raise ValueError("read_missing_invalid")
+        for name in self.missing:
+            if not isinstance(name, str) or _RELATED_DATA_NAME.fullmatch(name) is None:
+                raise ValueError("read_missing_invalid")
+        if len(set(self.missing)) != len(self.missing):
+            raise ValueError("read_missing_duplicated")
+        if self.checkpoint is not None and not isinstance(self.checkpoint, Checkpoint):
+            raise ValueError("checkpoint_invalid")
+
+    @property
+    def proves_absence(self) -> bool:
+        """Only a full traversal may justify treating an unseen record as removed."""
+        return self.scope == "full"
+
+
+def related_data_may_be_missing(failure: ConnectorFailure) -> bool:
+    """Decide how a failed read of related data (taxes, stock, names) is reported.
+
+    ``True``: a durable refusal; the read continues and names the data missing.
+    ``False``: the whole read must fail with this failure. A transient failure
+    reported as missing data would overwrite known values with unknown ones.
+    """
+    if not isinstance(failure, ConnectorFailure):
+        raise ValueError("connector_failure_required")
+    return failure.kind in _DURABLE_RELATED_REFUSALS
 
 
 def classify_http_failure(status: int, retry_after_seconds: Optional[float] = None) -> ConnectorFailure:
