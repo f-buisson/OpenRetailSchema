@@ -14,6 +14,19 @@ Un point de reprise est une **progression source durable appartenant à l'appela
 
 Un connecteur ne peut avancer cette progression durable qu'après le parcours et le traitement réussis des enregistrements qu'elle couvre. OpenRetailSchema n'ajoute pas de stockage persistant uniquement pour conserver ces points : la persistance reste la responsabilité du consommateur tant qu'un contrat de stockage concret n'existe pas dans le dépôt.
 
+## Lecture complète
+
+Une lecture prouve la fin de son parcours, ou elle échoue. Seul un marqueur documenté par le fournisseur prouve la fin : une page vide, l'absence de curseur suivant, ou un total déclaré par le fournisseur. Un curseur ou une page qui se répète, ou un budget de pages épuisé, n'est pas une fin. Le connecteur échoue alors au lieu de rendre les enregistrements déjà vus. `ReadOutcome` décrit une lecture réussie ; un parcours incomplet n'en est jamais une.
+
+Seule une lecture `full` permet de tenir pour retiré un enregistrement non revu (`ReadOutcome.proves_absence`). Une lecture `incremental` rend ce qui a changé depuis un point de reprise : un enregistrement qu'elle ne rend pas est inchangé, pas retiré. Le consommateur l'applique sur une base déjà établie, et ne s'en sert jamais comme base.
+
+Les données annexes lues avec les enregistrements (taux de taxe, stocks, libellés) suivent `related_data_may_be_missing` :
+
+- un refus durable (`authorization`, `entitlement`) laisse la lecture continuer, et celle-ci nomme la donnée dans `ReadOutcome.missing` ;
+- tout autre échec, y compris les échecs passagers `rate_limit` et `provider_unavailable`, fait échouer la lecture entière avec cet échec.
+
+Un échec passager présenté comme une donnée manquante laisserait le consommateur remplacer des valeurs connues par des valeurs inconnues à la lecture complète suivante. Une donnée manquante est inconnue, jamais absente : le consommateur ne remplace pas une valeur connue par une valeur issue d'une donnée nommée dans `missing`.
+
 ## Limites et nouvelles tentatives
 
 Une réponse `429` appartient à la classe stable `rate_limit` et peut être retentée. Lorsqu'un fournisseur expose un délai `Retry-After`, sa représentation dans le contrat commun doit être explicite et non négative. Le contrat commun n'invente aucun délai lorsque le fournisseur n'en fournit pas.

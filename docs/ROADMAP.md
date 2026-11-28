@@ -109,6 +109,7 @@ Goal: make additional POS integrations predictable without forcing every consume
 - [x] Define provenance/RAW boundaries and redaction requirements — `docs/ARCHITECTURE.md` requires source provenance, finite RAW retention where used, secret/PII exclusion and redaction before diagnostics or publication.
 - [x] Use the normalized Loyverse connector as the first reference implementation — the adapter implements the common read contract and its capability manifest is exercised by the same reusable harness.
 - [x] Add connector conformance tests reusable by future adapters — `tests/connector_conformance.py` is adapter-agnostic and `tests/test_loyverse_contract.py` proves the Loyverse implementation against it.
+- [ ] Define read completeness and related-data failure semantics — `ReadOutcome`, `proves_absence` and `related_data_may_be_missing` in `connectors/execution.py`, documented in `docs/CONNECTOR_EXECUTION.md`; in review as P3-READ-COMPLETENESS-01.
 
 **P3 evidence (2026-10-06):** commits `6522824` through `9a82a38` define the execution contract, implement the common Loyverse adapter and apply the reusable conformance harness. This closes the generic connector-contract work without changing the still-open P2 live-provider/OAuth gates.
 
