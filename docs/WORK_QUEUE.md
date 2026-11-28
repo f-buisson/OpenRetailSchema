@@ -14,7 +14,7 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
 
 - Work ID: P3-READ-COMPLETENESS-01
 - Roadmap phase: P3 — Connector contract (shared semantics for downstream consumers); P0 fail-closed correctness.
-- State: REVIEW (PR open, not accepted).
+- State: ACCEPTED
 - Base product HEAD: c7002239f96677e97118336b56776d7efbd43039.
 - Previous handoffs: #46–#49 and #51–#53 merged; issue #50 fixed. P4-SQUARE-QUANTITY-BOUNDS-01 is accepted (PR #53, merge `c700223`). Do not reopen or duplicate them.
 - Scope: make read completeness and related-data failure handling explicit in the execution contract. That means `ReadOutcome` (scope, missing, checkpoint), `proves_absence`, `related_data_may_be_missing`, and the English and French documentation. No adapter, transport, schema or persistence change.
@@ -23,8 +23,7 @@ Do not skip `REVIEW` to mark implementation accepted. A dependency may defer one
   - A transient 429 or 5xx on the tax list, reported as "tax rates missing", erased the known rate of every record at the next full read.
 - Contract gap: ORS adapters already fail closed on the first mode (repeated cursor, `square_pagination_limit_exceeded`), but the contract did not state it. It said nothing about the second.
 - Evidence: `tests/test_read_outcome.py` adds 8 tests. The local full suite passes 167/167 from the PR head. All 9 mutants of the new rules are killed, with the control green before and after.
-- Remaining gate: independent review of the exact PR HEAD, public CI on that HEAD, and owner acceptance before merge. The Square Sandbox or seller-account run, live Loyverse and OAuth OpenRetail remain NOT_RUN for OpenRetailSchema adapters.
-- Next action: review this single PR. Do not open another implementation lot.
+- Next action: none for this lot. It is accepted through merged PR #54 (merge commit 494760cd5030d2631adbf5454e4df1153cee03c9). The owner approved it at the reviewed head d1f288b, whose public checks were green. The deferred gates are unchanged and unclaimed: the Square Sandbox or seller-account run, live Loyverse and OAuth OpenRetail remain NOT_RUN for OpenRetailSchema adapters.
 
 ## Handoff discipline
 
